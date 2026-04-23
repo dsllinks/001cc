@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人群健康空间 - 演示</title>
+    <link href="https://cdn.jsdelivr.net/npm/antd@5.12.8/dist/reset.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 左侧菜单 */
+        .sidebar {
+            width: 240px;
+            background-color: #1890ff;
+            color: white;
+            padding: 20px 0;
+        }
+
+        .sidebar-logo {
+            padding: 0 24px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu-item {
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-right: 3px solid white;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 顶部导航 */
+        .header {
+            height: 64px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1890ff;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+        }
+
+        /* 内容区域 */
+        .content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #1890ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #40a9ff;
+        }
+
+        .btn-default {
+            background-color: #f5f5f5;
+            color: #333;
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-default:hover {
+            background-color: #e6e6e6;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        /* 表格样式 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .table th {
+            background-color: #fafafa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* 操作按钮 */
+        .action-btn {
+            margin-right: 8px;
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+
+        .action-btn.view {
+            color: #1890ff;
+        }
+
+        .action-btn.edit {
+            color: #52c41a;
+        }
+
+        .action-btn.delete {
+            color: #ff4d4f;
+        }
+
+        /* 模态框 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            padding: 24px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .modal-close {
+            cursor: pointer;
+            font-size: 20px;
+            color: #999;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        /* 规则配置区域 */
+        .rule-config {
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .rule-condition {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .rule-condition select,
+        .rule-condition input {
+            margin-right: 8px;
+            padding: 4px 8px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+        }
+
+        /* 数据统计卡片 */
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1890ff;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 隐藏类 */
+        .hidden {
+            display: none;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #1890ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧菜单 -->
+        <div class="sidebar">
+            <div class="sidebar-logo">人群健康空间</div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item active" data-page="population-list">人群管理</li>
+                <li class="sidebar-menu-item" data-page="rule-config">规则配置</li>
+                <li class="sidebar-menu-item" data-page="data-statistics">数据统计</li>
+                <li class="sidebar-menu-item" data-page="patient-management">患者管理</li>
+            </ul>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 顶部导航 -->
+            <div class="header">
+                <div class="header-title">人群健康空间</div>
+                <div class="header-user">
+                    <span>管理员</span>
+                </div>
+            </div>
+
+            <!-- 内容区域 -->
+            <div class="content">
+                <!-- 人群列表页 -->
+                <div id="population-list" class="page">
+                    <div class="card">
+                        <div class="card-title">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>人群列表</span>
+                                <button class="btn btn-primary" id="add-population-btn">新建人群</button>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <input type="text" class="form-input" placeholder="输入人群名称搜索" id="population-search">
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>人群名称</th>
+                                    <th>分组规则</th>
+                                    <th>患者数量</th>
+                                    <th>创建时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="population-table-body">
+                                <!-- 数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 规则配置页 -->
+                <div id="rule-config" class="page hidden">
+                    <div class="card">
+                        <div class="card-title">规则配置</div>
+                        <p>规则配置功能正在开发中...</p>
+                    </div>
+                </div>
+
+                <!-- 数据统计页 -->
+                <div id="data-statistics" class="page hidden">
+                    <div class="card">
+                        <div class="card-title">数据统计</div>
+                        <p>数据统计功能正在开发中...</p>
+                    </div>
+                </div>
+
+                <!-- 患者管理页 -->
+                <div id="patient-management" class="page hidden">
+                    <div class="card">
+                        <div class="card-title">患者管理</div>
+                        <p>患者管理功能正在开发中...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建人群模态框 -->
+    <div id="add-population-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">新建人群</div>
+                <div class="modal-close" id="close-modal-btn">&times;</div>
+            </div>
+            <form id="add-population-form">
+                <div class="form-group">
+                    <label class="form-label">人群名称</label>
+                    <input type="text" class="form-input" id="population-name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">描述</label>
+                    <input type="text" class="form-input" id="population-description">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">分组规则</label>
+                    <div class="rule-config">
+                        <div class="rule-condition">
+                            <select class="form-input" style="width: 120px;">
+                                <option value="age">年龄</option>
+                                <option value="gender">性别</option>
+                                <option value="disease">疾病史</option>
+                                <option value="lifestyle">生活习惯</option>
+                            </select>
+                            <select class="form-input" style="width: 100px;">
+                                <option value="">请选择</option>
+                                <option value="">18-35岁</option>
+                                <option value="">36-50岁</option>
+                                <option value="">51-65岁</option>
+                                <option value="">65岁以上</option>
+                            </select>
+                            <button type="button" class="btn btn-default action-btn">添加条件</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn btn-default" id="cancel-add-btn">取消</button>
+                <button class="btn btn-primary" id="save-population-btn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 人群详情模态框 -->
+    <div id="population-detail-modal" class="modal hidden">
+        <div class="modal-content" style="width: 800px;">
+            <div class="modal-header">
+                <div class="modal-title">人群详情</div>
+                <div class="modal-close" id="close-detail-modal-btn">&times;</div>
+            </div>
+            <div id="population-detail-content">
+                <!-- 详情内容将通过JavaScript动态生成 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" id="close-detail-btn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 个人数字空间仓模态框 -->
+    <div id="patient-detail-modal" class="modal hidden">
+        <div class="modal-content" style="width: 600px;">
+            <div class="modal-header">
+                <div class="modal-title">个人数字空间仓</div>
+                <div class="modal-close" id="close-patient-modal-btn">&times;</div>
+            </div>
+            <div id="patient-detail-content">
+                <!-- 患者详情内容将通过JavaScript动态生成 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" id="close-patient-btn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据
+        const populations = [
+            { id: 1, name: '糖尿病人群', rule: '慢病分组规则', patientCount: 156, createTime: '2026-03-01' },
+            { id: 2, name: '高血压人群', rule: '慢病分组规则', patientCount: 234, createTime: '2026-03-05' },
+            { id: 3, name: '老年人', rule: '基础分组规则', patientCount: 456, createTime: '2026-03-10' },
+            { id: 4, name: '儿童', rule: '基础分组规则', patientCount: 321, createTime: '2026-03-15' },
+            { id: 5, name: '孕妇', rule: '特殊分组规则', patientCount: 89, createTime: '2026-03-20' }
+        ];
+
+        const patients = [
+            { id: 1, name: '张三', age: 45, gender: '男', phone: '13800138001', disease: '糖尿病' },
+            { id: 2, name: '李四', age: 52, gender: '女', phone: '13900139001', disease: '糖尿病' },
+            { id: 3, name: '王五', age: 60, gender: '男', phone: '13700137001', disease: '糖尿病' },
+            { id: 4, name: '赵六', age: 48, gender: '女', phone: '13600136001', disease: '糖尿病' },
+            { id: 5, name: '钱七', age: 55, gender: '男', phone: '13500135001', disease: '糖尿病' }
+        ];
+
+        // 页面切换
+        document.querySelectorAll('.sidebar-menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有活动状态
+                document.querySelectorAll('.sidebar-menu-item').forEach(i => i.classList.remove('active'));
+                // 添加活动状态
+                this.classList.add('active');
+                // 隐藏所有页面
+                document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+                // 显示对应页面
+                const pageId = this.getAttribute('data-page');
+                document.getElementById(pageId).classList.remove('hidden');
+            });
+        });
+
+        // 渲染人群列表
+        function renderPopulationList() {
+            const tbody = document.getElementById('population-table-body');
+            tbody.innerHTML = '';
+            populations.forEach((population, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${population.name}</td>
+                    <td>${population.rule}</td>
+                    <td>${population.patientCount}</td>
+                    <td>${population.createTime}</td>
+                    <td>
+                        <button class="btn action-btn view" onclick="viewPopulation(${population.id})">查看</button>
+                        <button class="btn action-btn edit">编辑</button>
+                        <button class="btn action-btn delete">删除</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 查看人群详情
+        function viewPopulation(id) {
+            const population = populations.find(p => p.id === id);
+            if (population) {
+                const modal = document.getElementById('population-detail-modal');
+                const content = document.getElementById('population-detail-content');
+                content.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h3>${population.name}</h3>
+                        <p>分组规则：${population.rule}</p>
+                        <p>患者数量：${population.patientCount}</p>
+                        <p>创建时间：${population.createTime}</p>
+                    </div>
+                    <h4>患者列表</h4>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>姓名</th>
+                                <th>年龄</th>
+                                <th>性别</th>
+                                <th>电话</th>
+                                <th>疾病</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${patients.map((patient, index) => `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${patient.name}</td>
+                                    <td>${patient.age}</td>
+                                    <td>${patient.gender}</td>
+                                    <td>${patient.phone}</td>
+                                    <td>${patient.disease}</td>
+                                    <td>
+                                        <button class="btn action-btn view" onclick="viewPatient(${patient.id})">查看明细</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                modal.classList.remove('hidden');
+            }
+        }
+
+        // 查看患者明细（跳转到个人数字空间仓）
+        function viewPatient(id) {
+            const patient = patients.find(p => p.id === id);
+            if (patient) {
+                const modal = document.getElementById('patient-detail-modal');
+                const content = document.getElementById('patient-detail-content');
+                content.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h3>${patient.name} - 个人数字空间仓</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <p><strong>年龄：</strong>${patient.age}</p>
+                                <p><strong>性别：</strong>${patient.gender}</p>
+                                <p><strong>电话：</strong>${patient.phone}</p>
+                                <p><strong>疾病：</strong>${patient.disease}</p>
+                            </div>
+                            <div>
+                                <p><strong>身高：</strong>175cm</p>
+                                <p><strong>体重：</strong>65kg</p>
+                                <p><strong>血型：</strong>A型</p>
+                                <p><strong>过敏史：</strong>无</p>
+                            </div>
+                        </div>
+                    </div>
+                    <h4>健康记录</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">2026-03-01 体检：血糖偏高</li>
+                        <li style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">2026-02-15 就诊：糖尿病复查</li>
+                        <li style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">2026-01-10 体检：正常</li>
+                    </ul>
+                `;
+                modal.classList.remove('hidden');
+            }
+        }
+
+        // 新建人群按钮点击事件
+        document.getElementById('add-population-btn').addEventListener('click', function() {
+            document.getElementById('add-population-modal').classList.remove('hidden');
+        });
+
+        // 关闭新建人群模态框
+        document.getElementById('close-modal-btn').addEventListener('click', function() {
+            document.getElementById('add-population-modal').classList.add('hidden');
+        });
+
+        document.getElementById('cancel-add-btn').addEventListener('click', function() {
+            document.getElementById('add-population-modal').classList.add('hidden');
+        });
+
+        // 保存人群
+        document.getElementById('save-population-btn').addEventListener('click', function() {
+            const name = document.getElementById('population-name').value;
+            const description = document.getElementById('population-description').value;
+            if (name) {
+                // 添加新人群
+                const newPopulation = {
+                    id: populations.length + 1,
+                    name: name,
+                    rule: '自定义规则',
+                    patientCount: Math.floor(Math.random() * 100) + 50,
+                    createTime: new Date().toISOString().split('T')[0]
+                };
+                populations.push(newPopulation);
+                renderPopulationList();
+                // 关闭模态框
+                document.getElementById('add-population-modal').classList.add('hidden');
+                // 重置表单
+                document.getElementById('add-population-form').reset();
+            }
+        });
+
+        // 关闭人群详情模态框
+        document.getElementById('close-detail-modal-btn').addEventListener('click', function() {
+            document.getElementById('population-detail-modal').classList.add('hidden');
+        });
+
+        document.getElementById('close-detail-btn').addEventListener('click', function() {
+            document.getElementById('population-detail-modal').classList.add('hidden');
+        });
+
+        // 关闭患者详情模态框
+        document.getElementById('close-patient-modal-btn').addEventListener('click', function() {
+            document.getElementById('patient-detail-modal').classList.add('hidden');
+        });
+
+        document.getElementById('close-patient-btn').addEventListener('click', function() {
+            document.getElementById('patient-detail-modal').classList.add('hidden');
+        });
+
+        // 搜索功能
+        document.getElementById('population-search').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#population-table-body tr');
+            rows.forEach(row => {
+                const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                if (name.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // 初始化渲染
+        renderPopulationList();
+    </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -)",
+      "WebSearch",
+      "Bash(powershell.exe -Command \"Get-Content 'C:\\\\Users\\\\linli\\\\.claude\\\\.claude.json' -Raw\")",
+      "Bash(powershell.exe -Command \"Get-ChildItem 'C:\\\\Users\\\\linli\\\\.claude\\\\plugins\\\\' -Recurse | Select-Object FullName, Length\")",
+      "Bash(powershell.exe -Command \"Get-ChildItem 'C:\\\\Users\\\\linli\\\\.claude\\\\plugins\\\\marketplaces\\\\claude-plugins-official\\\\plugins\\\\' | Select-Object Name\")",
+      "mcp__brave-search__brave_web_search",
+      "mcp__filesystem__list_allowed_directories",
+      "mcp__filesystem__list_directory",
+      "mcp__filesystem__directory_tree",
+      "mcp__filesystem__read_file"
+    ]
+  }
+}

@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人群健康空间 - 优化版</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif; background:#f5f7fa; color:#333; }
+
+.header { background:#fff; padding:14px 24px; box-shadow:0 2px 8px rgba(0,0,0,.06); display:flex; justify-content:space-between; align-items:center; }
+.header h1 { font-size:20px; font-weight:600; color:#303133; }
+.search-bar { display:flex; gap:10px; align-items:center; }
+.search-input { padding:8px 14px; border:1px solid #dcdfe6; border-radius:4px; width:220px; font-size:14px; }
+.search-input:focus { outline:none; border-color:#409eff; }
+
+.btn { padding:8px 20px; border:none; border-radius:4px; cursor:pointer; font-size:14px; transition:all .2s; }
+.btn-primary { background:#409eff; color:#fff; }
+.btn-primary:hover { background:#66b1ff; }
+.btn-default { background:#fff; color:#606266; border:1px solid #dcdfe6; }
+.btn-default:hover { color:#409eff; border-color:#c6e2ff; background:#ecf5ff; }
+
+.container { max-width:1400px; margin:0 auto; padding:24px; }
+
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+.stat-card { background:#fff; padding:20px 24px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,.04); }
+.stat-label { font-size:13px; color:#909399; margin-bottom:8px; }
+.stat-value { font-size:30px; font-weight:700; }
+.stat-trend { font-size:12px; margin-top:6px; }
+
+.main-card { background:#fff; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,.04); padding:24px; }
+.toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+.filters { display:flex; gap:10px; }
+.filter-sel { padding:8px 12px; border:1px solid #dcdfe6; border-radius:4px; font-size:14px; cursor:pointer; }
+
+table { width:100%; border-collapse:collapse; }
+th, td { padding:12px 14px; text-align:left; border-bottom:1px solid #f0f0f0; }
+th { background:#fafafa; font-weight:600; color:#606266; font-size:13px; }
+td { font-size:14px; color:#606266; }
+.row-hover:hover { background:#f5f9ff; }
+
+.prog { height:5px; background:#ebeef5; border-radius:3px; margin-top:5px; width:100px; }
+.prog-inner { height:100%; border-radius:3px; background:linear-gradient(90deg,#409eff,#67c23a); }
+.badge-done { background:#f0f9eb; color:#67c23a; padding:3px 10px; border-radius:10px; font-size:12px; }
+.count-num { font-weight:700; color:#409eff; }
+.link { color:#409eff; cursor:pointer; margin-right:12px; font-size:13px; }
+.link:hover { color:#66b1ff; }
+.link-danger { color:#f56c6c; cursor:pointer; font-size:13px; }
+.link-danger:hover { color:#f89898; }
+
+.pagination { display:flex; justify-content:center; align-items:center; gap:6px; margin-top:20px; padding-top:16px; border-top:1px solid #f0f0f0; }
+.pg-btn { padding:5px 11px; border:1px solid #dcdfe6; background:#fff; border-radius:4px; cursor:pointer; font-size:13px; }
+.pg-btn.active { background:#409eff; color:#fff; border-color:#409eff; }
+.pg-btn:disabled { opacity:.4; cursor:default; }
+.pg-info { color:#909399; font-size:13px; }
+
+.overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:999; display:none; }
+.overlay.show { display:block; }
+
+.drawer { position:fixed; top:0; right:-700px; width:700px; height:100vh; background:#fff; box-shadow:-4px 0 16px rgba(0,0,0,.12); transition:right .3s; z-index:1000; display:flex; flex-direction:column; }
+.drawer.open { right:0; }
+.drawer-header { padding:18px 24px; border-bottom:1px solid #ebeef5; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+.drawer-title { font-size:18px; font-weight:600; color:#303133; }
+.close-btn { background:none; border:none; font-size:22px; cursor:pointer; color:#909399; line-height:1; padding:0 4px; }
+.close-btn:hover { color:#606266; }
+.drawer-body { flex:1; overflow-y:auto; padding:24px; }
+.drawer-footer { padding:16px 24px; border-top:1px solid #ebeef5; display:flex; justify-content:flex-end; gap:10px; flex-shrink:0; }
+
+.form-group { margin-bottom:20px; }
+.form-label { display:block; font-size:14px; color:#606266; font-weight:500; margin-bottom:8px; }
+.form-input { width:100%; padding:9px 12px; border:1px solid #dcdfe6; border-radius:4px; font-size:14px; }
+.form-input:focus { outline:none; border-color:#409eff; }
+
+.tpl-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.tpl-card { border:2px solid #ebeef5; border-radius:8px; padding:12px 14px; cursor:pointer; transition:all .2s; background:#fff; text-align:left; width:100%; }
+.tpl-card:hover { border-color:#409eff; background:#f0f8ff; }
+.tpl-card.selected { border-color:#409eff; background:#ecf5ff; }
+.tpl-icon { font-size:20px; margin-bottom:4px; }
+.tpl-name { font-size:14px; font-weight:600; color:#303133; }
+.tpl-desc { font-size:12px; color:#909399; margin-top:3px; }
+
+/* ── 嵌套规则构建器 ── */
+.rule-group { border-radius:8px; padding:14px; margin-bottom:0; }
+.rule-group.level-1 { background:#fff; border:2px solid #409eff; }
+.rule-group.level-2 { background:#f0f7ff; border:2px solid #91c9ff; margin-top:10px; }
+.rule-group.level-3 { background:#e8f4fd; border:2px dashed #b8dbf5; margin-top:10px; }
+
+.group-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+.group-label { font-size:12px; color:#909399; flex:1; }
+
+.logic-switch { display:inline-flex; border:1px solid #dcdfe6; border-radius:4px; overflow:hidden; flex-shrink:0; }
+.logic-btn { padding:4px 14px; font-size:13px; cursor:pointer; border:none; background:#fff; color:#606266; transition:all .15s; }
+.logic-btn.active-and { background:#409eff; color:#fff; }
+.logic-btn.active-or  { background:#e6a23c; color:#fff; }
+
+.del-group-btn { background:none; border:1px solid #fbc4c4; color:#f56c6c; cursor:pointer; font-size:12px; padding:3px 10px; border-radius:4px; flex-shrink:0; }
+.del-group-btn:hover { background:#f56c6c; color:#fff; }
+
+.conditions-list { display:flex; flex-direction:column; gap:8px; }
+
+.condition-row { display:flex; gap:8px; align-items:center; background:#fff; border:1px solid #e4e7ed; border-radius:6px; padding:8px 10px; }
+.rule-group.level-2 .condition-row { background:#f8fcff; }
+.rule-group.level-3 .condition-row { background:#f0f9ff; }
+
+.cond-sel { flex:1; min-width:0; padding:6px 8px; border:1px solid #dcdfe6; border-radius:4px; font-size:13px; }
+.cond-sel:focus { outline:none; border-color:#409eff; }
+
+.del-cond-btn { background:none; border:1px solid #fbc4c4; color:#f56c6c; border-radius:4px; padding:5px 9px; cursor:pointer; font-size:13px; flex-shrink:0; }
+.del-cond-btn:hover { background:#f56c6c; color:#fff; }
+
+.child-groups { margin-top:0; }
+
+.group-actions { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+.add-cond-btn { padding:6px 14px; background:#409eff; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:13px; }
+.add-cond-btn:hover { background:#66b1ff; }
+.add-child-btn { padding:6px 14px; background:#fff; color:#409eff; border:1px solid #409eff; border-radius:4px; cursor:pointer; font-size:13px; }
+.add-child-btn:hover { background:#ecf5ff; }
+
+.modal { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#fff; border-radius:10px; box-shadow:0 8px 32px rgba(0,0,0,.18); z-index:1001; display:none; max-height:90vh; flex-direction:column; }
+.modal.show { display:flex; }
+.modal-header { padding:18px 24px; border-bottom:1px solid #ebeef5; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+.modal-body { padding:24px; overflow-y:auto; min-width:860px; }
+.patient-filters { display:flex; gap:10px; margin-bottom:16px; align-items:center; flex-wrap:wrap; }
+
+.ps-modal { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#fff; border-radius:10px; box-shadow:0 8px 32px rgba(0,0,0,.22); z-index:1002; display:none; width:880px; max-height:90vh; flex-direction:column; }
+.ps-modal.show { display:flex; }
+.ps-header { padding:18px 24px; background:linear-gradient(135deg,#409eff,#36cfc9); display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+
+.metrics-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.metric-card { padding:14px 16px; border-radius:8px; }
+.tag { display:inline-block; padding:3px 10px; border-radius:3px; font-size:12px; margin:3px; }
+.tag-blue   { background:#ecf5ff; color:#409eff; }
+.tag-green  { background:#f0f9eb; color:#67c23a; }
+.tag-orange { background:#fdf6ec; color:#e6a23c; }
+.tag-red    { background:#fef0f0; color:#f56c6c; }
+.tag-gray   { background:#f5f7fa; color:#606266; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:center;gap:14px">
+    <span style="font-size:22px;color:#409eff">&#9632;</span>
+    <h1>人群健康空间</h1>
+  </div>
+  <div class="search-bar">
+    <input class="search-input" id="searchInput" placeholder="搜索人群名称..." oninput="filterTable()">
+    <button class="btn btn-default" onclick="filterTable()">查询</button>
+    <button class="btn btn-default" onclick="resetFilter()">重置</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">人群分类总数</div>
+      <div class="stat-value" style="color:#409eff" id="statTotal">12</div>
+      <div class="stat-trend" style="color:#67c23a">&#8679; 较上月新增 2 个</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">覆盖患者总数</div>
+      <div class="stat-value" style="color:#67c23a">3,847</div>
+      <div class="stat-trend" style="color:#67c23a">&#8679; 较上月增加 128 人</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">最大人群规模</div>
+      <div class="stat-value" style="color:#e6a23c">1,203</div>
+      <div class="stat-trend" style="color:#909399">慢病人群</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">本月新增患者</div>
+      <div class="stat-value" style="color:#f56c6c">248</div>
+      <div class="stat-trend" style="color:#67c23a">&#8679; 较上月增加 12%</div>
+    </div>
+  </div>
+
+  <div class="main-card">
+    <div class="toolbar">
+      <div class="filters">
+        <select class="filter-sel" onchange="sortTable(this.value)">
+          <option value="">排序方式</option>
+          <option value="count_desc">人数：从多到少</option>
+          <option value="count_asc">人数：从少到多</option>
+          <option value="time_desc">最新创建优先</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="openDrawer()">+ 新建人群分类</button>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th width="50">序号</th>
+            <th>人群名称</th>
+            <th>分类规则</th>
+            <th width="90">状态</th>
+            <th>备注</th>
+            <th width="160">人群人数</th>
+            <th width="200">操作</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+</div>
+
+<!-- 遮罩（抽屉用） -->
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+
+<!-- 侧边抽屉 -->
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <span class="drawer-title" id="drawerTitle">新建人群分类</span>
+    <button class="close-btn" onclick="closeDrawer()">&#10005;</button>
+  </div>
+  <div class="drawer-body">
+    <div class="form-group">
+      <label class="form-label">* 人群名称</label>
+      <input class="form-input" id="groupName" placeholder="请输入人群名称">
+    </div>
+    <div class="form-group">
+      <label class="form-label">快速套用模板</label>
+      <div class="tpl-grid">
+        <button class="tpl-card" id="tpl-0" onclick="applyTpl(0)">
+          <div class="tpl-icon">&#128138;</div>
+          <div class="tpl-name">慢病人群</div>
+          <div class="tpl-desc">高血压或糖尿病慢病患者</div>
+        </button>
+        <button class="tpl-card" id="tpl-1" onclick="applyTpl(1)">
+          <div class="tpl-icon">&#128100;</div>
+          <div class="tpl-name">幼儿人群</div>
+          <div class="tpl-desc">0-17岁儿童群体</div>
+        </button>
+        <button class="tpl-card" id="tpl-2" onclick="applyTpl(2)">
+          <div class="tpl-icon">&#9792;</div>
+          <div class="tpl-name">孕产妇人群</div>
+          <div class="tpl-desc">青年女性群体</div>
+        </button>
+        <button class="tpl-card" id="tpl-3" onclick="applyTpl(3)">
+          <div class="tpl-icon">&#9888;</div>
+          <div class="tpl-name">重点疾病人群</div>
+          <div class="tpl-desc">多项疾病高风险人群</div>
+        </button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">分类规则配置</label>
+      <div id="ruleRoot"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">备注信息</label>
+      <input class="form-input" id="groupNote" placeholder="选填，如：重点随访人群">
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-default" onclick="closeDrawer()">取消</button>
+    <button class="btn btn-primary" onclick="saveGroup()">确认保存</button>
+  </div>
+</div>
+
+<!-- 患者列表弹窗 -->
+<div class="overlay" id="modalOverlay" onclick="closeModal()"></div>
+<div class="modal" id="patientModal">
+  <div class="modal-header">
+    <span style="font-size:17px;font-weight:600" id="modalTitle">人群患者列表</span>
+    <button class="close-btn" onclick="closeModal()">&#10005;</button>
+  </div>
+  <div class="modal-body">
+    <div class="patient-filters">
+      <input class="form-input" id="pName" placeholder="搜索姓名" style="width:150px" oninput="filterPatients()">
+      <input class="form-input" id="pId" placeholder="搜索身份证号" style="width:200px" oninput="filterPatients()">
+      <button class="btn btn-default" onclick="filterPatients()">查询</button>
+      <button class="btn btn-default" onclick="resetPSearch()">重置</button>
+      <span style="color:#909399;font-size:13px;margin-left:auto" id="pTotal"></span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>序号</th><th>姓名</th><th>性别</th><th>年龄</th>
+          <th>身份证号</th><th>手机号</th><th>标签</th><th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="pTableBody"></tbody>
+    </table>
+    <div class="pagination" id="pPagination"></div>
+  </div>
+</div>
+
+<!-- 个人数字健康空间 -->
+<div class="ps-modal" id="psModal">
+  <div class="ps-header">
+    <span style="font-size:17px;font-weight:600;color:#fff" id="psTitle">个人数字健康空间</span>
+    <button class="close-btn" style="color:#fff" onclick="closePS()">&#10005;</button>
+  </div>
+  <div style="padding:24px;overflow-y:auto;flex:1" id="psBody"></div>
+</div>
+
+<script>
+/* ==================================================
+   工具函数（必须最先定义）
+================================================== */
+var _idCnt = 1;
+function genId() { return 'g' + (_idCnt++); }
+function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
+
+/* ==================================================
+   条件数据字典
+================================================== */
+var CONDITIONS = {
+  '基础信息': {
+    '年龄':   ['老中年(60岁以上)','中年(45-60岁)','青年(18-44岁)','儿童(0-17岁)'],
+    '性别':   ['男性','女性']
+  },
+  '疾病风险': {
+    '高血压风险':   ['高风险','中风险','低风险'],
+    '糖尿病风险':   ['高风险','中风险','低风险'],
+    '心脑血管风险': ['高风险','中风险','低风险']
+  },
+  '慢病标签': {
+    '慢病类型': ['高血压','糖尿病','冠心病','脑卒中','慢阻肺','恶性肿瘤']
+  },
+  '生活习惯': {
+    '吸烟情况': ['吸烟者','戒烟者','非吸烟者'],
+    '饮食习惯': ['高盐高脂','均衡饮食','素食']
+  }
+};
+
+/* ==================================================
+   模板预设（在 genId 定义后再调用）
+================================================== */
+function makeTplChronic() {
+  return {
+    id:genId(), logic:'or', level:1, conditions:[],
+    children:[
+      { id:genId(), logic:'and', level:2, children:[],
+        conditions:[{id:genId(),cat:'慢病标签',sub:'慢病类型',val:'高血压'}] },
+      { id:genId(), logic:'and', level:2, children:[],
+        conditions:[{id:genId(),cat:'慢病标签',sub:'慢病类型',val:'糖尿病'}] }
+    ]
+  };
+}
+function makeTplChild() {
+  return {
+    id:genId(), logic:'and', level:1, children:[],
+    conditions:[{id:genId(),cat:'基础信息',sub:'年龄',val:'儿童(0-17岁)'}]
+  };
+}
+function makeTplMaternal() {
+  return {
+    id:genId(), logic:'and', level:1, children:[],
+    conditions:[
+      {id:genId(),cat:'基础信息',sub:'性别',val:'女性'},
+      {id:genId(),cat:'基础信息',sub:'年龄',val:'青年(18-44岁)'}
+    ]
+  };
+}
+function makeTplKeyDisease() {
+  return {
+    id:genId(), logic:'or', level:1, conditions:[],
+    children:[
+      { id:genId(), logic:'and', level:2, children:[],
+        conditions:[{id:genId(),cat:'疾病风险',sub:'高血压风险',val:'高风险'}] },
+      { id:genId(), logic:'and', level:2, children:[],
+        conditions:[{id:genId(),cat:'疾病风险',sub:'糖尿病风险',val:'高风险'}] },
+      { id:genId(), logic:'and', level:2, children:[],
+        conditions:[{id:genId(),cat:'疾病风险',sub:'心脑血管风险',val:'高风险'}] }
+    ]
+  };
+}
+
+var TPL_MAKERS = [makeTplChronic, makeTplChild, makeTplMaternal, makeTplKeyDisease];
+var TPL_NAMES  = ['慢病人群','幼儿人群','孕产妇人群','重点疾病人群'];
+
+/* ==================================================
+   主列表数据
+================================================== */
+var tableData = [
+  {id:1, name:'慢病人群',       rules:'慢病类型：高血压 或 慢病类型：糖尿病', note:'长期追踪管理', count:1203, trend:15},
+  {id:2, name:'老年高风险人群', rules:'年龄：老中年 且 高血压风险：高风险',   note:'重点关注',   count:847,  trend:8},
+  {id:3, name:'青年慢病预防',   rules:'年龄：青年 且 高血压风险：中风险',     note:'',           count:456,  trend:-3},
+  {id:4, name:'孕产妇人群',     rules:'性别：女性 且 年龄：青年',             note:'定期随访',   count:234,  trend:5},
+  {id:5, name:'幼儿健康人群',   rules:'年龄：儿童(0-17岁)',                   note:'成长监测',   count:389,  trend:12},
+  {id:6, name:'吸烟高危人群',   rules:'吸烟情况：吸烟者 且 心脑血管风险：高风险', note:'',       count:178,  trend:-1},
+  {id:7, name:'糖尿病人群',     rules:'慢病类型：糖尿病',                     note:'',           count:312,  trend:6},
+  {id:8, name:'心脑血管高风险', rules:'心脑血管风险：高风险',                 note:'紧急随访',   count:228,  trend:3},
+  {id:9, name:'测试分类A',      rules:'年龄：中年 且 性别：男性',             note:'3213',       count:43,   trend:0},
+  {id:10,name:'饮食干预人群',   rules:'饮食习惯：高盐高脂',                   note:'',           count:0,    trend:0},
+  {id:11,name:'戒烟干预人群',   rules:'吸烟情况：吸烟者',                     note:'',           count:0,    trend:0},
+  {id:12,name:'综合高危人群',   rules:'高血压风险：高风险 且 糖尿病风险：高风险', note:'',       count:97,   trend:4}
+];
+var filtered = tableData.slice();
+var page = 1;
+var PER  = 10;
+
+/* ==================================================
+   全局规则树状态
+================================================== */
+var ruleTree = null;
+var editId   = null;
+
+function freshTree() {
+  return {id:genId(), logic:'and', level:1, conditions:[], children:[]};
+}
+
+/* ==================================================
+   主列表渲染
+================================================== */
+function renderTable() {
+  var maxC  = 1;
+  for (var i=0; i<tableData.length; i++) { if(tableData[i].count > maxC) maxC = tableData[i].count; }
+  var start = (page-1)*PER;
+  var rows  = filtered.slice(start, start+PER);
+  var html  = '';
+  for (var j=0; j<rows.length; j++) {
+    var r   = rows[j];
+    var pct = Math.round(r.count/maxC*100);
+    var trendHtml = r.trend > 0
+      ? '<span style="color:#67c23a;font-size:12px">&#8679;'+r.trend+'</span>'
+      : r.trend < 0
+      ? '<span style="color:#f56c6c;font-size:12px">&#8681;'+Math.abs(r.trend)+'</span>'
+      : '';
+    html += '<tr class="row-hover">'
+      + '<td>'+(start+j+1)+'</td>'
+      + '<td style="font-weight:600;color:#303133">'+r.name+'</td>'
+      + '<td style="font-size:13px">'+r.rules+'</td>'
+      + '<td><span class="badge-done">已完成</span></td>'
+      + '<td style="color:#b0b8c9">'+(r.note||'—')+'</td>'
+      + '<td><div style="display:flex;align-items:center;gap:8px"><span class="count-num">'+r.count.toLocaleString()+' 人</span>'+trendHtml+'</div>'
+      +   '<div class="prog"><div class="prog-inner" style="width:'+pct+'%"></div></div></td>'
+      + '<td>'
+      +   '<span class="link" onclick="viewPatients('+r.id+',\''+r.name+'\')">查看患者</span>'
+      +   '<span class="link" onclick="editGroup('+r.id+')">编辑</span>'
+      +   '<span class="link-danger" onclick="delGroup('+r.id+')">删除</span>'
+      + '</td>'
+      + '</tr>';
+  }
+  document.getElementById('tableBody').innerHTML = html;
+  document.getElementById('statTotal').textContent = tableData.length;
+  renderPagination();
+}
+
+function renderPagination() {
+  var total = Math.ceil(filtered.length/PER);
+  var h = '<span class="pg-info">共 '+filtered.length+' 条</span>&nbsp;';
+  h += '<button class="pg-btn" onclick="goPage('+(page-1)+')" '+(page<=1?'disabled':'')+'>&#8249;</button>';
+  for (var i=1; i<=total; i++) {
+    h += '<button class="pg-btn '+(i===page?'active':'')+'" onclick="goPage('+i+')">'+i+'</button>';
+  }
+  h += '<button class="pg-btn" onclick="goPage('+(page+1)+')" '+(page>=total?'disabled':'')+'>&#8250;</button>';
+  document.getElementById('pagination').innerHTML = h;
+}
+
+function goPage(p) {
+  var total = Math.ceil(filtered.length/PER);
+  if (p<1||p>total) return;
+  page = p; renderTable();
+}
+
+function filterTable() {
+  var kw = document.getElementById('searchInput').value.toLowerCase();
+  filtered = tableData.filter(function(r){ return r.name.toLowerCase().indexOf(kw) > -1; });
+  page = 1; renderTable();
+}
+
+function resetFilter() {
+  document.getElementById('searchInput').value = '';
+  filtered = tableData.slice(); page = 1; renderTable();
+}
+
+function sortTable(v) {
+  if (v==='count_desc') filtered.sort(function(a,b){ return b.count-a.count; });
+  else if (v==='count_asc') filtered.sort(function(a,b){ return a.count-b.count; });
+  else if (v==='time_desc') filtered.sort(function(a,b){ return b.id-a.id; });
+  else filtered = tableData.slice();
+  page = 1; renderTable();
+}
+
+function delGroup(id) {
+  if (!confirm('确定删除该人群分类？')) return;
+  for (var i=0; i<tableData.length; i++) {
+    if (tableData[i].id===id) { tableData.splice(i,1); break; }
+  }
+  filtered = tableData.slice(); renderTable();
+}
+
+/* ==================================================
+   抽屉操作
+================================================== */
+function openDrawer() {
+  editId = null;
+  clearTplSelected();
+  document.getElementById('drawerTitle').textContent = '新建人群分类';
+  document.getElementById('groupName').value = '';
+  document.getElementById('groupNote').value = '';
+  ruleTree = freshTree();
+  renderRuleTree();
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('drawer').classList.add('open');
+}
+
+function editGroup(id) {
+  editId = id;
+  clearTplSelected();
+  var r = null;
+  for (var i=0; i<tableData.length; i++) { if(tableData[i].id===id) { r=tableData[i]; break; } }
+  document.getElementById('drawerTitle').textContent = '编辑人群分类';
+  document.getElementById('groupName').value = r.name;
+  document.getElementById('groupNote').value = r.note;
+  ruleTree = freshTree();
+  renderRuleTree();
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('drawer').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('drawer').classList.remove('open');
+}
+
+function clearTplSelected() {
+  for (var i=0; i<4; i++) {
+    document.getElementById('tpl-'+i).classList.remove('selected');
+  }
+}
+
+function applyTpl(idx) {
+  clearTplSelected();
+  document.getElementById('tpl-'+idx).classList.add('selected');
+  document.getElementById('groupName').value = TPL_NAMES[idx];
+  ruleTree = TPL_MAKERS[idx]();
+  renderRuleTree();
+}
+
+function saveGroup() {
+  var name = document.getElementById('groupName').value.trim();
+  if (!name) { alert('请输入人群名称'); return; }
+  var note    = document.getElementById('groupNote').value.trim();
+  var ruleStr = summarizeTree(ruleTree) || '暂无条件';
+  if (editId) {
+    for (var i=0; i<tableData.length; i++) {
+      if (tableData[i].id===editId) {
+        tableData[i].name = name;
+        tableData[i].note = note;
+        tableData[i].rules = ruleStr;
+        break;
+      }
+    }
+  } else {
+    var newId = 1;
+    for (var i=0; i<tableData.length; i++) { if(tableData[i].id>=newId) newId=tableData[i].id+1; }
+    tableData.unshift({id:newId, name:name, rules:ruleStr, note:note, count:0, trend:0});
+  }
+  filtered = tableData.slice(); renderTable(); closeDrawer();
+}
+
+/* ==================================================
+   规则树渲染
+================================================== */
+var LEVEL_LABELS = ['','第一层（根条件）','第二层（子分组）','第三层（嵌套分组）'];
+
+function renderRuleTree() {
+  document.getElementById('ruleRoot').innerHTML = renderGroup(ruleTree);
+}
+
+function renderGroup(node) {
+  var isRoot      = (node.level === 1);
+  var canAddChild = (node.level < 3);
+  var condHtml    = '';
+  for (var i=0; i<node.conditions.length; i++) {
+    condHtml += renderCondition(node.conditions[i], node.id);
+  }
+  var childHtml = '';
+  for (var j=0; j<node.children.length; j++) {
+    childHtml += renderGroup(node.children[j]);
+  }
+  return '<div class="rule-group level-'+node.level+'" id="grp-'+node.id+'">'
+    + '<div class="group-header">'
+    +   '<div class="logic-switch">'
+    +     '<button class="logic-btn '+(node.logic==='and'?'active-and':'')+'" onclick="setLogic(\''+node.id+'\',\'and\')">且</button>'
+    +     '<button class="logic-btn '+(node.logic==='or'?'active-or':'')+'"  onclick="setLogic(\''+node.id+'\',\'or\')">或</button>'
+    +   '</div>'
+    +   '<span class="group-label">'+LEVEL_LABELS[node.level]+(isRoot?' （不可删除）':'')+'</span>'
+    +   (!isRoot ? '<button class="del-group-btn" onclick="delGroupNode(\''+node.id+'\')">&#10005; 删除分组</button>' : '')
+    + '</div>'
+    + '<div class="conditions-list">'+condHtml+'</div>'
+    + '<div class="child-groups">'+childHtml+'</div>'
+    + '<div class="group-actions">'
+    +   '<button class="add-cond-btn"  onclick="addCondition(\''+node.id+'\')">+ 添加条件</button>'
+    +   (canAddChild ? '<button class="add-child-btn" onclick="addChildGroup(\''+node.id+'\')">+ 添加子分组</button>' : '')
+    + '</div>'
+    + '</div>';
+}
+
+function renderCondition(cond, gid) {
+  var catKeys = Object.keys(CONDITIONS);
+  var subKeys = cond.cat ? Object.keys(CONDITIONS[cond.cat]) : [];
+  var vals    = (cond.cat && cond.sub && CONDITIONS[cond.cat][cond.sub]) ? CONDITIONS[cond.cat][cond.sub] : [];
+
+  var catOpts = '<option value="">选择维度</option>';
+  for (var i=0; i<catKeys.length; i++) {
+    catOpts += '<option value="'+catKeys[i]+'" '+(cond.cat===catKeys[i]?'selected':'')+'>'+catKeys[i]+'</option>';
+  }
+  var subOpts = '<option value="">选择条件</option>';
+  for (var i=0; i<subKeys.length; i++) {
+    subOpts += '<option value="'+subKeys[i]+'" '+(cond.sub===subKeys[i]?'selected':'')+'>'+subKeys[i]+'</option>';
+  }
+  var valOpts = '<option value="">选择值</option>';
+  for (var i=0; i<vals.length; i++) {
+    valOpts += '<option value="'+vals[i]+'" '+(cond.val===vals[i]?'selected':'')+'>'+vals[i]+'</option>';
+  }
+
+  return '<div class="condition-row">'
+    + '<select class="cond-sel" onchange="onCondChange(\''+gid+'\',\''+cond.id+'\',\'cat\',this.value)">'+catOpts+'</select>'
+    + '<select class="cond-sel" onchange="onCondChange(\''+gid+'\',\''+cond.id+'\',\'sub\',this.value)" '+(cond.cat?'':'disabled')+'>'+subOpts+'</select>'
+    + '<select class="cond-sel" onchange="onCondChange(\''+gid+'\',\''+cond.id+'\',\'val\',this.value)" '+(cond.sub?'':'disabled')+'>'+valOpts+'</select>'
+    + '<button class="del-cond-btn" onclick="delCondition(\''+gid+'\',\''+cond.id+'\')">&#10005;</button>'
+    + '</div>';
+}
+
+/* ==================================================
+   树节点查找
+================================================== */
+function findNode(tree, id) {
+  if (tree.id === id) return tree;
+  for (var i=0; i<tree.children.length; i++) {
+    var found = findNode(tree.children[i], id);
+    if (found) return found;
+  }
+  return null;
+}
+
+function removeNodeFromTree(tree, id) {
+  for (var i=0; i<tree.children.length; i++) {
+    if (tree.children[i].id === id) {
+      tree.children.splice(i,1);
+      return true;
+    }
+    if (removeNodeFromTree(tree.children[i], id)) return true;
+  }
+  return false;
+}
+
+/* ==================================================
+   树操作
+================================================== */
+function setLogic(gid, val) {
+  var node = findNode(ruleTree, gid);
+  if (node) { node.logic = val; renderRuleTree(); }
+}
+
+function addCondition(gid) {
+  var node = findNode(ruleTree, gid);
+  if (node) { node.conditions.push({id:genId(),cat:'',sub:'',val:''}); renderRuleTree(); }
+}
+
+function delCondition(gid, cid) {
+  var node = findNode(ruleTree, gid);
+  if (node) {
+    node.conditions = node.conditions.filter(function(c){ return c.id !== cid; });
+    renderRuleTree();
+  }
+}
+
+function onCondChange(gid, cid, field, val) {
+  var node = findNode(ruleTree, gid);
+  if (!node) return;
+  for (var i=0; i<node.conditions.length; i++) {
+    if (node.conditions[i].id === cid) {
+      if      (field==='cat') { node.conditions[i].cat=val; node.conditions[i].sub=''; node.conditions[i].val=''; }
+      else if (field==='sub') { node.conditions[i].sub=val; node.conditions[i].val=''; }
+      else                    { node.conditions[i].val=val; }
+      break;
+    }
+  }
+  renderRuleTree();
+}
+
+function addChildGroup(gid) {
+  var node = findNode(ruleTree, gid);
+  if (!node) return;
+  if (node.level >= 3) { alert('最多支持 3 层嵌套'); return; }
+  node.children.push({
+    id:genId(), logic:'and', level:node.level+1,
+    conditions:[{id:genId(),cat:'',sub:'',val:''}],
+    children:[]
+  });
+  renderRuleTree();
+}
+
+function delGroupNode(gid) {
+  if (!confirm('确定删除此分组及其所有内容？')) return;
+  removeNodeFromTree(ruleTree, gid);
+  renderRuleTree();
+}
+
+function summarizeTree(node) {
+  var parts = [];
+  for (var i=0; i<node.conditions.length; i++) {
+    var c = node.conditions[i];
+    if (c.val) parts.push(c.sub+'：'+c.val);
+  }
+  for (var j=0; j<node.children.length; j++) {
+    var s = summarizeTree(node.children[j]);
+    if (s) parts.push('('+s+')');
+  }
+  var sep = node.logic==='and' ? ' 且 ' : ' 或 ';
+  return parts.join(sep);
+}
+
+/* ==================================================
+   患者列表
+================================================== */
+var patients = [
+  {name:'刘**',gender:'女',age:76,id:'340**********2',    phone:'-',           tags:['老中年','高血压','高血压风险：高']},
+  {name:'刘**',gender:'男',age:73,id:'340**********5151', phone:'-',           tags:['老中年','糖尿病']},
+  {name:'崔**',gender:'女',age:84,id:'342**********5552', phone:'-',           tags:['老中年','心脑血管风险：高']},
+  {name:'王**',gender:'男',age:85,id:'340**********3251', phone:'138****1234', tags:['老中年','高血压','慢病管理']},
+  {name:'夏**',gender:'女',age:49,id:'340**********4',    phone:'-',           tags:['中年','糖尿病风险：中']},
+  {name:'刘**',gender:'女',age:74,id:'340**********2',    phone:'-',           tags:['老中年','高血压']},
+  {name:'夏**',gender:'男',age:86,id:'340**********5151', phone:'139****5678', tags:['老中年','冠心病']},
+  {name:'王*', gender:'女',age:49,id:'',                  phone:'-',           tags:['中年']},
+  {name:'叶**',gender:'女',age:68,id:'340**********2',    phone:'-',           tags:['老中年','高血压风险：中']},
+  {name:'刘*', gender:'男',age:61,id:'340**********0511', phone:'135****9012', tags:['老中年','糖尿病']},
+  {name:'张**',gender:'男',age:55,id:'310**********1234', phone:'137****3456', tags:['中年','高血压风险：高']},
+  {name:'李**',gender:'女',age:42,id:'320**********5678', phone:'-',           tags:['青年']},
+  {name:'赵**',gender:'男',age:78,id:'330**********9012', phone:'136****7890', tags:['老中年','高血压','慢病管理']},
+  {name:'孙**',gender:'女',age:63,id:'340**********3456', phone:'-',           tags:['老中年','糖尿病']},
+  {name:'周**',gender:'男',age:70,id:'350**********7890', phone:'133****1234', tags:['老中年','心脑血管风险：高']},
+  {name:'吴**',gender:'女',age:58,id:'360**********2345', phone:'-',           tags:['中年']},
+  {name:'郑**',gender:'男',age:82,id:'370**********6789', phone:'130****5678', tags:['老中年','冠心病','慢病管理']},
+  {name:'冯**',gender:'女',age:47,id:'380**********0123', phone:'-',           tags:['中年','糖尿病风险：中']},
+  {name:'陈**',gender:'男',age:66,id:'390**********4567', phone:'131****9012', tags:['老中年','高血压']},
+  {name:'楚**',gender:'女',age:71,id:'400**********8901', phone:'-',           tags:['老中年','糖尿病','高血压']}
+];
+var pFiltered = patients.slice();
+var pPage     = 1;
+
+function viewPatients(gid, gname) {
+  document.getElementById('modalTitle').textContent = gname + ' — 患者列表';
+  pFiltered = patients.slice(); pPage = 1;
+  document.getElementById('pName').value = '';
+  document.getElementById('pId').value   = '';
+  renderPTable();
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('patientModal').classList.add('show');
+}
+
+function renderPTable() {
+  var start = (pPage-1)*PER;
+  var rows  = pFiltered.slice(start, start+PER);
+  document.getElementById('pTotal').textContent = '共 '+pFiltered.length+' 名患者';
+  var html = '';
+  for (var i=0; i<rows.length; i++) {
+    var p = rows[i];
+    var tagsHtml = '';
+    for (var j=0; j<p.tags.length; j++) {
+      tagsHtml += '<span class="tag tag-gray">'+p.tags[j]+'</span>';
+    }
+    var tagsStr = p.tags.join(',');
+    html += '<tr class="row-hover">'
+      +'<td>'+(start+i+1)+'</td>'
+      +'<td style="font-weight:600">'+p.name+'</td>'
+      +'<td>'+p.gender+'</td>'
+      +'<td>'+p.age+'岁</td>'
+      +'<td style="color:#b0b8c9;font-size:13px">'+(p.id||'—')+'</td>'
+      +'<td style="color:#b0b8c9">'+p.phone+'</td>'
+      +'<td>'+tagsHtml+'</td>'
+      +'<td><span class="link" onclick="openPS(\''+p.name+'\',\''+p.gender+'\','+p.age+',\''+p.id+'\',\''+tagsStr+'\')">查看个人空间 ›</span></td>'
+      +'</tr>';
+  }
+  document.getElementById('pTableBody').innerHTML = html;
+
+  var total = Math.ceil(pFiltered.length/PER);
+  var h = '<span class="pg-info">共 '+pFiltered.length+' 条</span>&nbsp;';
+  h += '<button class="pg-btn" onclick="goPPage('+(pPage-1)+')" '+(pPage<=1?'disabled':'')+'>&#8249;</button>';
+  for (var k=1; k<=total; k++) {
+    h += '<button class="pg-btn '+(k===pPage?'active':'')+'" onclick="goPPage('+k+')">'+k+'</button>';
+  }
+  h += '<button class="pg-btn" onclick="goPPage('+(pPage+1)+')" '+(pPage>=total?'disabled':'')+'>&#8250;</button>';
+  document.getElementById('pPagination').innerHTML = h;
+}
+
+function goPPage(p) {
+  var total = Math.ceil(pFiltered.length/PER);
+  if (p<1||p>total) return;
+  pPage = p; renderPTable();
+}
+
+function filterPatients() {
+  var n  = document.getElementById('pName').value.toLowerCase();
+  var id = document.getElementById('pId').value;
+  pFiltered = patients.filter(function(p){
+    return (!n || p.name.indexOf(n)>-1) && (!id || p.id.indexOf(id)>-1);
+  });
+  pPage = 1; renderPTable();
+}
+
+function resetPSearch() {
+  document.getElementById('pName').value = '';
+  document.getElementById('pId').value   = '';
+  pFiltered = patients.slice(); pPage = 1; renderPTable();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+  document.getElementById('patientModal').classList.remove('show');
+}
+
+/* ==================================================
+   个人数字健康空间
+================================================== */
+function openPS(name, gender, age, idNum, tagsStr) {
+  var tags    = tagsStr ? tagsStr.split(',').filter(function(t){ return t; }) : [];
+  var bp1     = 120 + Math.floor(Math.random()*50);
+  var bp2     = 75  + Math.floor(Math.random()*25);
+  var glucose = (5.0 + Math.random()*5).toFixed(1);
+  var bmi     = (20  + Math.random()*12).toFixed(1);
+  var bpBad   = bp1 > 140;
+  var glucBad = parseFloat(glucose) > 7;
+  var bmiBad  = parseFloat(bmi) > 28;
+
+  document.getElementById('psTitle').textContent = name + ' — 个人数字健康空间';
+
+  var tagsHtml = '';
+  for (var i=0; i<tags.length; i++) tagsHtml += '<span class="tag tag-blue">'+tags[i]+'</span>';
+
+  var records = [
+    {date:'2026-03-15', type:'随访',     tc:'tag-blue',   content:'血压控制良好，维持当前用药方案'},
+    {date:'2026-02-20', type:'健康教育', tc:'tag-green',  content:'低盐低脂饮食指导，建议每日步行30分钟'},
+    {date:'2026-01-10', type:'年度体检', tc:'tag-orange', content:'总胆固醇5.8mmol/L，略高，建议饮食干预'},
+    {date:'2025-11-05', type:'随访',     tc:'tag-blue',   content:'糖化血红蛋白7.2%，加强血糖监测频率'}
+  ];
+  var recHtml = '';
+  for (var j=0; j<records.length; j++) {
+    var rec = records[j];
+    recHtml += '<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #f5f5f5">'
+      +'<span style="color:#b0b8c9;font-size:12px;min-width:80px;margin-top:2px">'+rec.date+'</span>'
+      +'<span class="tag '+rec.tc+'" style="min-width:60px;text-align:center;flex-shrink:0">'+rec.type+'</span>'
+      +'<span style="font-size:13px;color:#606266">'+rec.content+'</span>'
+      +'</div>';
+  }
+
+  document.getElementById('psBody').innerHTML =
+    '<div style="display:grid;grid-template-columns:220px 1fr;gap:20px">'
+    // 左栏
+    +'<div>'
+    +'<div style="text-align:center;padding:20px;background:#f0f9ff;border-radius:10px;margin-bottom:14px">'
+    +'<div style="width:72px;height:72px;background:linear-gradient(135deg,#409eff,#36cfc9);border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;font-weight:700">'+name[0]+'</div>'
+    +'<div style="font-size:17px;font-weight:700">'+name+'</div>'
+    +'<div style="color:#909399;margin-top:4px;font-size:13px">'+gender+' · '+age+'岁</div>'
+    +(idNum ? '<div style="color:#c0c4cc;font-size:12px;margin-top:3px">'+idNum+'</div>' : '')
+    +'</div>'
+    +'<div style="padding:14px;border:1px solid #ebeef5;border-radius:8px">'
+    +'<div style="font-weight:600;font-size:14px;margin-bottom:10px;color:#303133">健康标签</div>'+tagsHtml
+    +'</div>'
+    +'<div style="padding:14px;border:1px solid #ebeef5;border-radius:8px;margin-top:10px">'
+    +'<div style="font-weight:600;font-size:14px;margin-bottom:10px;color:#303133">签约信息</div>'
+    +'<div style="font-size:13px;color:#606266;line-height:1.9">'
+    +'<div>家庭医生：<span style="color:#409eff">王医生</span></div>'
+    +'<div>签约机构：长宁社区卫生服务中心</div>'
+    +'<div>签约日期：2024-01-15</div>'
+    +'</div></div></div>'
+    // 右栏
+    +'<div>'
+    +'<div class="metrics-grid" style="margin-bottom:16px">'
+    +'<div class="metric-card" style="background:'+(bpBad?'#fff0f0':'#f0f9eb')+'">'
+    +'<div style="font-size:12px;color:#909399">血压（mmHg）</div>'
+    +'<div style="font-size:26px;font-weight:700;color:'+(bpBad?'#f56c6c':'#67c23a')+';margin:6px 0">'+bp1+'/'+bp2+'</div>'
+    +'<span class="tag '+(bpBad?'tag-red':'tag-green')+'">'+(bpBad?'偏高':'正常')+'</span>'
+    +'</div>'
+    +'<div class="metric-card" style="background:'+(glucBad?'#fff0f0':'#f0f9eb')+'">'
+    +'<div style="font-size:12px;color:#909399">空腹血糖（mmol/L）</div>'
+    +'<div style="font-size:26px;font-weight:700;color:'+(glucBad?'#f56c6c':'#67c23a')+';margin:6px 0">'+glucose+'</div>'
+    +'<span class="tag '+(glucBad?'tag-red':'tag-green')+'">'+(glucBad?'偏高':'正常')+'</span>'
+    +'</div>'
+    +'<div class="metric-card" style="background:'+(bmiBad?'#fdf6ec':'#f5f7fa')+'">'
+    +'<div style="font-size:12px;color:#909399">BMI 体重指数</div>'
+    +'<div style="font-size:26px;font-weight:700;color:'+(bmiBad?'#e6a23c':parseFloat(bmi)>24?'#e6a23c':'#67c23a')+';margin:6px 0">'+bmi+'</div>'
+    +'<span class="tag '+(bmiBad?'tag-orange':parseFloat(bmi)>24?'tag-orange':'tag-green')+'">'+(bmiBad?'肥胖':parseFloat(bmi)>24?'超重':'正常')+'</span>'
+    +'</div>'
+    +'<div class="metric-card" style="background:#f0f9ff">'
+    +'<div style="font-size:12px;color:#909399">最近随访日期</div>'
+    +'<div style="font-size:18px;font-weight:700;color:#409eff;margin:6px 0">2026-03-15</div>'
+    +'<span class="tag tag-blue">下次：2026-06-15</span>'
+    +'</div></div>'
+    +'<div style="border:1px solid #ebeef5;border-radius:8px;padding:16px">'
+    +'<div style="font-weight:600;font-size:14px;color:#303133;margin-bottom:12px">健康干预记录</div>'
+    + recHtml
+    +'</div></div></div>';
+
+  document.getElementById('psModal').classList.add('show');
+}
+
+function closePS() {
+  document.getElementById('psModal').classList.remove('show');
+}
+
+/* ==================================================
+   初始化
+================================================== */
+ruleTree = freshTree();
+renderTable();
+renderRuleTree();
+</script>
+</body>
+</html>
