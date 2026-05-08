@@ -4,24 +4,57 @@
     "type": "split",
     "children": [
       {
-        "id": "1b37247044eb9d03",
+        "id": "18905dce9fca1998",
         "type": "tabs",
         "children": [
           {
-            "id": "632e3aff76e3f869",
+            "id": "6e49a81aed729690",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "bases",
               "state": {
-                "file": "copilot/copilot-custom-prompts/Emojify.md",
-                "mode": "source",
-                "source": false
+                "file": "TaskNotes/Views/kanban-default.base",
+                "viewName": "Kanban Board"
               },
-              "icon": "lucide-file",
-              "title": "Emojify"
+              "icon": "tasknotes-simple",
+              "title": "kanban-default"
+            }
+          },
+          {
+            "id": "033874467b289238",
+            "type": "leaf",
+            "state": {
+              "type": "tasknotes-pomodoro-view",
+              "state": {},
+              "icon": "clock",
+              "title": "番茄钟"
+            }
+          },
+          {
+            "id": "aaf2cbc1cfe22e0a",
+            "type": "leaf",
+            "state": {
+              "type": "tasknotes-pomodoro-stats-view",
+              "state": {},
+              "icon": "bar-chart",
+              "title": "番茄钟统计"
+            }
+          },
+          {
+            "id": "37c98e728b12079c",
+            "type": "leaf",
+            "state": {
+              "type": "bases",
+              "state": {
+                "file": "未命名.base",
+                "viewName": "表格"
+              },
+              "icon": "lucide-table",
+              "title": "未命名"
             }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -73,8 +106,19 @@
               "icon": "lucide-bookmark",
               "title": "书签"
             }
+          },
+          {
+            "id": "7e714b7ed79f195d",
+            "type": "leaf",
+            "state": {
+              "type": "notebook-navigator",
+              "state": {},
+              "icon": "notebook-navigator",
+              "title": "笔记本导航器"
+            }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "horizontal",
@@ -164,24 +208,13 @@
               "icon": "lucide-list",
               "title": "未命名 的大纲"
             }
-          },
-          {
-            "id": "af218676398af6ff",
-            "type": "leaf",
-            "state": {
-              "type": "copilot-chat-view",
-              "state": {},
-              "icon": "message-square",
-              "title": "Copilot"
-            }
           }
         ],
-        "currentTab": 5
+        "currentTab": 4
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -193,44 +226,68 @@
       "command-palette:打开命令面板": false,
       "bases:新建数据库": false,
       "obsidian-excalidraw-plugin:新建绘图文件": false,
-      "copilot:Open Copilot Chat": false
+      "copilot:Open Copilot Chat": false,
+      "notebook-navigator:笔记本导航器": false,
+      "tasknotes:打开迷你日历视图": false,
+      "tasknotes:打开日历视图": false,
+      "tasknotes:打开任务视图": false,
+      "tasknotes:打开议程视图": false,
+      "tasknotes:打开看板": false,
+      "tasknotes:打开番茄钟计时器": false,
+      "tasknotes:打开番茄钟统计": false,
+      "tasknotes:创建新任务": false
     }
   },
-  "active": "632e3aff76e3f869",
+  "active": "884812f8bb89bca7",
   "lastOpenFiles": [
+    "未命名.base",
+    "未命名.canvas",
+    "TaskNotes/Views/kanban-default.base",
+    "TaskNotes/Views/agenda-default.base",
+    "TaskNotes/Views/tasks-default.base",
+    "TaskNotes/Views/calendar-default.base",
+    "TaskNotes/Views/mini-calendar-default.base",
+    "README.md",
+    "TaskNotes/Views/relationships.base",
+    "TaskNotes/Views",
+    "TaskNotes",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144236.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144329.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144222.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144213.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144150.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144031.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507143919.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144315.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144259.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144059.png",
+    "03_原型设计/个人数字空间_PC端融合通用人群健康空间_原型_v0.1_20260507.html",
+    "01_需求文档/个人数字空间_PC端融合通用人群健康空间_需求文档_v0.1_20260507.md",
+    "01_需求文档/通用人群健康空间（移动端）.md",
+    "未命名.md",
+    "01_需求文档/孕产妇人群健康空间（移动端）.md",
+    "1.md",
+    "未命名",
+    "01_需求文档/README.md",
+    "02_设计文档/健康画像系统_设计架构梳理_v1.0_20260507.md",
+    "02_设计文档/README.md",
+    "归档/README.md",
+    "01_需求文档/个人数字空间_需求框架_v0.1_20260429.md",
+    "02_设计文档/指标体系/健康空间_指标体系_v1.0.md",
+    "04_参考资料/数据规范/人群自定义配置字段清单.md",
+    "归档/2026-04/人群健康空间_原型设计说明_旧版.md",
+    "归档/2026-04/人群健康空间_优化需求说明_旧版.md",
+    "归档/2026-04/人群健康空间_需求说明_旧版2.md",
+    "归档/2026-04/人群健康空间_需求说明_旧版1.md",
+    "归档/2026-04/健康空间_指标体系_草稿.md",
+    "05_工作文档/角色画像与项目背景.md",
+    "02_业务规则设计/README.md",
+    "copilot/copilot-custom-prompts/Emojify.md",
+    "01_需求文档/人群健康空间_需求文档_v1.0_20260403.md",
+    "Excalidraw/Drawing 2026-05-06 15.22.45.excalidraw.md",
     "copilot/copilot-custom-prompts/Clip YouTube Transcript.md",
     "copilot/copilot-custom-prompts/Clip Web Page.md",
-    "copilot/copilot-custom-prompts/Rewrite as tweet thread.md",
-    "copilot/copilot-custom-prompts/Rewrite as tweet.md",
-    "copilot/copilot-custom-prompts/Remove URLs.md",
-    "copilot/copilot-custom-prompts/Generate glossary.md",
-    "copilot/copilot-custom-prompts/Generate table of contents.md",
-    "copilot/copilot-custom-prompts/Make longer.md",
-    "copilot/copilot-custom-prompts/Make shorter.md",
-    "copilot/copilot-custom-prompts/Emojify.md",
-    "copilot/copilot-custom-prompts/Explain like I am 5.md",
-    "copilot/copilot-custom-prompts/Simplify.md",
-    "copilot/copilot-custom-prompts/Summarize.md",
-    "copilot/copilot-custom-prompts/Translate to Chinese.md",
-    "copilot/copilot-custom-prompts/Fix grammar and spelling.md",
-    "copilot/copilot-custom-prompts",
-    "copilot",
-    "未命名.canvas",
-    "未命名.base",
     "未命名 2.canvas",
-    "未命名 1.canvas",
-    "2026-05-06.md",
-    "README.md",
-    "归档/2026-04/人群健康空间_原型设计说明_旧版.md",
-    "未命名.md",
-    "02_业务规则设计/标签体系/附件3 慢性病健康风险评估标准.doc",
-    "02_业务规则设计/标签体系/慢阻肺高风险人群标准.docx",
-    "02_业务规则设计/标签体系/孕产妇风险指标评估.xlsx",
-    "02_业务规则设计/标签体系/健康空间标签体系规则明细_补充孕产妇风险评估_20260428.xlsx",
-    "02_业务规则设计/标签体系/医学健康画像标签平台-功能清单-V1.0.xlsx",
-    "02_业务规则设计/数据模型/人群健康空间_数据模型_v1.1_20260401.docx",
-    "02_业务规则设计/指标体系/健康空间_指标体系_v1.0.md",
-    "02_业务规则设计/标签体系",
-    "02_业务规则设计/README.md"
+    "未命名 1.canvas"
   ]
 }
