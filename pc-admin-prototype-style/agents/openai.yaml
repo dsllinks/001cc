@@ -1,0 +1,7 @@
+interface:
+  display_name: "PC端业务后台原型"
+  short_description: "按统一医疗后台线框规范输出PC端低保真HTML原型"
+  default_prompt: "Use $pc-admin-prototype-style to design a low-fidelity HTML prototype for a PC admin or healthcare business management page."
+
+policy:
+  allow_implicit_invocation: true

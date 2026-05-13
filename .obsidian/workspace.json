@@ -4,57 +4,24 @@
     "type": "split",
     "children": [
       {
-        "id": "18905dce9fca1998",
+        "id": "ac57eded71bed9f0",
         "type": "tabs",
         "children": [
           {
-            "id": "6e49a81aed729690",
+            "id": "5f5229c7f0545e49",
             "type": "leaf",
             "state": {
-              "type": "bases",
+              "type": "markdown",
               "state": {
-                "file": "TaskNotes/Views/kanban-default.base",
-                "viewName": "Kanban Board"
+                "file": "01_需求文档/个人数字空间_PC端融合慢病人群健康空间_需求文档_v0.1_20260512.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "tasknotes-simple",
-              "title": "kanban-default"
-            }
-          },
-          {
-            "id": "033874467b289238",
-            "type": "leaf",
-            "state": {
-              "type": "tasknotes-pomodoro-view",
-              "state": {},
-              "icon": "clock",
-              "title": "番茄钟"
-            }
-          },
-          {
-            "id": "aaf2cbc1cfe22e0a",
-            "type": "leaf",
-            "state": {
-              "type": "tasknotes-pomodoro-stats-view",
-              "state": {},
-              "icon": "bar-chart",
-              "title": "番茄钟统计"
-            }
-          },
-          {
-            "id": "37c98e728b12079c",
-            "type": "leaf",
-            "state": {
-              "type": "bases",
-              "state": {
-                "file": "未命名.base",
-                "viewName": "表格"
-              },
-              "icon": "lucide-table",
-              "title": "未命名"
+              "icon": "lucide-file",
+              "title": "个人数字空间_PC端融合慢病人群健康空间_需求文档_v0.1_20260512"
             }
           }
-        ],
-        "currentTab": 3
+        ]
       }
     ],
     "direction": "vertical"
@@ -74,7 +41,7 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": false
+                "autoReveal": true
               },
               "icon": "lucide-folder-closed",
               "title": "文件列表"
@@ -86,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "tag:task",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -117,12 +84,12 @@
               "title": "笔记本导航器"
             }
           }
-        ],
-        "currentTab": 3
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 507.5,
+    "collapsed": true
   },
   "right": {
     "id": "b24d5978d26f3d5e",
@@ -138,8 +105,8 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "未命名.base",
-                "collapseAll": false,
+                "file": "TaskNotes/Views/kanban-default.base",
+                "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
                 "showSearch": false,
@@ -148,7 +115,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "未命名 的反向链接列表"
+              "title": "kanban-default 的反向链接列表"
             }
           },
           {
@@ -200,13 +167,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "未命名.base",
-                "followCursor": false,
+                "file": "01_需求文档/个人数字空间_PC端融合慢病人群健康空间_需求文档_v0.1_20260512.md",
+                "followCursor": true,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "未命名 的大纲"
+              "title": "个人数字空间_PC端融合慢病人群健康空间_需求文档_v0.1_20260512 的大纲"
             }
           }
         ],
@@ -226,7 +193,6 @@
       "command-palette:打开命令面板": false,
       "bases:新建数据库": false,
       "obsidian-excalidraw-plugin:新建绘图文件": false,
-      "copilot:Open Copilot Chat": false,
       "notebook-navigator:笔记本导航器": false,
       "tasknotes:打开迷你日历视图": false,
       "tasknotes:打开日历视图": false,
@@ -238,55 +204,55 @@
       "tasknotes:创建新任务": false
     }
   },
-  "active": "884812f8bb89bca7",
+  "active": "5f5229c7f0545e49",
   "lastOpenFiles": [
-    "未命名.base",
-    "未命名.canvas",
-    "TaskNotes/Views/kanban-default.base",
-    "TaskNotes/Views/agenda-default.base",
-    "TaskNotes/Views/tasks-default.base",
-    "TaskNotes/Views/calendar-default.base",
-    "TaskNotes/Views/mini-calendar-default.base",
-    "README.md",
+    "04_参考资料/医学资料/~$重点疾病-肿瘤诊断.xlsx",
+    "04_参考资料/医学资料/重点疾病-肿瘤诊断.xlsx",
+    "04_参考资料/医学资料/重点疾病-肿瘤诊断.xlsx.larkcache",
+    "04_参考资料/医学资料",
+    "04_参考资料/新建文件夹",
     "TaskNotes/Views/relationships.base",
-    "TaskNotes/Views",
-    "TaskNotes",
-    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144236.png",
-    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144329.png",
-    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144222.png",
-    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144213.png",
-    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144150.png",
-    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144031.png",
-    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507143919.png",
-    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144315.png",
-    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144259.png",
-    "04_参考资料/界面参考/个人数字空间_移动端界面参考/通用人群空间/Pasted image 20260507144059.png",
-    "03_原型设计/个人数字空间_PC端融合通用人群健康空间_原型_v0.1_20260507.html",
-    "01_需求文档/个人数字空间_PC端融合通用人群健康空间_需求文档_v0.1_20260507.md",
-    "01_需求文档/通用人群健康空间（移动端）.md",
+    "01_需求文档/个人数字空间_PC端融合慢病人群健康空间_需求文档_v0.1_20260512.md",
+    "TaskNotes/Views/mini-calendar-default.base",
+    "TaskNotes/Views/kanban-default.base",
+    "TaskNotes/Views/calendar-default.base",
+    "TaskNotes/Views/agenda-default.base",
+    "TaskNotes/Tasks/20260512091500-创建工作日9点Cron提醒.md",
+    "TaskNotes/Tasks/20260512090000-讨论并输出个人工作计划及任务管理范式.md",
+    "01_需求文档/个人数字空间_PC端融合通用人群健康空间_需求文档_v0.3_20260511.md",
+    "TaskNotes/Tasks/20260512113000-补全通用人群v0.3第10章并对齐4个待确认问题.md",
+    "TaskNotes/Tasks/20260512130000-调整通用人群原型v0.3并同步说明文档.md",
+    "TaskNotes/个人任务管理范式.md",
+    "fancy-purring-quasar.md",
+    "01_需求文档/个人数字空间_PC端融合通用人群健康空间_原型结构说明_v0.1_20260508.md",
+    "pc-admin-prototype-style/references/example-health-admin-list.html",
+    "pc-admin-prototype-style/references/style-reference.md",
+    "pc-admin-prototype-style/SKILL.md",
+    "03_原型设计/个人数字空间_PC端融合通用人群健康空间_原型结构说明_v0.2_20260512.md",
+    "未命名 1.md",
     "未命名.md",
+    "01_需求文档/个人数字空间_PC端融合孕产妇健康空间_需求文档_v0.2_20260511.md",
+    "TaskNotes/Tasks/20260512160000-输出慢病人群原型v0.1并撰写原型结构说明.md",
+    "TaskNotes/Tasks/20260512143000-输出慢病人群需求文档v0.1.md",
+    "TaskNotes/Tasks/20260512100000-沉淀需求文档输出skill.md",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/慢病/Pasted image 20260511135751.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/慢病/Pasted image 20260511135726.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/慢病/Pasted image 20260511135708.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/慢病/Pasted image 20260511135656.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/慢病/Pasted image 20260511135457.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/慢病/Pasted image 20260511135442.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/慢病/Pasted image 20260511135428.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/慢病/Pasted image 20260511135316.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/慢病/Pasted image 20260511135301.png",
+    "04_参考资料/界面参考/个人数字空间_移动端界面参考/慢病/Pasted image 20260511135256.png",
+    "归档/2026-04/个人数字空间_需求框架_v0.1_20260429.md",
     "01_需求文档/孕产妇人群健康空间（移动端）.md",
-    "1.md",
-    "未命名",
-    "01_需求文档/README.md",
-    "02_设计文档/健康画像系统_设计架构梳理_v1.0_20260507.md",
-    "02_设计文档/README.md",
-    "归档/README.md",
     "01_需求文档/个人数字空间_需求框架_v0.1_20260429.md",
-    "02_设计文档/指标体系/健康空间_指标体系_v1.0.md",
-    "04_参考资料/数据规范/人群自定义配置字段清单.md",
-    "归档/2026-04/人群健康空间_原型设计说明_旧版.md",
-    "归档/2026-04/人群健康空间_优化需求说明_旧版.md",
-    "归档/2026-04/人群健康空间_需求说明_旧版2.md",
-    "归档/2026-04/人群健康空间_需求说明_旧版1.md",
-    "归档/2026-04/健康空间_指标体系_草稿.md",
-    "05_工作文档/角色画像与项目背景.md",
-    "02_业务规则设计/README.md",
-    "copilot/copilot-custom-prompts/Emojify.md",
-    "01_需求文档/人群健康空间_需求文档_v1.0_20260403.md",
-    "Excalidraw/Drawing 2026-05-06 15.22.45.excalidraw.md",
-    "copilot/copilot-custom-prompts/Clip YouTube Transcript.md",
-    "copilot/copilot-custom-prompts/Clip Web Page.md",
+    "01_需求文档/个人数字空间_PC端融合孕产妇健康空间_需求文档_v0.1_20260511.md",
+    "01_需求文档/归档/2026-04/README.md",
+    "01_需求文档/归档/2026-04/个人数字空间_需求框架_v0.1_20260429.md",
+    "01_需求文档/通用人群健康空间（移动端）.md",
+    "未命名.canvas",
     "未命名 2.canvas",
     "未命名 1.canvas"
   ]
