@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人数字空间 PC端融合慢病人群健康空间 原型 v0.2</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; background:#dce8ff; color:#172033; }
+a { color:inherit; text-decoration:none; }
+button, input, select { font:inherit; }
+button { cursor:pointer; }
+.hidden { display:none !important; }
+.page-shell { max-width:1740px; margin:0 auto; padding:20px 28px 36px; }
+.view { display:none; }
+.view.active { display:block; }
+
+/* 顶栏 */
+.topbar { height:70px; background:#fff; border-radius:14px; display:flex; align-items:center; justify-content:space-between; padding:0 28px; box-shadow:0 10px 30px rgba(64,108,180,.08); }
+.brand { display:flex; align-items:center; gap:12px; color:#2368ff; font-size:20px; font-weight:700; white-space:nowrap; }
+.brand-icon { width:30px; height:30px; border-radius:50%; background:radial-gradient(circle at 65% 35%, #fff 0 18%, #6ea2ff 19% 36%, #2368ff 37% 52%, transparent 53%), conic-gradient(from 210deg, #2368ff, #8eb5ff, #2368ff); }
+.person-strip { flex:1; margin:0 24px; height:48px; border-radius:8px; background:#eaf1ff; display:flex; align-items:center; gap:18px; padding:0 22px; color:#1f2937; overflow:hidden; }
+.avatar { width:28px; height:28px; border-radius:50%; background:linear-gradient(#ffe3c3,#e9f4ff); display:grid; place-items:center; }
+.meta { white-space:nowrap; font-size:15px; }
+.refresh { color:#475569; font-size:14px; white-space:nowrap; }
+
+/* 统计卡 */
+.cards { margin-top:24px; background:#fff; border-radius:14px; padding:20px 24px; display:grid; grid-template-columns:repeat(4,1fr); gap:20px; box-shadow:0 10px 30px rgba(64,108,180,.08); }
+.card { min-height:126px; border-radius:10px; background:#f4f8ff; padding:18px 22px; position:relative; overflow:hidden; }
+.card h4 { font-size:16px; color:#334155; font-weight:500; margin-bottom:12px; }
+.card .num { font-size:32px; font-weight:800; color:#07111f; line-height:1; }
+.card p { margin-top:14px; font-size:14px; color:#64748b; }
+.card .mini-icon { position:absolute; right:22px; top:42px; width:44px; height:44px; border-radius:10px; background:#fff; box-shadow:0 6px 18px rgba(61,88,130,.12); display:grid; place-items:center; font-size:22px; }
+.card.primary { background:#eef5ff; }
+.card.warn { background:#fff7f2; }
+.card.people { background:linear-gradient(180deg,#f4f8ff 0%, #eef5ff 100%); }
+.people-card-title { display:flex; align-items:center; gap:10px; }
+.people-badge { font-size:12px; color:#2563eb; background:#eff6ff; border:1px solid #bfdbfe; border-radius:999px; padding:2px 8px; }
+.people-list { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:10px; }
+.people-item { border:1px solid #d6e4ff; background:#fff; border-radius:10px; padding:9px 12px; display:flex; justify-content:space-between; align-items:center; gap:10px; transition:.16s; }
+.people-item:hover { border-color:#93c5fd; background:#eff6ff; transform:translateY(-1px); }
+.people-item.main { border-color:#8bb4ff; background:#eef5ff; }
+.people-item.future { color:#64748b; }
+.people-label { display:flex; flex-direction:column; gap:3px; }
+.people-label b { font-size:14px; color:#0f172a; }
+.people-label span { font-size:12px; color:#64748b; }
+.people-arrow { color:#2563eb; font-weight:700; }
+
+/* 标签图谱 */
+.workspace { margin-top:24px; }
+.panel { background:#fff; border-radius:14px; box-shadow:0 10px 30px rgba(64,108,180,.08); min-height:400px; overflow:hidden; }
+.panel-title { height:58px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px dashed #e2e8f0; padding:0 24px; font-size:17px; font-weight:700; }
+.title-left { display:flex; align-items:center; gap:8px; }
+.blue-mark { width:8px; height:18px; border-radius:5px; background:#2f6bff; box-shadow:0 0 10px rgba(47,107,255,.35); }
+.graph-placeholder { height:340px; display:grid; place-items:center; color:#94a3b8; font-size:14px; }
+
+/* 详情页头部 */
+.page-head { background:#fff; border-radius:14px; padding:18px 24px; box-shadow:0 10px 30px rgba(64,108,180,.08); }
+.crumb { display:flex; align-items:center; gap:10px; color:#2563eb; font-size:14px; margin-bottom:10px; }
+.crumb button { border:none; background:#eff6ff; color:#2563eb; border-radius:8px; padding:6px 12px; }
+.space-title { font-size:24px; font-weight:800; color:#0f172a; margin-bottom:8px; }
+.space-meta { font-size:14px; color:#475569; }
+
+/* 病种卡 */
+.disease-cards { margin-top:16px; display:flex; gap:16px; padding:14px 0; border-top:1px dashed #e2e8f0; transition:all .3s; }
+.disease-card { flex:1; border:1px solid #dbeafe; border-radius:12px; padding:14px 18px; background:#f8fbff; }
+.disease-card h5 { font-size:16px; color:#0f172a; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+.disease-card .dc-row { display:flex; justify-content:space-between; font-size:13px; color:#64748b; padding:3px 0; }
+.disease-card .dc-row b { color:#334155; }
+
+/* 病种卡收缩态 */
+.disease-bar { display:none; position:sticky; top:0; z-index:10; background:#fff; border-bottom:1px solid #e5e7eb; padding:10px 24px; margin:-20px -22px 16px; border-radius:14px 14px 0 0; }
+.disease-bar.show { display:flex; gap:12px; align-items:center; }
+.disease-tag { background:#eff6ff; border:1px solid #bfdbfe; border-radius:999px; padding:5px 14px; font-size:13px; color:#2563eb; font-weight:600; cursor:pointer; }
+
+/* 2x2 网格 */
+.detail-layout { margin-top:20px; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:18px; height:calc(100vh - 260px); min-height:600px; }
+.section-card { background:#fff; border-radius:14px; box-shadow:0 10px 30px rgba(64,108,180,.08); padding:20px 22px; overflow:auto; display:flex; flex-direction:column; }
+.section-card h2 { font-size:18px; margin-bottom:6px; color:#0f172a; }
+.section-tip { color:#64748b; font-size:13px; margin-bottom:14px; }
+
+/* 子菜单 */
+.subtabs { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.subtab { border:1px solid #e2e8f0; background:#fff; color:#475569; border-radius:999px; padding:7px 12px; cursor:pointer; font-size:13px; }
+.subtab.active { background:#2563eb; border-color:#2563eb; color:#fff; }
+
+/* 筛选 */
+.filter-toolbar { display:flex; gap:8px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+.input, .select { height:36px; border:1px solid #dbe3ef; border-radius:8px; padding:0 10px; min-width:0; background:#fff; color:#334155; }
+.input { width:180px; }
+.select { width:120px; }
+.btn { border:none; border-radius:8px; padding:9px 18px; background:#2563eb; color:#fff; cursor:pointer; font-size:13px; }
+.btn.secondary { background:#fff; color:#2563eb; border:1px solid #bfdbfe; }
+
+/* 记录列表 */
+.record-list { display:grid; gap:10px; flex:1; overflow:auto; }
+.record { border:1px solid #e5e7eb; border-radius:10px; padding:12px; background:#fff; cursor:pointer; transition:.15s; }
+.record:hover { border-color:#93c5fd; box-shadow:0 6px 18px rgba(37,99,235,.08); transform:translateY(-1px); }
+.record-top { display:flex; justify-content:space-between; gap:10px; margin-bottom:6px; }
+.record-title { font-size:15px; font-weight:700; color:#172033; }
+.tag { border-radius:999px; padding:3px 8px; font-size:12px; background:#eff6ff; color:#2563eb; white-space:nowrap; }
+.tag.warn { background:#fef3c7; color:#d97706; }
+.tag.risk { background:#fee2e2; color:#dc2626; }
+.tag.green { background:#f0fdf4; color:#16a34a; }
+.record-meta { display:flex; gap:16px; font-size:12px; color:#64748b; flex-wrap:wrap; }
+
+/* 统计卡 */
+.vital-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
+.vital-card { background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:10px; text-align:center; }
+.vital-card b { display:block; font-size:20px; color:#0f172a; }
+.vital-card span { font-size:11px; color:#64748b; }
+
+/* 趋势图 */
+.chart { height:200px; border:1px solid #e2e8f0; border-radius:12px; background:linear-gradient(#fff,#f8fbff); padding:16px; position:relative; }
+.chart svg { width:100%; height:100%; }
+.target-line { stroke:#f59e0b; stroke-width:1.5; stroke-dasharray:6 4; }
+.target-label { font-size:11px; fill:#d97706; }
+.slider { height:8px; border-radius:999px; background:#e2e8f0; margin:12px 18px 0; position:relative; }
+.slider::after { content:""; position:absolute; left:22%; right:18%; height:100%; background:#60a5fa; border-radius:999px; }
+
+/* 表格 */
+.table-wrap { flex:1; overflow:auto; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+thead { background:#f8fafc; position:sticky; top:0; }
+th { padding:10px 8px; text-align:left; font-weight:600; color:#334155; border-bottom:2px solid #e5e7eb; white-space:nowrap; }
+td { padding:10px 8px; color:#475569; border-bottom:1px solid #f1f5f9; }
+.link { color:#2563eb; cursor:pointer; }
+.link:hover { text-decoration:underline; }
+
+/* 专病档案 */
+.archive-card { border:1px solid #e5e7eb; border-radius:12px; padding:16px; margin-bottom:12px; background:#f8fbff; }
+.archive-card h4 { font-size:15px; color:#0f172a; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.archive-row { display:grid; grid-template-columns:90px 1fr; gap:8px; padding:5px 0; font-size:13px; color:#475569; }
+.archive-row b { color:#334155; }
+
+/* 弹窗 */
+.modal-mask { position:fixed; inset:0; background:rgba(15,23,42,.45); display:none; align-items:center; justify-content:center; z-index:20; }
+.modal-mask.show { display:flex; }
+.modal { width:600px; max-width:calc(100vw - 40px); max-height:80vh; background:#fff; border-radius:14px; box-shadow:0 24px 70px rgba(15,23,42,.28); overflow:hidden; display:flex; flex-direction:column; }
+.modal h3 { padding:18px 22px; border-bottom:1px solid #e5e7eb; font-size:18px; display:flex; justify-content:space-between; align-items:center; }
+.modal-body { padding:20px 22px; color:#475569; display:grid; gap:10px; overflow:auto; flex:1; }
+.modal-row { display:grid; grid-template-columns:100px 1fr; gap:10px; font-size:14px; }
+.modal-row b { color:#334155; }
+.modal-footer { padding:14px 22px; border-top:1px solid #e5e7eb; text-align:right; }
+.close-btn { border:none; background:#f1f5f9; color:#475569; width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:18px; }
+
+/* 诊疗弹窗专用样式 */
+.diag-modal { width:880px; }
+.diag-section { border:1px solid #e6eaf0; border-radius:8px; padding:18px 18px 14px; margin-bottom:16px; background:#ffffff; }
+.diag-section:last-child { margin-bottom:0; }
+.diag-section-title { font-size:15px; font-weight:600; color:#111827; margin-bottom:14px; }
+.diag-field-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px 12px; }
+.diag-field-grid.full { grid-template-columns:1fr; }
+.diag-field { background:#f4f7fb; border:1px solid #e8edf4; border-radius:6px; padding:10px 14px; }
+.diag-field .label { font-size:12px; color:#6b7280; margin-bottom:4px; }
+.diag-field .value { font-size:14px; color:#1f2937; line-height:1.5; word-break:break-all; }
+.diag-item-row { background:#f4f7fb; border:1px solid #e8edf4; border-radius:6px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; cursor:pointer; transition:background-color .15s; }
+.diag-item-row:last-child { margin-bottom:0; }
+.diag-item-row:hover { background:#eef3fa; }
+.diag-item-row .item-name { font-size:14px; font-weight:600; color:#1f2937; }
+.diag-item-row .item-link { font-size:12px; color:#94a3b8; }
+.diag-item-row .item-link::after { content:" ›"; margin-left:2px; }
+.visit-modal { width:850px; max-height:92vh; border-radius:14px; }
+.visit-modal .modal-body { padding:26px; gap:28px; background:#fff; }
+.visit-section { border:1px solid #dbe3ef; border-radius:14px; padding:20px 18px 18px; background:#fff; }
+.visit-section h4 { font-size:20px; line-height:1; color:#0f172a; margin-bottom:16px; font-weight:800; }
+.visit-fields { display:grid; gap:0; }
+.visit-field { min-height:86px; border:1px solid #dbe3ef; background:#f8fafc; padding:16px; display:grid; align-content:center; gap:8px; }
+.visit-field:first-child { border-radius:10px 10px 0 0; }
+.visit-field:last-child { border-radius:0 0 10px 10px; }
+.visit-field + .visit-field { margin-top:-1px; }
+.visit-field b { color:#334155; font-size:15px; }
+.visit-field span { color:#0f172a; font-size:18px; line-height:1.35; }
+.visit-list { display:grid; gap:0; }
+.visit-link { min-height:52px; border:1px solid #dbe3ef; background:#f8fafc; padding:0 16px; display:flex; align-items:center; justify-content:space-between; gap:16px; cursor:pointer; }
+.visit-link:first-child { border-radius:10px 10px 0 0; }
+.visit-link:last-child { border-radius:0 0 10px 10px; }
+.visit-link:only-child { border-radius:10px; }
+.visit-link + .visit-link { margin-top:-1px; }
+.visit-link b { color:#0f172a; font-size:20px; }
+.visit-link span { color:#64748b; font-size:14px; white-space:nowrap; }
+
+/* 占位页 */
+.placeholder-wrap { margin-top:24px; background:#fff; border-radius:14px; box-shadow:0 10px 30px rgba(64,108,180,.08); padding:48px 32px; min-height:400px; display:grid; place-items:center; }
+.placeholder-card { width:min(600px,100%); border:1px dashed #cbd5e1; border-radius:18px; background:linear-gradient(180deg,#f8fbff 0%, #fff 100%); padding:40px 32px; text-align:center; }
+.placeholder-card h2 { font-size:26px; color:#0f172a; margin-bottom:10px; }
+.placeholder-card p { color:#64748b; font-size:15px; line-height:1.8; }
+
+@media (max-width:1200px) { .cards { grid-template-columns:repeat(2,1fr); } .detail-layout { grid-template-columns:1fr; grid-template-rows:auto; height:auto; } }
+@media (max-width:760px) { .page-shell { padding:14px; } .cards { grid-template-columns:1fr; } .people-list { grid-template-columns:1fr; } .vital-stats { grid-template-columns:repeat(2,1fr); } }
+</style>
+</head>
+<body>
+<div class="page-shell">
+
+<!-- 页面1：主界面 -->
+<section class="view active" id="homeView">
+<header class="topbar">
+  <div class="brand"><span class="brand-icon"></span>个人数字空间</div>
+  <div class="person-strip">
+    <span class="avatar">👨</span>
+    <span class="meta">王*明　男性｜58岁｜汉族</span>
+    <span class="meta">证件　340**********1234</span>
+    <span class="meta">📍 合肥市包河区芜湖路168号</span>
+  </div>
+  <div class="refresh">数据截止2026-05-10 ↻</div>
+</header>
+
+<section class="cards">
+  <div class="card"><h4>标签类别</h4><div class="num">10</div><p>覆盖全部标准标签类别</p><div class="mini-icon">📋</div></div>
+  <div class="card primary"><h4>命中标签数 〉</h4><div class="num">87</div><p>标准标签库中的命中数</p><div class="mini-icon">🧾</div></div>
+  <div class="card warn"><h4>高风险标签 〉</h4><div class="num">6</div><p>需要重点关注</p><div class="mini-icon">⚠️</div></div>
+  <div class="card people">
+    <div class="people-card-title"><h4>人群类型</h4><span class="people-badge">可进入详情</span></div>
+    <div class="people-list">
+      <button class="people-item future" onclick="openPlaceholder('通用人群健康空间')">
+        <span class="people-label"><b>通用人群</b><span>本原型不展开通用详情</span></span>
+        <span class="people-arrow">›</span>
+      </button>
+      <button class="people-item main" onclick="openChronicView()">
+        <span class="people-label"><b>慢病</b><span>高血压 · 糖尿病</span></span>
+        <span class="people-arrow">›</span>
+      </button>
+      <button class="people-item future" onclick="openPlaceholder('孕产妇健康空间')">
+        <span class="people-label"><b>孕产妇</b><span>已归属，详情页后续开放</span></span>
+        <span class="people-arrow">›</span>
+      </button>
+      <button class="people-item future" onclick="openPlaceholder('重疾健康空间')">
+        <span class="people-label"><b>重疾</b><span>已归属，详情页后续开放</span></span>
+        <span class="people-arrow">›</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<main class="workspace">
+  <section class="panel">
+    <div class="panel-title"><div class="title-left"><span class="blue-mark"></span>个人健康标签图谱</div><span style="font-size:12px;color:#94a3b8;">保留当前PC端标签图谱主视觉</span></div>
+    <div class="graph-placeholder">标签图谱区域（低保真占位，保留既有主界面结构）</div>
+  </section>
+</main>
+</section>
+
+<!-- 页面2：慢病健康空间详情页 -->
+<section class="view" id="chronicView">
+<header class="page-head">
+  <div class="crumb"><button onclick="openHomeView()">← 返回个人数字空间</button><span>/</span><span>慢病健康空间</span></div>
+  <div class="space-title">慢病健康空间</div>
+  <div class="space-meta">患者：王*明｜男性｜58岁｜证件：340**********1234｜数据截止：2026-05-10</div>
+  <div class="disease-cards" id="diseaseCards">
+    <div class="disease-card">
+      <h5>❤️ 高血压</h5>
+      <div class="dc-row"><span>建档时间</span><b>2020-03-15</b></div>
+      <div class="dc-row"><span>家庭医生</span><b>张医生</b></div>
+      <div class="dc-row"><span>病种分型</span><b>原发性高血压</b></div>
+    </div>
+    <div class="disease-card">
+      <h5>🩸 糖尿病</h5>
+      <div class="dc-row"><span>建档时间</span><b>2021-06-20</b></div>
+      <div class="dc-row"><span>家庭医生</span><b>李医生</b></div>
+      <div class="dc-row"><span>病种分型</span><b>2型糖尿病</b></div>
+    </div>
+  </div>
+</header>
+
+<div class="detail-layout" id="chronicGrid">
+  <!-- 病种卡收缩标签条 -->
+  <div class="disease-bar" id="diseaseBar" style="grid-column:1/-1;">
+    <span class="disease-tag" onclick="scrollToTop()">高血压</span>
+    <span class="disease-tag" onclick="scrollToTop()">糖尿病</span>
+    <span style="font-size:12px;color:#94a3b8;margin-left:auto;">点击展开完整病种卡</span>
+  </div>
+
+  <!-- 左上：慢病健康视图 -->
+  <section class="section-card">
+    <h2>慢病健康视图</h2>
+    <div class="section-tip">以诊疗阶段为主线，展示慢病发展全过程（仅诊疗记录，不含公卫随访）</div>
+    <div class="subtabs">
+      <button class="subtab active" onclick="switchChronic(this,'risk')">前期风险 3</button>
+      <button class="subtab" onclick="switchChronic(this,'diag')">初诊确诊 2</button>
+      <button class="subtab" onclick="switchChronic(this,'med')">药物管理 5</button>
+      <button class="subtab" onclick="switchChronic(this,'relapse')">复发控制 2</button>
+    </div>
+    <div class="filter-toolbar">
+      <input class="input" placeholder="诊断名称/药品/机构">
+      <input class="input" style="width:120px" placeholder="开始日期">
+      <input class="input" style="width:120px" placeholder="结束日期">
+      <button class="btn">查询</button>
+    </div>
+    <div class="record-list" id="chronicList">
+      <div class="record" data-type="diag" onclick="openModal('diagModal')">
+        <div class="record-top"><span class="record-title">原发性高血压</span><span class="tag">门诊</span></div>
+        <div class="record-meta"><span>合肥市第一人民医院</span><span>心内科</span><span>2020-03-15</span></div>
+      </div>
+      <div class="record" data-type="diag" onclick="openModal('diagModal')">
+        <div class="record-top"><span class="record-title">2型糖尿病</span><span class="tag">门诊</span></div>
+        <div class="record-meta"><span>安徽省立医院</span><span>内分泌科</span><span>2021-06-20</span></div>
+      </div>
+      <div class="record" data-type="med" onclick="openModal('medModal')">
+        <div class="record-top"><span class="record-title">苯磺酸氨氯地平片</span><span class="tag green">用药</span></div>
+        <div class="record-meta"><span>5mg / 每日1次 / 口服</span><span>2020-03-15起</span></div>
+      </div>
+      <div class="record" data-type="med" onclick="openModal('medModal')">
+        <div class="record-top"><span class="record-title">二甲双胍缓释片</span><span class="tag green">用药</span></div>
+        <div class="record-meta"><span>500mg / 每日2次 / 口服</span><span>2021-06-20起</span></div>
+      </div>
+      <div class="record" data-type="relapse" onclick="openModal('diagModal')">
+        <div class="record-top"><span class="record-title">高血压性肾病</span><span class="tag risk">并发症</span></div>
+        <div class="record-meta"><span>合肥市第一人民医院</span><span>肾内科</span><span>2024-11-08</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 右上：健康指标 -->
+  <section class="section-card">
+    <h2>健康指标</h2>
+    <div class="section-tip">子菜单按病种动态展示，双病种展示血压/血糖/血脂三项</div>
+    <div class="subtabs">
+      <button class="subtab active">血压</button>
+      <button class="subtab">血糖</button>
+      <button class="subtab">血脂</button>
+    </div>
+    <div class="vital-stats">
+      <div class="vital-card"><b>32</b><span>历年检查</span></div>
+      <div class="vital-card"><b>8</b><span>历年异常</span></div>
+      <div class="vital-card"><b>12</b><span>近一年检查</span></div>
+      <div class="vital-card"><b>3</b><span>近一年异常</span></div>
+      <div class="vital-card"><b>28</b><span>确诊后检查</span></div>
+      <div class="vital-card"><b>7</b><span>确诊后异常</span></div>
+    </div>
+    <div class="chart" onclick="openModal('traceModal')">
+      <svg viewBox="0 0 420 180" preserveAspectRatio="none">
+        <line x1="30" y1="150" x2="400" y2="150" stroke="#cbd5e1"/>
+        <line x1="30" y1="10" x2="30" y2="150" stroke="#cbd5e1"/>
+        <!-- 控制目标参考线 -->
+        <line x1="30" y1="55" x2="400" y2="55" class="target-line"/>
+        <text x="405" y="58" class="target-label">130mmHg</text>
+        <line x1="30" y1="95" x2="400" y2="95" class="target-line"/>
+        <text x="405" y="98" class="target-label">80mmHg</text>
+        <!-- 趋势线 -->
+        <polyline points="50,40 100,48 150,52 200,45 250,60 300,50 350,42 390,55" fill="none" stroke="#2563eb" stroke-width="3"/>
+        <polyline points="50,85 100,90 150,88 200,92 250,95 300,88 350,90 390,93" fill="none" stroke="#60a5fa" stroke-width="2" stroke-dasharray="4 3"/>
+        <!-- 数据点 -->
+        <circle cx="200" cy="45" r="5" fill="#f59e0b" stroke="#fff" stroke-width="2" style="cursor:pointer"/>
+        <text x="30" y="170" fill="#64748b" font-size="10">2025-06</text>
+        <text x="190" y="170" fill="#64748b" font-size="10">2026-01</text>
+        <text x="360" y="170" fill="#64748b" font-size="10">2026-05</text>
+      </svg>
+      <div style="position:absolute;right:16px;top:12px;font-size:11px;color:#d97706;">⚠ 控制目标待专家确认</div>
+    </div>
+    <div class="slider"></div>
+  </section>
+
+  <!-- 左下：随访记录 -->
+  <section class="section-card">
+    <h2>随访记录</h2>
+    <div class="section-tip">公卫慢病随访记录，支持年份快速跳转和按类型筛选</div>
+    <div class="filter-toolbar">
+      <select class="select"><option>2026年</option><option>2025年</option><option>2024年</option><option>2023年</option></select>
+      <select class="select"><option>全部类型</option><option>高血压随访</option><option>糖尿病随访</option></select>
+      <span style="flex:1"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>随访时间</th><th>类型</th><th>方式</th><th>血压</th><th>血糖</th><th>依从性</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr><td>2026-04-15</td><td>高血压</td><td>门诊</td><td>138/86</td><td>—</td><td>规律</td><td><span class="link" onclick="openModal('followModal')">详情</span></td></tr>
+          <tr><td>2026-03-20</td><td>糖尿病</td><td>电话</td><td>—</td><td>7.2</td><td>间断</td><td><span class="link" onclick="openModal('followModal')">详情</span></td></tr>
+          <tr><td>2026-01-10</td><td>高血压</td><td>门诊</td><td>142/90</td><td>—</td><td>规律</td><td><span class="link" onclick="openModal('followModal')">详情</span></td></tr>
+          <tr><td>2025-10-08</td><td>糖尿病</td><td>家庭访视</td><td>—</td><td>6.8</td><td>规律</td><td><span class="link" onclick="openModal('followModal')">详情</span></td></tr>
+          <tr><td>2025-07-15</td><td>高血压</td><td>门诊</td><td>135/84</td><td>—</td><td>规律</td><td><span class="link" onclick="openModal('followModal')">详情</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 右下：专病档案 -->
+  <section class="section-card">
+    <h2>专病档案</h2>
+    <div class="section-tip">慢病专案管理 · 家医签约状态</div>
+    <div class="archive-card">
+      <h4 style="color:#2563eb;">慢病专案</h4>
+      <div style="border:1px solid #dbeafe;border-radius:10px;padding:10px 12px;margin-bottom:10px;background:#f8fbff;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:14px;font-weight:600;color:#0f172a;">❤️ 高血压</span>
+        <span style="font-size:12px;color:#64748b;">确诊 2020-03-15</span>
+        <span style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:999px;padding:2px 8px;font-size:11px;">控制期</span>
+      </div>
+      <div style="border:1px solid #dbeafe;border-radius:10px;padding:10px 12px;background:#f8fbff;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:14px;font-weight:600;color:#0f172a;">🩸 糖尿病</span>
+        <span style="font-size:12px;color:#64748b;">确诊 2021-06-20</span>
+        <span style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:999px;padding:2px 8px;font-size:11px;">控制期</span>
+      </div>
+    </div>
+    <div class="archive-card">
+      <h4>家医签约</h4>
+      <div class="archive-row"><b>签约状态</b><span style="color:#16a34a;font-weight:600;">已签约</span></div>
+      <div class="archive-row"><b>签约医生</b><span>张医生</span></div>
+      <div class="archive-row"><b>到期日期</b><span>2027-03-14</span></div>
+    </div>
+    <div style="margin-top:auto;padding-top:16px;">
+      <button class="btn" style="width:100%;" onclick="openModal('archiveModal')">查看完整档案</button>
+    </div>
+  </section>
+</div>
+</section>
+
+<!-- 页面3：占位页 -->
+<section class="view" id="placeholderView">
+<header class="page-head">
+  <div class="crumb"><button onclick="openHomeView()">← 返回个人数字空间</button><span>/</span><span id="phBreadcrumb">专项人群健康空间</span></div>
+  <div class="space-title" id="phTitle">专项人群健康空间</div>
+</header>
+<div class="placeholder-wrap">
+  <div class="placeholder-card">
+    <h2 id="phName">健康空间</h2>
+    <p>详情页后续开放<br>本期仅预留入口，正式内容将在后续版本中落地。</p>
+  </div>
+</div>
+</section>
+
+<!-- 弹窗：诊疗详情 -->
+<div class="modal-mask" id="diagModal">
+<div class="modal diag-modal">
+  <h3>诊疗详情 <button class="close-btn" onclick="closeModal('diagModal')">✕</button></h3>
+  <div class="modal-body" style="padding:20px 24px;">
+    <div class="diag-section">
+      <div class="diag-section-title">就诊详情</div>
+      <div class="diag-field-grid">
+        <div class="diag-field"><div class="label">就诊时间</div><div class="value">2025年5月10日</div></div>
+        <div class="diag-field"><div class="label">就诊机构</div><div class="value">合肥市第一人民医院</div></div>
+        <div class="diag-field"><div class="label">就诊科室</div><div class="value">内科</div></div>
+        <div class="diag-field"><div class="label">主诊医生</div><div class="value">赵——</div></div>
+        <div class="diag-field"><div class="label">主诉</div><div class="value">头晕2周</div></div>
+        <div class="diag-field"><div class="label">症状描述</div><div class="value">头晕</div></div>
+      </div>
+      <div class="diag-field-grid full" style="margin-top:10px;">
+        <div class="diag-field"><div class="label">诊断名称</div><div class="value">2型糖尿病</div></div>
+      </div>
+      <div class="diag-field-grid full" style="margin-top:10px;">
+        <div class="diag-field"><div class="label">一般检查</div><div class="value"><span style="color:#dc2626">血压 139/88 mmHg</span><br><span style="color:#dc2626">空腹血糖 6.1–7.0 mmol/L</span></div></div>
+      </div>
+    </div>
+    <div class="diag-section">
+      <div class="diag-section-title">相关检查</div>
+      <div class="diag-item-row" onclick="openModal('l3Modal')">
+        <span class="item-name">头颅CT</span>
+        <span class="item-link">点击查看三级详情</span>
+      </div>
+      <div class="diag-item-row" onclick="openModal('l3Modal')">
+        <span class="item-name">彩色多普勒超声常规检查</span>
+        <span class="item-link">点击查看三级详情</span>
+      </div>
+    </div>
+    <div class="diag-section">
+      <div class="diag-section-title">相关检验</div>
+      <div class="diag-item-row" onclick="openModal('l3Modal')">
+        <span class="item-name">血常规</span>
+        <span class="item-link">点击查看三级详情</span>
+      </div>
+      <div class="diag-item-row" onclick="openModal('l3Modal')">
+        <span class="item-name">生化</span>
+        <span class="item-link">点击查看三级详情</span>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn" onclick="closeModal('diagModal')">关闭</button></div>
+</div>
+</div>
+
+<!-- 弹窗：三级明细 -->
+<div class="modal-mask" id="l3Modal" style="z-index:25;">
+<div class="modal">
+  <h3><button class="close-btn" onclick="closeModal('l3Modal')" style="background:#eff6ff;color:#2563eb;font-size:13px;width:auto;padding:0 12px;">← 返回</button> 检验详情 <button class="close-btn" onclick="closeAllModals()">✕</button></h3>
+  <div class="modal-body">
+    <div class="modal-row"><b>检验时间</b><span>2020-03-15</span></div>
+    <div class="modal-row"><b>检验机构</b><span>合肥市第一人民医院</span></div>
+    <div class="modal-row"><b>检验项目</b><span>血常规+生化全套</span></div>
+    <table style="margin-top:12px;">
+      <thead><tr><th>项目</th><th>结果</th><th>参考值</th><th>提示</th></tr></thead>
+      <tbody>
+        <tr><td>空腹血糖</td><td style="color:#dc2626;font-weight:700;">7.8 mmol/L</td><td>3.9-6.1</td><td style="color:#dc2626;">偏高</td></tr>
+        <tr><td>总胆固醇</td><td>5.2 mmol/L</td><td>&lt;5.2</td><td>正常</td></tr>
+        <tr><td>肌酐</td><td>98 μmol/L</td><td>44-133</td><td>正常</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="modal-footer"><button class="btn secondary" onclick="closeAllModals()">关闭全部</button></div>
+</div>
+</div>
+
+<!-- 弹窗：药物管理详情 -->
+<div class="modal-mask" id="medModal">
+<div class="modal">
+  <h3>用药详情 <button class="close-btn" onclick="closeModal('medModal')">✕</button></h3>
+  <div class="modal-body">
+    <div class="modal-row"><b>药品名称</b><span>苯磺酸氨氯地平片</span></div>
+    <div class="modal-row"><b>规格</b><span>5mg×28片</span></div>
+    <div class="modal-row"><b>剂量</b><span>5mg</span></div>
+    <div class="modal-row"><b>频次</b><span>每日1次</span></div>
+    <div class="modal-row"><b>服药方式</b><span>口服</span></div>
+    <div class="modal-row"><b>数量</b><span>2盒</span></div>
+    <div class="modal-row"><b>用药时间</b><span>2020-03-15起</span></div>
+    <div class="modal-row"><b>用药来源</b><span>公卫表高血压用药记录</span></div>
+  </div>
+  <div class="modal-footer"><button class="btn secondary" onclick="closeModal('medModal')">关闭</button></div>
+</div>
+</div>
+
+<!-- 弹窗：随访详情 -->
+<div class="modal-mask" id="followModal">
+<div class="modal diag-modal">
+  <h3>随访详情 <button class="close-btn" onclick="closeModal('followModal')">✕</button></h3>
+  <div class="modal-body" style="padding:20px 24px;">
+    <div class="diag-section">
+      <div class="diag-section-title">随访详情</div>
+      <div class="diag-field-grid">
+        <div class="diag-field"><div class="label">随访医生</div><div class="value">张医生</div></div>
+        <div class="diag-field"><div class="label">随访机构</div><div class="value">合肥市蜀山区社区卫生服务中心</div></div>
+        <div class="diag-field"><div class="label">本次随访日期</div><div class="value">2026-04-15</div></div>
+        <div class="diag-field"><div class="label">下次随访日期</div><div class="value">2026-07-15</div></div>
+      </div>
+      <div style="margin-top:10px;"><span style="display:inline-block;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:999px;padding:3px 10px;font-size:12px;">规律随访</span></div>
+    </div>
+    <div class="diag-section">
+      <div class="diag-section-title">核心指标</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div style="background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:12px;padding:18px;color:#fff;">
+          <div style="font-size:13px;opacity:0.9;margin-bottom:8px;">收缩压</div>
+          <div style="font-size:32px;font-weight:800;line-height:1;">138</div>
+          <div style="font-size:13px;opacity:0.9;margin-top:4px;">mmHg</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:12px;padding:18px;color:#fff;">
+          <div style="font-size:13px;opacity:0.9;margin-bottom:8px;">舒张压</div>
+          <div style="font-size:32px;font-weight:800;line-height:1;">86</div>
+          <div style="font-size:13px;opacity:0.9;margin-top:4px;">mmHg</div>
+        </div>
+      </div>
+      <div class="diag-field-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="diag-field" style="text-align:center;"><div class="label">体重</div><div class="value" style="font-size:18px;font-weight:700;">72 kg</div></div>
+        <div class="diag-field" style="text-align:center;"><div class="label">BMI</div><div class="value" style="font-size:18px;font-weight:700;">24.5</div></div>
+        <div class="diag-field" style="text-align:center;"><div class="label">心率</div><div class="value" style="font-size:18px;font-weight:700;">78 次/分</div></div>
+      </div>
+    </div>
+    <div class="diag-section">
+      <div class="diag-section-title">生活方式目标</div>
+      <div style="display:grid;gap:8px;">
+        <div style="display:grid;grid-template-columns:90px 1fr 1fr;gap:10px;align-items:center;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;">
+          <b style="color:#334155;">吸烟</b><span style="color:#64748b;">当前：无</span><span style="color:#16a34a;">目标：无</span>
+        </div>
+        <div style="display:grid;grid-template-columns:90px 1fr 1fr;gap:10px;align-items:center;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;">
+          <b style="color:#334155;">饮酒</b><span style="color:#64748b;">当前：偶尔</span><span style="color:#16a34a;">目标：戒酒</span>
+        </div>
+        <div style="display:grid;grid-template-columns:90px 1fr 1fr;gap:10px;align-items:center;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;">
+          <b style="color:#334155;">运动频率</b><span style="color:#64748b;">当前：每周3次</span><span style="color:#16a34a;">目标：每周5次</span>
+        </div>
+        <div style="display:grid;grid-template-columns:90px 1fr 1fr;gap:10px;align-items:center;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;">
+          <b style="color:#334155;">运动时长</b><span style="color:#64748b;">当前：30分钟/次</span><span style="color:#16a34a;">目标：45分钟/次</span>
+        </div>
+        <div style="display:grid;grid-template-columns:90px 1fr 1fr;gap:10px;align-items:center;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;">
+          <b style="color:#334155;">摄盐情况</b><span style="color:#64748b;">当前：偏咸</span><span style="color:#16a34a;">目标：清淡</span>
+        </div>
+      </div>
+    </div>
+    <div class="diag-section">
+      <div class="diag-section-title">用药</div>
+      <div class="diag-field-grid">
+        <div class="diag-field"><div class="label">服药依从性</div><div class="value">规律服药</div></div>
+        <div class="diag-field"><div class="label">不良反应</div><div class="value">无</div></div>
+      </div>
+      <div style="margin-top:12px;display:grid;gap:10px;">
+        <div style="border:1px solid #e5e7eb;border-radius:10px;padding:12px;background:#f8fafc;">
+          <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:8px;">苯磺酸氨氯地平片</div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:12px;color:#64748b;">
+            <div><b style="color:#334155;">用法用量：</b>5mg / 每日1次</div>
+            <div><b style="color:#334155;">服用时间：</b>早餐后</div>
+          </div>
+        </div>
+        <div style="border:1px solid #e5e7eb;border-radius:10px;padding:12px;background:#f8fafc;">
+          <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:8px;">厄贝沙坦片</div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:12px;color:#64748b;">
+            <div><b style="color:#334155;">用法用量：</b>150mg / 每日1次</div>
+            <div><b style="color:#334155;">服用时间：</b>早餐后</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="diag-section">
+      <div class="diag-section-title">医生健康指导</div>
+      <div style="padding:12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#475569;line-height:1.8;">
+        继续保持规律服药，注意监测血压变化。建议增加运动频率至每周5次，每次45分钟以上的有氧运动。饮食方面需严格控制盐分摄入，每日不超过6克，避免高脂高糖食物。戒酒对血压控制有积极作用，建议逐步减少饮酒频率直至完全戒除。
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn" onclick="closeModal('followModal')">关闭</button></div>
+</div>
+</div>
+</div>
+
+<!-- 弹窗：溯源 -->
+<div class="modal-mask" id="traceModal">
+<div class="modal" style="width:400px;">
+  <h3>指标溯源 <button class="close-btn" onclick="closeModal('traceModal')">✕</button></h3>
+  <div class="modal-body">
+    <div class="modal-row"><b>检查时间</b><span>2026-01-10</span></div>
+    <div class="modal-row"><b>检查机构</b><span>合肥市第一人民医院</span></div>
+    <div class="modal-row"><b>收缩压</b><span style="color:#dc2626;font-weight:700;">145 mmHg</span></div>
+    <div class="modal-row"><b>舒张压</b><span style="color:#dc2626;font-weight:700;">92 mmHg</span></div>
+    <div class="modal-row"><b>控制目标</b><span style="color:#d97706;">&lt;130/80 mmHg（待确认）</span></div>
+  </div>
+  <div class="modal-footer"><button class="btn secondary" onclick="closeModal('traceModal')">关闭</button></div>
+</div>
+</div>
+
+<!-- 弹窗：完整专病档案 -->
+<div class="modal-mask" id="archiveModal">
+<div class="modal diag-modal">
+  <h3>专病档案 <button class="close-btn" onclick="closeModal('archiveModal')">✕</button></h3>
+  <div class="modal-body" style="padding:20px 24px;">
+    <div class="diag-section">
+      <div class="diag-section-title">基本信息</div>
+      <div class="diag-field-grid">
+        <div class="diag-field"><div class="label">姓名</div><div class="value">王*明</div></div>
+        <div class="diag-field"><div class="label">性别</div><div class="value">男性</div></div>
+        <div class="diag-field"><div class="label">出生日期</div><div class="value">1968-03-15</div></div>
+        <div class="diag-field"><div class="label">身份证号</div><div class="value">340**********1234</div></div>
+        <div class="diag-field"><div class="label">手机号</div><div class="value">138****5678</div></div>
+        <div class="diag-field"><div class="label">民族</div><div class="value">汉族</div></div>
+        <div class="diag-field"><div class="label">血型</div><div class="value">A型</div></div>
+        <div class="diag-field"><div class="label">婚姻状况</div><div class="value">已婚</div></div>
+        <div class="diag-field"><div class="label">档案编号</div><div class="value">340104-2020-00001234</div></div>
+        <div class="diag-field"><div class="label">建档日期</div><div class="value">2020-03-15</div></div>
+        <div class="diag-field"><div class="label">管辖医生</div><div class="value">张医生</div></div>
+        <div class="diag-field"><div class="label">档案完整度</div><div class="value" style="color:#16a34a;font-weight:600;">92%</div></div>
+      </div>
+      <div class="diag-field-grid full" style="margin-top:10px;">
+        <div class="diag-field"><div class="label">现居地址</div><div class="value">合肥市包河区芜湖路168号</div></div>
+      </div>
+      <div class="diag-field-grid full" style="margin-top:10px;">
+        <div class="diag-field"><div class="label">户籍地址</div><div class="value">合肥市包河区芜湖路168号</div></div>
+      </div>
+    </div>
+    <div class="diag-section">
+      <div class="diag-section-title" style="color:#2563eb;">慢病专案管理</div>
+      <div style="border:1px solid #dbeafe;border-radius:10px;padding:14px;margin-bottom:12px;background:#f8fbff;">
+        <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:10px;display:flex;align-items:center;gap:8px;">❤️ 高血压<span style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:999px;padding:2px 8px;font-size:11px;">控制期</span></div>
+        <div class="diag-field-grid">
+          <div class="diag-field"><div class="label">确诊时间</div><div class="value">2020-03-15</div></div>
+          <div class="diag-field"><div class="label">责任医生</div><div class="value">张医生</div></div>
+          <div class="diag-field"><div class="label">管理机构</div><div class="value">合肥市蜀山区社区卫生服务中心</div></div>
+        </div>
+      </div>
+      <div style="border:1px solid #dbeafe;border-radius:10px;padding:14px;background:#f8fbff;">
+        <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:10px;display:flex;align-items:center;gap:8px;">🩸 糖尿病<span style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:999px;padding:2px 8px;font-size:11px;">控制期</span></div>
+        <div class="diag-field-grid">
+          <div class="diag-field"><div class="label">确诊时间</div><div class="value">2021-06-20</div></div>
+          <div class="diag-field"><div class="label">责任医生</div><div class="value">李医生</div></div>
+          <div class="diag-field"><div class="label">管理机构</div><div class="value">合肥市蜀山区社区卫生服务中心</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="diag-section">
+      <div class="diag-section-title">家医签约</div>
+      <div class="diag-field-grid">
+        <div class="diag-field"><div class="label">签约状态</div><div class="value" style="color:#16a34a;font-weight:600;">已签约</div></div>
+        <div class="diag-field"><div class="label">签约医生</div><div class="value">张医生</div></div>
+        <div class="diag-field"><div class="label">签约团队</div><div class="value">蜀山区家医团队A组</div></div>
+        <div class="diag-field"><div class="label">签约机构</div><div class="value">合肥市蜀山区社区卫生服务中心</div></div>
+        <div class="diag-field"><div class="label">签约日期</div><div class="value">2020-03-15</div></div>
+        <div class="diag-field"><div class="label">到期日期</div><div class="value">2027-03-14</div></div>
+      </div>
+      <div class="diag-field-grid full" style="margin-top:10px;">
+        <div class="diag-field"><div class="label">服务包</div><div class="value">慢病管理服务包</div></div>
+      </div>
+    </div>
+    <div class="diag-section">
+      <div class="diag-section-title">过敏史 / 家族史</div>
+      <div class="diag-field-grid">
+        <div class="diag-field"><div class="label">过敏药物</div><div class="value" style="color:#dc2626;font-weight:600;">青霉素</div></div>
+        <div class="diag-field"><div class="label">父亲病史</div><div class="value">高血压、冠心病</div></div>
+        <div class="diag-field"><div class="label">母亲病史</div><div class="value">糖尿病</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer"><button class="btn" onclick="closeModal('archiveModal')">关闭</button></div>
+</div>
+</div>
+
+<script>
+function openHomeView(){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById('homeView').classList.add('active'); }
+function openChronicView(){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById('chronicView').classList.add('active'); }
+function openPlaceholder(name){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById('placeholderView').classList.add('active'); document.getElementById('phBreadcrumb').textContent=name; document.getElementById('phTitle').textContent=name; document.getElementById('phName').textContent=name; }
+function switchChronic(btn,type){
+  btn.parentElement.querySelectorAll('.subtab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#chronicList .record').forEach(r=>{
+    r.style.display = r.getAttribute('data-type')===type ? '' : 'none';
+  });
+}
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+function closeAllModals(){ document.querySelectorAll('.modal-mask').forEach(m=>m.classList.remove('show')); }
+function scrollToTop(){ document.getElementById('chronicView').scrollIntoView({behavior:'smooth'}); }
+
+// 病种卡滚动收缩
+let lastScroll=0;
+window.addEventListener('scroll',function(){
+  const cards=document.getElementById('diseaseCards');
+  const bar=document.getElementById('diseaseBar');
+  if(!cards||!bar)return;
+  const rect=cards.getBoundingClientRect();
+  if(rect.bottom<0){ bar.classList.add('show'); cards.style.display='none'; }
+  else{ bar.classList.remove('show'); cards.style.display=''; }
+});
+</script>
+
+</div>
+</body>
+</html>

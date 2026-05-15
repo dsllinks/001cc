@@ -297,6 +297,26 @@ button { cursor:pointer; }
 .modal-body { padding:20px 22px; color:#475569; display:grid; gap:10px; }
 .modal-row { display:grid; grid-template-columns:120px 1fr; gap:10px; }
 .modal-footer { padding:14px 22px; border-top:1px solid #e5e7eb; text-align:right; }
+
+/* 诊疗弹窗专用样式（图片样式：白底圆角 + 浅蓝灰字段块 + 行项点击三级详情） */
+.diag-modal { width:880px; max-width:calc(100vw - 48px); max-height:calc(100vh - 48px); display:flex; flex-direction:column; }
+.diag-modal h3 { display:flex; align-items:center; justify-content:space-between; }
+.diag-modal-body { padding:20px 24px; overflow:auto; flex:1; background:#fff; }
+.diag-section { border:1px solid #e6eaf0; border-radius:8px; padding:18px 18px 14px; margin-bottom:16px; background:#fff; }
+.diag-section:last-child { margin-bottom:0; }
+.diag-section-title { font-size:15px; font-weight:600; color:#111827; margin-bottom:14px; }
+.diag-field-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px 12px; }
+.diag-field-grid.full { grid-template-columns:1fr; }
+.diag-field { background:#f4f7fb; border:1px solid #e8edf4; border-radius:6px; padding:10px 14px; }
+.diag-field .label { font-size:12px; color:#6b7280; margin-bottom:4px; }
+.diag-field .value { font-size:14px; color:#1f2937; line-height:1.5; word-break:break-all; }
+.diag-item-row { background:#f4f7fb; border:1px solid #e8edf4; border-radius:6px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; cursor:pointer; transition:background-color .15s; }
+.diag-item-row:last-child { margin-bottom:0; }
+.diag-item-row:hover { background:#eef3fa; }
+.diag-item-row .item-name { font-size:14px; font-weight:600; color:#1f2937; }
+.diag-item-row .item-link { font-size:12px; color:#94a3b8; }
+.diag-item-row .item-link::after { content:" \203a"; margin-left:2px; }
+.diag-modal .modal-footer { background:#fff; }
 .drawer-mask {
   position:fixed; inset:0; background:rgba(15,23,42,.28); display:none; z-index:30;
 }
@@ -627,9 +647,9 @@ button { cursor:pointer; }
 </div>
 
 <div class="modal-mask" id="drawerMask">
-  <div class="modal" style="width:680px;">
-    <h3 id="drawerTitle">诊疗详情</h3>
-    <div class="modal-body" id="drawerBody" style="max-height:60vh;overflow:auto;"></div>
+  <div class="modal diag-modal">
+    <h3><span id="drawerTitle">诊疗详情</span><button class="btn secondary" onclick="closeDrawer()" style="padding:4px 12px;font-size:14px;">✕</button></h3>
+    <div class="diag-modal-body" id="drawerBody"></div>
     <div class="modal-footer"><button class="btn" onclick="closeDrawer()">关闭</button></div>
   </div>
 </div>
@@ -648,12 +668,12 @@ button { cursor:pointer; }
 
 <script>
 const records = [
-  {type:"out", title:"急性上呼吸道感染", kind:"门诊", org:"合肥市蜀山区社区卫生服务中心", dept:"全科门诊", time:"2026-04-21", checks:["胸部DR检查"], labs:["血常规", "C反应蛋白"], prescriptions:["小儿氨酚黄那敏颗粒", "氯雷他定糖浆"], surgeries:[]},
-  {type:"out", title:"过敏性鼻炎", kind:"门诊", org:"安徽省立医院", dept:"耳鼻喉科", time:"2026-03-18", checks:[], labs:["过敏原筛查"], prescriptions:["氯雷他定片"], surgeries:[]},
-  {type:"in", title:"肺炎", kind:"住院", org:"合肥市第一人民医院", dept:"儿科", time:"2026-02-05", checks:["胸部CT"], labs:["血常规", "降钙素原"], prescriptions:[], surgeries:[]},
-  {type:"out", title:"健康体检", kind:"门诊", org:"社区卫生服务中心", dept:"体检科", time:"2026-01-16", checks:["腹部B超"], labs:["肝功能", "肾功能"], prescriptions:[], surgeries:[]},
-  {type:"in", title:"支气管炎", kind:"住院", org:"合肥市儿童医院", dept:"呼吸内科", time:"2025-11-12", checks:["胸片"], labs:["血常规"], prescriptions:[], surgeries:[]},
-  {type:"out", title:"腹泻病", kind:"门诊", org:"社区卫生服务中心", dept:"全科门诊", time:"2025-10-02", checks:[], labs:[], prescriptions:["蒙脱石散"], surgeries:[]}
+  {type:"out", title:"急性上呼吸道感染", kind:"门诊", org:"合肥市蜀山区社区卫生服务中心", dept:"全科门诊", time:"2026-04-21", doctor:"王医生", complaint:"咳嗽3天", symptom:"咳嗽、流涕、低热", checks:["胸部DR检查"], labs:["血常规", "C反应蛋白"], prescriptions:["小儿氨酚黄那敏颗粒", "氯雷他定糖浆"], surgeries:[]},
+  {type:"out", title:"过敏性鼻炎", kind:"门诊", org:"安徽省立医院", dept:"耳鼻喉科", time:"2026-03-18", doctor:"李医生", complaint:"鼻塞流涕反复1月", symptom:"鼻塞、喷嚏、流清涕", checks:[], labs:["过敏原筛查"], prescriptions:["氯雷他定片"], surgeries:[]},
+  {type:"in", title:"2型糖尿病", kind:"住院", org:"合肥市第一人民医院", dept:"内科", time:"2025-05-10", doctor:"赵——", complaint:"头晕", symptom:"头晕", ward:"内科病区", admitDiag:"2型糖尿病", examResult:"肝脏体积正常，肝包膜光滑，连续，肝内回声密集，细小，均匀，后场回声减弱，肝内管系走向欠清晰。", treatment:"肝脏体积正常，肝包膜光滑，连续，肝内回声密集，细小，均匀，后场回声减弱，肝内管系走向欠清晰。", dischargeTime:"2025-05-15", dischargeDiag:"2型糖尿病", dischargeStatus:"好转", dischargeAdvice:"定期复查", checks:["头颅CT","彩色多普勒超声常规检查"], labs:["血常规","生化"], prescriptions:["西药用药","中药用药"], surgeries:["经尿道前列腺激光汽化术"]},
+  {type:"out", title:"健康体检", kind:"门诊", org:"社区卫生服务中心", dept:"体检科", time:"2026-01-16", doctor:"孙医生", complaint:"常规体检", symptom:"无特殊不适", checks:["腹部B超"], labs:["肝功能", "肾功能"], prescriptions:[], surgeries:[]},
+  {type:"in", title:"支气管炎", kind:"住院", org:"合肥市儿童医院", dept:"呼吸内科", time:"2025-11-12", doctor:"周医生", complaint:"咳嗽伴喘息4天", symptom:"咳嗽、喘息、痰鸣", ward:"儿科病区", admitDiag:"支气管炎", examResult:"胸片示双肺纹理增粗", treatment:"抗感染、止咳化痰、雾化吸入治疗", dischargeTime:"2025-11-18", dischargeDiag:"支气管炎", dischargeStatus:"治愈", dischargeAdvice:"注意保暖，避免受凉", checks:["胸片"], labs:["血常规"], prescriptions:[], surgeries:[]},
+  {type:"out", title:"腹泻病", kind:"门诊", org:"社区卫生服务中心", dept:"全科门诊", time:"2025-10-02", doctor:"吴医生", complaint:"腹泻2天", symptom:"稀水样便、轻度脱水", checks:[], labs:[], prescriptions:["蒙脱石散"], surgeries:[]}
 ];
 const historyData = {
   past: [
@@ -768,15 +788,20 @@ function syncRecordSubtab(type){
 function openRecord(index){
   const r=records[index];
   if(r.kind==='住院'){
+    const modules=[['相关检查',r.checks,'检查详情'],['相关检验',r.labs,'检验详情'],['住院用药',r.prescriptions,'处方详情'],['相关手术',r.surgeries,'手术详情']].filter(m=>m[1]&&m[1].length);
     openDrawer('住院详情', [
-      ['原始诊断',r.title],['住院机构',r.org],['住院科室',r.dept],['入院时间',r.time],
-      ['住院说明','本原型保留住院详情的独立查看路径，体现与门诊详情的区分'],['评审提示','正式页面可继续补充费用清单、检查检验、治疗过程等字段']
-    ]);
+      ['入院时间',r.time],['入院机构',r.org],['入院科室',r.dept],['主治医生',r.doctor||'—'],
+      ['病区',r.ward||'—'],['入院诊断',r.admitDiag||r.title],['入院体征及症状',r.symptom||'—'],
+      ['住院期间主要检查结果',r.examResult||'—'],['诊疗过程',r.treatment||'—'],
+      ['出院时间',r.dischargeTime||'—'],['出院诊断',r.dischargeDiag||r.title],
+      ['出院情况',r.dischargeStatus||'—'],['出院医嘱',r.dischargeAdvice||'—']
+    ], modules);
     return;
   }
   const modules=[['相关检查',r.checks,'检查详情'],['相关检验',r.labs,'检验详情'],['门诊处方',r.prescriptions,'处方详情'],['相关手术',r.surgeries,'手术详情']].filter(m=>m[1]&&m[1].length);
   openDrawer('诊疗详情', [
-    ['原始诊断名称',r.title],['就诊类型',r.kind],['就诊机构',r.org],['就诊科室',r.dept],['就诊时间',r.time]
+    ['就诊时间',r.time],['就诊机构',r.org],['就诊科室',r.dept],['主诊医生',r.doctor||'—'],
+    ['主诉',r.complaint||'—'],['症状描述',r.symptom||'—'],['诊断名称',r.title]
   ], modules);
 }
 function renderHistory(type='past'){
@@ -826,8 +851,13 @@ function openModal(title, rows){
 }
 function closeModal(){ document.getElementById('modalMask').classList.remove('show'); }
 function openDrawer(title, rows, modules=[]){
-  const detailSection = `<div class="detail-module"><h4>就诊详情</h4>${rows.map(r=>`<div class="drawer-row"><b>${r[0]}</b><span>${r[1]}</span></div>`).join('')}</div>`;
-  const moduleSections = modules.map(([name,items,detailTitle])=>`<div class="detail-module"><h4>${name}</h4><div class="module-list">${items.map(item=>`<div class="module-group"><div class="module-item" onclick="toggleModuleDetail(this,'${detailTitle}','${item}')"><b>${item}</b><span>点击查看三级详情 ›</span></div><div class="module-inline-detail hidden"></div></div>`).join('')}</div></div>`).join('');
+  const fullKeys = ['原始诊断名称','诊断名称','原始诊断','入院诊断','出院诊断','入院体征及症状','住院期间主要检查结果','诊疗过程','出院医嘱'];
+  const normalRows = rows.filter(r=>!fullKeys.includes(r[0]));
+  const fullRows = rows.filter(r=>fullKeys.includes(r[0]));
+  const gridFields = normalRows.map(r=>`<div class="diag-field"><div class="label">${r[0]}</div><div class="value">${r[1]}</div></div>`).join('');
+  const fullFields = fullRows.map(r=>`<div class="diag-field-grid full" style="margin-top:10px;"><div class="diag-field"><div class="label">${r[0]}</div><div class="value">${r[1]}</div></div></div>`).join('');
+  const detailSection = `<div class="diag-section"><div class="diag-section-title">${title==='住院详情'?'住院详情':'就诊详情'}</div><div class="diag-field-grid">${gridFields}</div>${fullFields}</div>`;
+  const moduleSections = modules.map(([name,items,detailTitle])=>`<div class="diag-section"><div class="diag-section-title">${name}</div>${items.map(item=>`<div class="diag-item-row" onclick="toggleModuleDetail(this,'${detailTitle}','${item}')"><span class="item-name">${item}</span><span class="item-link">点击查看三级详情</span></div>`).join('')}</div>`).join('');
   document.getElementById('drawerTitle').textContent=title;
   document.getElementById('drawerBody').innerHTML = `${detailSection}${moduleSections}`;
   document.getElementById('drawerMask').classList.add('show');

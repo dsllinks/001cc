@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人数字空间 PC端融合慢病人群健康空间 原型 v0.1</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif; background:#f4f7fb; color:#172033; }
+button,input,select { font:inherit; }
+button { cursor:pointer; }
+.app { min-height:100vh; }
+.topbar { height:56px; background:#1f66d1; color:#fff; display:flex; align-items:center; justify-content:space-between; padding:0 28px; box-shadow:0 4px 18px rgba(31,102,209,.18); }
+.brand { font-size:18px; font-weight:700; letter-spacing:0; }
+.user { display:flex; align-items:center; gap:12px; font-size:14px; opacity:.96; }
+.avatar { width:28px; height:28px; border-radius:50%; background:#dbeafe; color:#1d4ed8; display:grid; place-items:center; font-weight:700; }
+.view { display:none; }
+.view.active { display:block; }
+.container { max-width:1400px; margin:0 auto; padding:22px 24px 30px; }
+.patient-strip { background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:18px 22px; display:flex; align-items:center; justify-content:space-between; gap:20px; box-shadow:0 8px 24px rgba(15,23,42,.05); }
+.patient-main { display:flex; align-items:center; gap:16px; min-width:0; }
+.patient-face { width:52px; height:52px; border-radius:50%; background:#eaf3ff; color:#2563eb; display:grid; place-items:center; font-size:24px; font-weight:800; flex:0 0 auto; }
+.patient-name { font-size:22px; font-weight:800; margin-bottom:7px; }
+.patient-meta { display:flex; flex-wrap:wrap; gap:10px 18px; color:#475569; font-size:14px; }
+.refresh { color:#64748b; font-size:13px; white-space:nowrap; }
+.dashboard-cards { margin-top:18px; display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+.summary-card { position:relative; min-height:156px; background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:18px; box-shadow:0 8px 22px rgba(15,23,42,.05); overflow:hidden; }
+.summary-card h3 { font-size:16px; margin-bottom:8px; }
+.summary-number { font-size:34px; font-weight:800; color:#0f172a; margin:8px 0 4px; }
+.summary-desc { color:#64748b; font-size:13px; line-height:1.6; }
+.card-icon { position:absolute; right:18px; top:18px; width:42px; height:42px; border-radius:8px; background:#eff6ff; color:#2563eb; display:grid; place-items:center; font-size:22px; }
+.people-list { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:10px; }
+.people-item { border:1px solid #d7e6ff; background:#fff; border-radius:8px; padding:10px 11px; display:flex; align-items:center; justify-content:space-between; gap:8px; color:#334155; transition:.16s; min-height:54px; }
+.people-item:hover { border-color:#93c5fd; background:#eff6ff; transform:translateY(-1px); }
+.people-item.main { border-color:#8bb4ff; background:#eef5ff; }
+.people-item.current { border-color:#7dd3fc; background:#ecfeff; }
+.people-label { display:flex; flex-direction:column; gap:3px; text-align:left; min-width:0; }
+.people-label b { font-size:14px; color:#0f172a; }
+.people-label span { font-size:12px; color:#64748b; line-height:1.35; }
+.people-arrow { color:#2563eb; font-size:22px; line-height:1; }
+.graph-card { margin-top:18px; background:#fff; border:1px solid #e2e8f0; border-radius:8px; box-shadow:0 8px 22px rgba(15,23,42,.05); overflow:hidden; }
+.section-head { height:54px; padding:0 18px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #e5e7eb; }
+.section-title { display:flex; align-items:center; gap:9px; font-weight:800; }
+.blue-mark { width:7px; height:18px; border-radius:5px; background:#2563eb; }
+.graph-body { display:grid; grid-template-columns:210px 1fr; height:570px; }
+.legend { border-right:1px solid #eef2f7; padding:18px; background:#fbfdff; overflow:auto; }
+.select-like { height:40px; border:1px solid #dbe3ef; border-radius:8px; display:flex; align-items:center; justify-content:space-between; padding:0 12px; margin-bottom:14px; background:#fff; color:#334155; }
+.legend-list { list-style:none; display:grid; gap:12px; font-size:14px; color:#475569; }
+.dot { display:inline-block; width:12px; height:12px; border-radius:50%; margin-right:8px; vertical-align:-1px; }
+.graph-area { position:relative; background:#fff; overflow:hidden; }
+.graph-hint { position:absolute; right:20px; top:16px; color:#94a3b8; font-size:12px; }
+.center-node { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:82px; height:82px; border-radius:50%; background:#dbeafe; border:4px solid #9fc5ff; display:grid; place-items:center; z-index:3; font-size:34px; }
+.ray { position:absolute; left:50%; top:50%; height:1px; background:repeating-linear-gradient(90deg,#cbd5e1 0 6px,transparent 6px 10px); transform-origin:left center; z-index:1; }
+.node { position:absolute; width:62px; height:62px; border-radius:50%; display:grid; place-items:center; text-align:center; font-size:12px; line-height:1.15; color:#334155; box-shadow:0 5px 16px rgba(20,38,70,.08); z-index:2; padding:6px; }
+.node.basic { background:#eef6ff; border:2px solid #93c5fd; }
+.node.health { background:#f0fdf4; border:2px solid #86efac; }
+.node.risk { background:#fff7ed; border:2px solid #fdba74; }
+.node.service { background:#f5f3ff; border:2px solid #c4b5fd; }
+.page-head { position:sticky; top:0; z-index:8; background:#f4f7fb; padding:18px 24px 12px; border-bottom:1px solid #e7edf6; }
+.head-inner { max-width:1440px; margin:0 auto; }
+.crumb { display:flex; align-items:center; gap:8px; color:#64748b; font-size:13px; margin-bottom:10px; }
+.crumb button { border:none; background:transparent; color:#2563eb; padding:0; }
+.space-row { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; }
+.space-title { font-size:24px; font-weight:850; color:#0f172a; margin-bottom:6px; }
+.space-desc { font-size:14px; color:#64748b; }
+.space-meta { display:grid; gap:7px; font-size:14px; color:#334155; white-space:nowrap; }
+.disease-cards { margin-top:14px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.disease-card { background:#fff; border:1px solid #dbeafe; border-radius:8px; padding:12px 14px; display:grid; gap:8px; box-shadow:0 5px 16px rgba(15,23,42,.04); }
+.disease-card strong { font-size:16px; color:#0f172a; }
+.disease-tags { display:flex; flex-wrap:wrap; gap:8px; }
+.pill { display:inline-flex; align-items:center; border-radius:999px; padding:3px 9px; font-size:12px; border:1px solid #bfdbfe; background:#eff6ff; color:#2563eb; white-space:nowrap; }
+.pill.warn { border-color:#fed7aa; background:#fff7ed; color:#c2410c; }
+.pill.green { border-color:#bbf7d0; background:#f0fdf4; color:#15803d; }
+.detail-shell { max-width:1440px; margin:0 auto; padding:14px 24px 24px; }
+.detail-layout { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:16px; height:calc(100vh - 234px); min-height:680px; }
+.section-card { background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:16px; overflow:auto; box-shadow:0 8px 22px rgba(15,23,42,.05); }
+.section-card h2 { font-size:19px; color:#0f172a; margin-bottom:5px; }
+.section-tip { color:#64748b; font-size:13px; line-height:1.55; margin-bottom:13px; }
+.subtabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+.subtab { border:1px solid #dbe3ef; background:#fff; color:#334155; border-radius:999px; padding:7px 12px; font-size:13px; }
+.subtab.active { background:#2563eb; color:#fff; border-color:#2563eb; }
+.filter-toolbar { display:grid; grid-template-columns:1fr 120px 120px auto; gap:8px; align-items:center; margin-bottom:12px; }
+.input,.select { height:34px; border:1px solid #dbe3ef; border-radius:8px; padding:0 10px; min-width:0; background:#fff; color:#334155; }
+.btn { border:none; border-radius:8px; padding:8px 15px; background:#2563eb; color:#fff; }
+.btn.secondary { background:#fff; color:#2563eb; border:1px solid #bfdbfe; }
+.record-list { display:grid; gap:10px; }
+.timeline-item { border:1px solid #e5e7eb; border-radius:8px; padding:12px; background:#fff; display:grid; gap:8px; transition:.16s; }
+.timeline-item:hover { border-color:#93c5fd; background:#f8fbff; }
+.timeline-head { display:flex; justify-content:space-between; gap:10px; align-items:center; }
+.timeline-title { font-weight:800; color:#0f172a; }
+.timeline-meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px 10px; color:#64748b; font-size:12px; }
+.risk-value { color:#c2410c; font-weight:800; }
+.data-table { width:100%; border-collapse:collapse; font-size:13px; background:#fff; }
+.data-table th { background:#f1f5f9; color:#334155; text-align:left; padding:9px 8px; border-bottom:1px solid #e2e8f0; white-space:nowrap; }
+.data-table td { padding:9px 8px; border-bottom:1px solid #edf2f7; color:#475569; vertical-align:top; }
+.link-btn { border:none; background:transparent; color:#2563eb; padding:0; }
+.stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px; }
+.stat-card { background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px; text-align:center; }
+.stat-card b { display:block; font-size:21px; color:#0f172a; margin-bottom:3px; }
+.stat-card span { color:#64748b; font-size:12px; }
+.chart { position:relative; height:190px; border:1px solid #e2e8f0; border-radius:8px; background:linear-gradient(#f8fbff,#fff); overflow:hidden; margin-bottom:12px; }
+.chart-line { position:absolute; left:34px; right:24px; top:90px; height:2px; background:#60a5fa; transform:rotate(-4deg); transform-origin:left center; }
+.target-line { position:absolute; left:28px; right:24px; top:118px; border-top:1px dashed #f97316; }
+.target-line span { position:absolute; right:0; top:-19px; color:#c2410c; font-size:12px; background:#fff7ed; padding:1px 6px; border-radius:999px; }
+.chart-point { position:absolute; width:12px; height:12px; border-radius:50%; background:#2563eb; border:2px solid #fff; box-shadow:0 0 0 2px #93c5fd; }
+.chart-point.warn { background:#f97316; box-shadow:0 0 0 2px #fed7aa; }
+.axis { position:absolute; left:26px; right:20px; bottom:22px; border-top:1px solid #cbd5e1; }
+.axis-label { position:absolute; bottom:4px; color:#94a3b8; font-size:11px; }
+.file-card { border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:10px; background:#fff; }
+.file-card h4 { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:15px; margin-bottom:10px; }
+.field-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 12px; font-size:13px; }
+.field { display:grid; gap:3px; }
+.field span:first-child { color:#64748b; }
+.field span:last-child { color:#0f172a; font-weight:650; }
+.empty { border:1px dashed #cbd5e1; color:#94a3b8; border-radius:8px; padding:24px; text-align:center; background:#f8fafc; }
+.modal-mask { position:fixed; inset:0; background:rgba(15,23,42,.45); display:none; align-items:center; justify-content:center; z-index:30; padding:24px; }
+.modal-mask.show { display:flex; }
+.modal { width:min(760px,92vw); max-height:86vh; background:#fff; border-radius:8px; box-shadow:0 24px 72px rgba(15,23,42,.28); overflow:hidden; }
+.modal-head { padding:16px 20px; border-bottom:1px solid #e5e7eb; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.modal-head h3 { font-size:18px; }
+.modal-body { padding:16px 20px; overflow:auto; max-height:62vh; }
+.modal-footer { padding:13px 20px; border-top:1px solid #e5e7eb; display:flex; justify-content:flex-end; gap:10px; }
+.modal-row { display:grid; grid-template-columns:130px 1fr; gap:12px; padding:10px 0; border-bottom:1px dashed #e5e7eb; font-size:14px; }
+.modal-row b { color:#334155; }
+.modal-row span { color:#475569; line-height:1.6; }
+@media (max-width:1200px) {
+  .dashboard-cards { grid-template-columns:repeat(2,1fr); }
+  .detail-layout { height:auto; min-height:0; grid-template-columns:1fr; grid-template-rows:none; }
+  .section-card { min-height:420px; }
+  .disease-cards { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">个人数字空间</div>
+    <div class="user"><span>健康管理人员</span><span class="avatar">管</span></div>
+  </div>
+
+  <section class="view active" id="homeView">
+    <div class="container">
+      <div class="patient-strip">
+        <div class="patient-main">
+          <div class="patient-face">林</div>
+          <div>
+            <div class="patient-name">林某某</div>
+            <div class="patient-meta">
+              <span>女</span><span>68岁</span><span>身份证：3401**********1826</span><span>联系电话：138****5621</span><span>签约机构：庐阳区双岗社区卫生服务中心</span>
+            </div>
+          </div>
+        </div>
+        <div class="refresh">数据截止：2026-05-12 18:00　刷新</div>
+      </div>
+
+      <div class="dashboard-cards">
+        <div class="summary-card">
+          <div class="card-icon">签</div>
+          <h3>健康标签</h3>
+          <div class="summary-number">42</div>
+          <div class="summary-desc">覆盖基础信息、诊疗事件、慢病风险、服务记录等标签。</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-icon">险</div>
+          <h3>重点关注</h3>
+          <div class="summary-number">6</div>
+          <div class="summary-desc">近期血压波动、糖化血红蛋白复查、用药依从性需关注。</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-icon">档</div>
+          <h3>空间归档</h3>
+          <div class="summary-number">4</div>
+          <div class="summary-desc">已归集诊疗、体检、公卫随访、专病档案数据。</div>
+        </div>
+        <div class="summary-card">
+          <h3>人群健康空间</h3>
+          <div class="summary-desc">点击人群标签进入对应健康空间。</div>
+          <div class="people-list">
+            <button class="people-item main" onclick="openGeneralPlaceholder()">
+              <span class="people-label"><b>通用人群</b><span>查看通用健康数据</span></span>
+              <span class="people-arrow">›</span>
+            </button>
+            <button class="people-item current" onclick="openChronicView()">
+              <span class="people-label"><b>慢病</b><span>进入慢病健康空间</span></span>
+              <span class="people-arrow">›</span>
+            </button>
+            <button class="people-item" onclick="openPlaceholder('孕产妇健康空间')">
+              <span class="people-label"><b>孕产妇</b><span>已归属，详情页后续开放</span></span>
+              <span class="people-arrow">›</span>
+            </button>
+            <button class="people-item" onclick="openPlaceholder('重疾健康空间')">
+              <span class="people-label"><b>重疾</b><span>暂未命中专项规则</span></span>
+              <span class="people-arrow">›</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="graph-card">
+        <div class="section-head">
+          <div class="section-title"><span class="blue-mark"></span><span>个人健康标签图谱</span></div>
+          <span class="summary-desc">保留主界面原有能力，本期仅调整慢病入口目标</span>
+        </div>
+        <div class="graph-body">
+          <aside class="legend">
+            <div class="select-like"><span>全部标签分类</span><span>⌄</span></div>
+            <ul class="legend-list">
+              <li><span class="dot" style="background:#93c5fd"></span>基础信息</li>
+              <li><span class="dot" style="background:#86efac"></span>健康空间</li>
+              <li><span class="dot" style="background:#fdba74"></span>慢病风险</li>
+              <li><span class="dot" style="background:#c4b5fd"></span>服务记录</li>
+            </ul>
+          </aside>
+          <div class="graph-area" id="graphArea">
+            <div class="graph-hint">低保真图谱示意</div>
+            <div class="center-node">人</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="chronicView">
+    <header class="page-head">
+      <div class="head-inner">
+        <div class="crumb"><button onclick="openHomeView()">← 返回个人数字空间</button><span>/</span><span>慢病健康空间</span></div>
+        <div class="space-row">
+          <div>
+            <div class="space-title">慢病健康空间</div>
+            <div class="space-desc">面向健康管理人员，聚合高血压、糖尿病相关诊疗阶段、核心指标、公卫随访和专病档案。</div>
+          </div>
+          <div class="space-meta">
+            <span>患者：林某某　女　68岁</span>
+            <span>数据截止：2026-05-12 18:00</span>
+          </div>
+        </div>
+        <div class="disease-cards">
+          <div class="disease-card">
+            <strong>高血压</strong>
+            <div class="disease-tags"><span class="pill warn">重点随访</span><span class="pill">初诊：2018-04-12</span><span class="pill">分型待知识库确认</span></div>
+          </div>
+          <div class="disease-card">
+            <strong>糖尿病</strong>
+            <div class="disease-tags"><span class="pill green">已建档</span><span class="pill">初诊：2020-09-18</span><span class="pill warn">血糖复查提醒</span></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="detail-shell">
+      <main class="detail-layout">
+        <section class="section-card">
+          <h2>慢病健康视图</h2>
+          <div class="section-tip">按慢病诊疗阶段组织：前期风险、初诊确诊、药物管理、复发控制。并发症清单和分型映射保持评审占位。</div>
+          <div class="subtabs" data-group="chronicType">
+            <button class="subtab active" data-type="all">全部</button>
+            <button class="subtab" data-type="risk">前期风险</button>
+            <button class="subtab" data-type="diagnosis">初诊确诊</button>
+            <button class="subtab" data-type="medicine">药物管理</button>
+            <button class="subtab" data-type="relapse">复发控制</button>
+          </div>
+          <div class="filter-toolbar">
+            <input class="input" placeholder="搜索诊断、药品、机构">
+            <select class="select"><option>全部病种</option><option>高血压</option><option>糖尿病</option></select>
+            <select class="select"><option>近一年</option><option>全部</option></select>
+            <button class="btn">查询</button>
+          </div>
+          <div id="chronicBox"></div>
+        </section>
+
+        <section class="section-card">
+          <h2>健康指标</h2>
+          <div class="section-tip">默认展示血压，支持血糖、血脂切换；趋势图中的目标线为原型占位，实际阈值待专家确认。</div>
+          <div class="subtabs" data-group="metricType">
+            <button class="subtab active" data-type="bp">血压</button>
+            <button class="subtab" data-type="glucose">血糖</button>
+            <button class="subtab" data-type="lipid">血脂</button>
+          </div>
+          <div id="metricBox"></div>
+        </section>
+
+        <section class="section-card">
+          <h2>随访记录</h2>
+          <div class="section-tip">以公卫慢病随访表为主，按随访时间降序展示，点击记录查看完整随访信息。</div>
+          <table class="data-table">
+            <thead>
+              <tr><th>随访时间</th><th>类型</th><th>方式</th><th>医生</th><th>本次血压</th><th>本次血糖</th><th>用药依从性</th><th>下次随访</th><th>操作</th></tr>
+            </thead>
+            <tbody id="followBody"></tbody>
+          </table>
+        </section>
+
+        <section class="section-card">
+          <h2>专病档案</h2>
+          <div class="section-tip">展示 ADS 专病档案摘要。字段清单、接口就绪情况仍为待确认项，原型仅表达信息承载位置。</div>
+          <div id="fileBox"></div>
+        </section>
+      </main>
+    </div>
+  </section>
+
+  <section class="view" id="placeholderView">
+    <header class="page-head">
+      <div class="head-inner">
+        <div class="crumb"><button onclick="openHomeView()">← 返回个人数字空间</button><span>/</span><span id="placeholderCrumb">专项人群健康空间</span></div>
+        <div class="space-title" id="placeholderTitle">专项人群健康空间</div>
+        <div class="space-desc">该专项人群详情页后续开放，本期原型仅验证主界面入口和返回路径。</div>
+      </div>
+    </header>
+    <div class="detail-shell">
+      <div class="empty">暂无正式详情结构</div>
+    </div>
+  </section>
+</div>
+
+<div class="modal-mask" id="modalMask">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">详情</h3>
+      <button class="btn secondary" onclick="closeModal()">关闭</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">确认</button></div>
+  </div>
+</div>
+
+<script>
+const graphNodes = [
+  ['高血压', 'risk', 64, 23], ['糖尿病', 'risk', 71, 48], ['随访记录', 'service', 61, 74],
+  ['诊疗记录', 'health', 33, 25], ['体检指标', 'health', 23, 55], ['专病档案', 'service', 38, 76],
+  ['基础信息', 'basic', 48, 13], ['用药记录', 'health', 78, 69]
+];
+const chronicData = {
+  all: [
+    {title:'2026-04-18 血压控制复查', tag:'高血压', rows:['社区门诊','收缩压 146mmHg，舒张压 92mmHg','医生建议调整随访频次']},
+    {title:'2026-03-21 糖化血红蛋白复查', tag:'糖尿病', rows:['区医院检验','HbA1c 7.4%，较上次上升','建议评估用药依从性']},
+    {title:'2025-12-09 公卫慢病随访', tag:'双病共管', rows:['家庭医生随访','生活方式干预已记录','下次随访 2026-03-09']}
+  ],
+  risk: [
+    {title:'2017-11-02 前期血压风险', tag:'高血压前期', rows:['体检中心','血压：136/88mmHg','异常值高亮，仅作历史风险线索']},
+    {title:'2019-08-16 空腹血糖风险', tag:'糖尿病前期', rows:['社区体检','空腹血糖：6.8mmol/L','建议复查']}
+  ],
+  diagnosis: [
+    {title:'2018-04-12 首次高血压诊断', tag:'初诊确诊', rows:['庐阳区人民医院','诊断：原发性高血压','分型映射待疾病知识库确认']},
+    {title:'2020-09-18 首次糖尿病诊断', tag:'初诊确诊', rows:['安徽省立医院','诊断：2型糖尿病','诊断码映射待确认']}
+  ],
+  relapse: [
+    {title:'2025-10-03 疑似并发症线索', tag:'复发控制', rows:['门诊记录','诊断描述：糖尿病周围神经病变待排','并发症清单未确认，不固化规则']},
+    {title:'2026-02-12 心脑血管风险评估', tag:'复发控制', rows:['随访评估','头晕症状已记录','建议转诊评估']}
+  ]
+};
+const medicineRows = [
+  ['2026-04-18','高血压','缬沙坦胶囊','80mg qd','社区门诊','规律'],
+  ['2026-03-21','糖尿病','二甲双胍片','0.5g bid','区医院门诊','偶有漏服'],
+  ['2025-12-09','高血压','氨氯地平片','5mg qd','公卫随访','规律']
+];
+const metricData = {
+  bp: { title:'血压', stats:['42','11','5','2','18','6'], unit:'mmHg', target:'控制目标待专家确认', points:[['2025-09',28,112,false],['2025-12',118,86,true],['2026-02',205,92,true],['2026-04',306,73,false]] },
+  glucose: { title:'血糖', stats:['35','8','4','2','12','4'], unit:'mmol/L', target:'血糖目标待专家确认', points:[['2025-09',35,104,false],['2025-12',128,92,false],['2026-03',220,76,true],['2026-04',318,82,true]] },
+  lipid: { title:'血脂', stats:['12','3','2','1','6','2'], unit:'mmol/L', target:'血脂项目和目标待确认', points:[['2025-07',40,108,false],['2025-10',138,96,false],['2026-01',228,88,true],['2026-04',318,80,false]] }
+};
+const followRows = [
+  ['2026-04-22','高血压随访','门诊','张医生','146/92','-','规律','2026-07-22'],
+  ['2026-03-25','糖尿病随访','电话','王医生','138/86','8.1','偶有漏服','2026-06-25'],
+  ['2025-12-09','双病共管','家庭随访','李医生','142/88','7.6','规律','2026-03-09']
+];
+const files = [
+  ['高血压专病档案','已建档','2018-04-12','随访中','最近更新：2026-04-22','并发症清单待确认'],
+  ['糖尿病专病档案','已建档','2020-09-18','随访中','最近更新：2026-03-25','ADS 字段待接口确认']
+];
+
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0, behavior:'instant'});
+}
+function openHomeView(){ showView('homeView'); }
+function openChronicView(){ showView('chronicView'); }
+function openGeneralPlaceholder(){ openPlaceholder('通用人群健康空间'); }
+function openPlaceholder(title){
+  document.getElementById('placeholderTitle').textContent = title;
+  document.getElementById('placeholderCrumb').textContent = title;
+  showView('placeholderView');
+}
+function drawGraph(){
+  const area = document.getElementById('graphArea');
+  graphNodes.forEach(([label,type,x,y])=>{
+    const cx = 50, cy = 50;
+    const dx = x - cx, dy = y - cy;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    const ray = document.createElement('div');
+    ray.className = 'ray';
+    ray.style.width = len + '%';
+    ray.style.transform = `rotate(${angle}deg)`;
+    area.appendChild(ray);
+    const node = document.createElement('div');
+    node.className = `node ${type}`;
+    node.style.left = `calc(${x}% - 31px)`;
+    node.style.top = `calc(${y}% - 31px)`;
+    node.textContent = label;
+    area.appendChild(node);
+  });
+}
+function bindTabs(group, render){
+  document.querySelectorAll(`.subtabs[data-group="${group}"] .subtab`).forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll(`.subtabs[data-group="${group}"] .subtab`).forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      render(btn.dataset.type);
+    });
+  });
+}
+function renderChronic(type='all'){
+  const box = document.getElementById('chronicBox');
+  if(type === 'medicine'){
+    box.innerHTML = `<table class="data-table"><thead><tr><th>时间</th><th>病种</th><th>药品</th><th>用法用量</th><th>来源</th><th>依从性</th></tr></thead><tbody>${medicineRows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    return;
+  }
+  const rows = chronicData[type] || chronicData.all;
+  box.innerHTML = `<div class="record-list">${rows.map(item=>`
+    <div class="timeline-item" onclick="openTimelineDetail('${item.title}','${item.tag}','${item.rows.join('|')}')">
+      <div class="timeline-head"><span class="timeline-title">${item.title}</span><span class="pill warn">${item.tag}</span></div>
+      <div class="timeline-meta">${item.rows.map((r,i)=>`<span${i===1 && (r.includes('136') || r.includes('146') || r.includes('6.8')) ? ' class="risk-value"' : ''}>${r}</span>`).join('')}</div>
+    </div>
+  `).join('')}</div>`;
+}
+function renderMetrics(type='bp'){
+  const data = metricData[type] || metricData.bp;
+  const statNames = ['历年检查','历年异常','近一年检查','近一年异常','确诊后检查','确诊后异常'];
+  document.getElementById('metricBox').innerHTML = `
+    <div class="stat-grid">${data.stats.map((v,i)=>`<div class="stat-card"><b>${v}</b><span>${statNames[i]}</span></div>`).join('')}</div>
+    <div class="chart">
+      <div class="chart-line"></div>
+      <div class="target-line"><span>${data.target}</span></div>
+      <div class="axis"></div>
+      ${data.points.map(p=>`<button class="chart-point${p[3]?' warn':''}" style="left:${p[1]}px;top:${p[2]}px" title="${p[0]}" onclick="openMetricSource('${data.title}','${p[0]}','${data.unit}')"></button><span class="axis-label" style="left:${p[1]-8}px">${p[0].slice(5)}</span>`).join('')}
+    </div>
+    <div class="empty">缩放进度条占位：后续版本实现拖拽缩放时间范围</div>
+  `;
+}
+function renderFollows(){
+  document.getElementById('followBody').innerHTML = followRows.map((r,i)=>`
+    <tr>${r.map(c=>`<td>${c}</td>`).join('')}<td><button class="link-btn" onclick="openFollow(${i})">查看详情</button></td></tr>
+  `).join('');
+}
+function renderFiles(){
+  document.getElementById('fileBox').innerHTML = files.map(f=>`
+    <div class="file-card">
+      <h4><span>${f[0]}</span><span class="pill green">${f[1]}</span></h4>
+      <div class="field-grid">
+        <div class="field"><span>初诊时间</span><span>${f[2]}</span></div>
+        <div class="field"><span>管理状态</span><span>${f[3]}</span></div>
+        <div class="field"><span>档案更新</span><span>${f[4]}</span></div>
+        <div class="field"><span>评审提示</span><span>${f[5]}</span></div>
+      </div>
+    </div>
+  `).join('');
+}
+function openTimelineDetail(title, tag, rowsText){
+  const rows = rowsText.split('|');
+  openModal(title, [['阶段', tag], ['来源/机构', rows[0]], ['关键记录', rows[1]], ['处理建议', rows[2]]]);
+}
+function openMetricSource(title, date, unit){
+  openModal(`${title}指标溯源`, [['指标类型', title], ['采集月份', date], ['指标单位', unit], ['数据来源', '诊疗/体检/公卫记录汇聚'], ['说明', '目标线和异常判定为原型占位，待专家确认后再固化']]);
+}
+function openFollow(index){
+  const r = followRows[index];
+  openModal('随访记录详情', [['随访时间', r[0]], ['随访类型', r[1]], ['随访方式', r[2]], ['随访医生', r[3]], ['本次血压', r[4]], ['本次血糖', r[5]], ['用药依从性', r[6]], ['下次随访', r[7]], ['完整字段', '公卫慢病随访表字段清单待技术负责人确认']]);
+}
+function openModal(title, rows){
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = rows.map(r=>`<div class="modal-row"><b>${r[0]}</b><span>${r[1]}</span></div>`).join('');
+  document.getElementById('modalMask').classList.add('show');
+}
+function closeModal(){ document.getElementById('modalMask').classList.remove('show'); }
+document.getElementById('modalMask').addEventListener('click', e=>{ if(e.target.id === 'modalMask') closeModal(); });
+drawGraph();
+bindTabs('chronicType', renderChronic);
+bindTabs('metricType', renderMetrics);
+renderChronic();
+renderMetrics();
+renderFollows();
+renderFiles();
+</script>
+</body>
+</html>

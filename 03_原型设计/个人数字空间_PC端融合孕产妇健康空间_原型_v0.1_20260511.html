@@ -267,45 +267,27 @@ button { cursor:pointer; }
   color:#2563eb;
   font-weight:600;
 }
-.detail-layout {
+.maternal-grid {
   margin-top:20px;
   display:grid;
-  grid-template-columns:220px 1fr;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
   gap:18px;
-  align-items:start;
+  align-items:stretch;
 }
-.anchor-nav {
-  position:sticky;
-  top:20px;
-  background:#fff;
-  border-radius:14px;
-  box-shadow:0 10px 30px rgba(64,108,180,.08);
-  padding:18px;
-  display:grid;
-  gap:10px;
-}
-.anchor-title { font-size:15px; color:#64748b; font-weight:600; margin-bottom:4px; }
-.anchor-link {
-  border:1px solid #e2e8f0;
-  background:#fff;
-  color:#475569;
-  border-radius:10px;
-  padding:11px 12px;
-  text-align:left;
-  transition:.16s;
-}
-.anchor-link:hover { border-color:#93c5fd; background:#eff6ff; color:#2563eb; }
-.anchor-link.active { background:#2563eb; border-color:#2563eb; color:#fff; font-weight:700; }
-.detail-content { display:grid; gap:18px; }
 .section-card {
   background:#fff;
   border-radius:14px;
   box-shadow:0 10px 30px rgba(64,108,180,.08);
   padding:20px 22px;
   scroll-margin-top:20px;
+  min-height:520px;
+  max-height:640px;
+  overflow:auto;
 }
 .section-card h2 { font-size:20px; margin-bottom:6px; color:#0f172a; }
 .section-tip { color:#64748b; font-size:13px; margin-bottom:16px; }
+.section-card::-webkit-scrollbar { width:6px; height:6px; }
+.section-card::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:999px; }
 .subtabs { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
 .subtab {
   border:1px solid #e2e8f0; background:#fff; color:#475569; border-radius:999px; padding:7px 12px; cursor:pointer; font-size:13px;
@@ -416,15 +398,14 @@ button { cursor:pointer; }
 .modal-row { display:grid; grid-template-columns:120px 1fr; gap:10px; }
 .modal-footer { padding:14px 22px; border-top:1px solid #e5e7eb; text-align:right; }
 .drawer-mask {
-  position:fixed; inset:0; background:rgba(15,23,42,.28); display:none; z-index:30;
+  position:fixed; inset:0; background:rgba(15,23,42,.45); display:none; z-index:30; align-items:center; justify-content:center;
 }
-.drawer-mask.show { display:block; }
+.drawer-mask.show { display:flex; }
 .drawer {
-  position:absolute; right:0; top:0; bottom:0; width:460px; max-width:calc(100vw - 48px);
-  background:#fff; box-shadow:-18px 0 45px rgba(15,23,42,.18); display:flex; flex-direction:column;
-  transform:translateX(100%); transition:transform .22s ease;
+  width:min(1120px, calc(100vw - 64px)); max-height:82vh;
+  background:#fff; border-radius:14px; box-shadow:0 24px 70px rgba(15,23,42,.28); display:flex; flex-direction:column;
+  overflow:hidden;
 }
-.drawer-mask.show .drawer { transform:translateX(0); }
 .drawer-head { height:64px; padding:0 20px; border-bottom:1px solid #e5e7eb; display:flex; align-items:center; justify-content:space-between; }
 .drawer-head h3 { font-size:18px; color:#0f172a; }
 .drawer-close { border:none; background:#f1f5f9; color:#475569; width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:18px; }
@@ -433,11 +414,10 @@ button { cursor:pointer; }
 .drawer-row b { display:block; color:#334155; font-size:13px; margin-bottom:6px; }
 .drawer-row span { color:#0f172a; font-size:15px; }
 
-/* 三级抽屉样式 */
-.drawer-mask-l3 { position:fixed; inset:0; background:rgba(15,23,42,.35); display:none; z-index:40; }
-.drawer-mask-l3.show { display:block; }
-.drawer-l3 { position:absolute; right:0; top:0; bottom:0; width:420px; max-width:calc(100vw - 48px); background:#fff; box-shadow:-18px 0 45px rgba(15,23,42,.22); display:flex; flex-direction:column; transform:translateX(100%); transition:transform .22s ease; }
-.drawer-mask-l3.show .drawer-l3 { transform:translateX(0); }
+/* 三级弹窗样式 */
+.drawer-mask-l3 { position:fixed; inset:0; background:rgba(15,23,42,.55); display:none; z-index:40; align-items:center; justify-content:center; }
+.drawer-mask-l3.show { display:flex; }
+.drawer-l3 { width:min(1120px, calc(100vw - 64px)); max-height:82vh; background:#fff; border-radius:14px; box-shadow:0 24px 70px rgba(15,23,42,.32); display:flex; flex-direction:column; overflow:hidden; }
 .drawer-head-l3 { height:64px; padding:0 20px; border-bottom:1px solid #e5e7eb; display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .drawer-head-l3 h3 { flex:1; font-size:17px; color:#0f172a; text-align:center; }
 .drawer-back { border:none; background:#eff6ff; color:#2563eb; height:32px; padding:0 12px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600; white-space:nowrap; transition:.16s; }
@@ -475,8 +455,7 @@ button { cursor:pointer; }
 
 @media (max-width:1200px) {
   .cards { grid-template-columns:repeat(2,1fr); }
-  .detail-layout { grid-template-columns:1fr; }
-  .anchor-nav { position:static; }
+  .maternal-grid { grid-template-columns:1fr; }
   .history-grid { grid-template-columns:1fr; }
   .bill-cards { grid-template-columns:1fr; }
 }
@@ -495,7 +474,7 @@ button { cursor:pointer; }
   .bill-summary { font-size:18px; }
   .bill-summary b { font-size:20px; }
   .bill-total, .bill-card-head { align-items:flex-start; flex-direction:column; }
-  .drawer-l3 { width:calc(100vw - 40px); }
+  .drawer, .drawer-l3 { width:calc(100vw - 40px); }
   .surgery-grid-l3 { grid-template-columns:1fr; }
   .detail-field-l3 { grid-template-columns:80px 1fr; }
 }
@@ -606,30 +585,6 @@ button { cursor:pointer; }
   color:#1e40af;
 }
 
-/* AI摘要模块 */
-.ai-summary-box {
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:14px;
-}
-.ai-card {
-  border:1px solid #e5e7eb;
-  border-radius:12px;
-  padding:16px;
-  background:linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
-}
-.ai-card h3 {
-  font-size:15px;
-  color:#1e40af;
-  margin-bottom:10px;
-  font-weight:600;
-}
-.ai-card p {
-  font-size:13px;
-  color:#475569;
-  line-height:1.7;
-}
-
 /* 体重文案提示 */
 .weight-tip {
   margin-top:12px;
@@ -661,7 +616,6 @@ button { cursor:pointer; }
 .demo-toggle:hover { background:#eff6ff; color:#2563eb; }
 
 @media (max-width:760px) {
-  .ai-summary-box { grid-template-columns:1fr; }
   .checkup-items { grid-template-columns:1fr; }
   .preg-info { flex-wrap:wrap; gap:8px; }
   .preg-labels { font-size:11px; }
@@ -776,7 +730,7 @@ button { cursor:pointer; }
       <div>
         <div class="crumb"><button onclick="openHomeView()">← 返回个人数字空间</button><span>/</span><span>孕产妇健康空间</span></div>
         <div class="space-title">孕产妇健康空间</div>
-        <div class="space-desc">PC 端一页式布局，新增孕周进度区，支持产前/产后状态切换，5个模块锚点导航。</div>
+        <div class="space-desc">PC 端一页式布局，新增孕周进度区，支持产前/产后状态切换，4个模块以卡片网格同时呈现。</div>
       </div>
       <div class="space-meta">
         <span>患者：李**｜女性｜28岁｜汉族</span>
@@ -810,17 +764,7 @@ button { cursor:pointer; }
       </div>
     </header>
 
-    <div class="detail-layout">
-      <aside class="anchor-nav">
-        <div class="anchor-title">页面导航</div>
-        <button class="anchor-link active" data-anchor="maternalRecordsSection">孕产健康视图</button>
-        <button class="anchor-link" data-anchor="maternalVitalsSection">孕期核心指标</button>
-        <button class="anchor-link" data-anchor="riskSection">孕期风险预警</button>
-        <button class="anchor-link" data-anchor="checkupsSection">产检记录</button>
-        <button class="anchor-link" data-anchor="aiSummarySection">孕期AI摘要</button>
-      </aside>
-
-      <main class="detail-content">
+    <main class="maternal-grid">
         <section class="section-card" id="maternalRecordsSection">
           <h2>孕产健康视图</h2>
           <div class="section-tip">按孕期阶段分类展示诊疗与随访记录，支持全部/孕早期/孕中期/孕晚期/分娩期/产褥期切换。</div>
@@ -888,30 +832,7 @@ button { cursor:pointer; }
           <div class="checkup-timeline" id="checkupTimeline"></div>
         </section>
 
-        <section class="section-card" id="aiSummarySection">
-          <h2>孕期AI摘要与个性化建议</h2>
-          <div class="section-tip">基于讯飞医疗大模型生成的孕期健康摘要和个性化建议（本期为占位演示）。</div>
-          <div class="ai-summary-box">
-            <div class="ai-card">
-              <h3>🤖 孕期AI摘要</h3>
-              <p>当前处于孕中期（24+3周），整体健康状况良好。血压、血糖控制平稳，体重增长符合推荐范围。建议继续保持均衡饮食和适量运动，按时产检。</p>
-            </div>
-            <div class="ai-card">
-              <h3>🍎 饮食建议</h3>
-              <p>建议每日摄入蛋白质80-100g，钙1000mg，铁27mg。多食用深色蔬菜、瘦肉、鱼类、豆制品。避免生冷、高糖、高盐食物。</p>
-            </div>
-            <div class="ai-card">
-              <h3>🏃 运动建议</h3>
-              <p>建议每日进行30分钟低强度运动，如散步、孕妇瑜伽。避免剧烈运动和腹部受压动作。运动时注意心率不超过140次/分。</p>
-            </div>
-            <div class="ai-card">
-              <h3>😴 作息建议</h3>
-              <p>建议每日睡眠8-9小时，午休30-60分钟。采用左侧卧位睡姿，使用孕妇枕支撑。避免熬夜和过度劳累。</p>
-            </div>
-          </div>
-        </section>
       </main>
-    </div>
   </section>
 
   <section class="view" id="placeholderView">
@@ -1106,11 +1027,9 @@ function openGeneralView(){
     return;
   }
   showView('generalView');
-  setActiveAnchor('recordsSection');
 }
 function openMaternalView(){
   showView('maternalView');
-  setActiveAnchor('maternalRecordsSection');
   switchMaternalStage(activeMaternalStage);
 }
 function openPlaceholder(name){
@@ -1453,10 +1372,6 @@ function closeAllDrawers() {
   document.getElementById('drawerMask').classList.remove('show');
 }
 
-function setActiveAnchor(id){
-  document.querySelectorAll('.anchor-link').forEach(btn=>btn.classList.toggle('active', btn.dataset.anchor===id));
-}
-
 /* ========== 孕产妇视图渲染 ========== */
 function renderMaternalRecords(){
   const list=document.getElementById('maternalRecordList');
@@ -1652,32 +1567,11 @@ function bindEvents(){
   document.querySelectorAll('.preg-toolbar .stage-btn').forEach(btn=>btn.addEventListener('click',()=>{
     switchMaternalStage(btn.dataset.stage);
   }));
-  document.querySelectorAll('.anchor-link').forEach(btn=>btn.addEventListener('click',()=>{
-    setActiveAnchor(btn.dataset.anchor);
-    const target = document.getElementById(btn.dataset.anchor);
-    if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
-  }));
   const billYear = document.getElementById('billYearSelect');
   if(billYear) billYear.addEventListener('change', e=>renderBills(e.target.value));
   document.getElementById('modalMask').addEventListener('click',e=>{ if(e.target.id==='modalMask') closeModal(); });
   document.getElementById('drawerMask').addEventListener('click',e=>{ if(e.target.id==='drawerMask') closeDrawer(); });
   document.getElementById('drawerMaskL3').addEventListener('click',e=>{ if(e.target.id==='drawerMaskL3') closeDrawerL3(); });
-  window.addEventListener('scroll',()=>{
-    let sectionIds = [];
-    if(currentView==='generalView'){
-      sectionIds = ['recordsSection','historySection','vitalsSection','billsSection'];
-    } else if(currentView==='maternalView'){
-      sectionIds = ['maternalRecordsSection','maternalVitalsSection','riskSection','checkupsSection','aiSummarySection'];
-    } else { return; }
-    let current = sectionIds[0];
-    sectionIds.forEach(id=>{
-      const el = document.getElementById(id);
-      if(!el) return;
-      const rect = el.getBoundingClientRect();
-      if(rect.top <= 120) current = id;
-    });
-    setActiveAnchor(current);
-  }, {passive:true});
 }
 
 initGraph();
