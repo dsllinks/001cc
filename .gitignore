@@ -1,2 +1,7 @@
 # 忽略界面参考资料文件夹
 04_参考资料/界面参考/
+
+# Obsidian 本地运行配置与插件文件
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/plugins/
