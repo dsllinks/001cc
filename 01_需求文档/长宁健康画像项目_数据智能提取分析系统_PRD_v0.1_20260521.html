@@ -1,0 +1,513 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>长宁健康画像项目_数据智能提取分析系统_PRD_v0.1</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #667085;
+      --line: #d9e2ec;
+      --primary: #1769aa;
+      --primary-soft: #e8f2fb;
+      --success: #177245;
+      --warning: #a15c00;
+      --danger: #b42318;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 24px 18px;
+      border-right: 1px solid var(--line);
+      background: #eef4f9;
+    }
+    main {
+      max-width: 1180px;
+      padding: 32px 44px 72px;
+    }
+    h1, h2, h3, h4 { line-height: 1.3; margin: 0 0 14px; }
+    h1 { font-size: 30px; color: #123a5a; }
+    h2 {
+      margin-top: 34px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: 22px;
+      color: #123a5a;
+    }
+    h3 { margin-top: 24px; font-size: 18px; color: #164d78; }
+    h4 { margin-top: 18px; font-size: 15px; color: #344054; }
+    p { margin: 0 0 12px; }
+    a { color: var(--primary); text-decoration: none; }
+    .toc-title { font-weight: 700; margin-bottom: 12px; color: #123a5a; }
+    .toc a {
+      display: block;
+      padding: 7px 8px;
+      border-radius: 6px;
+      color: #344054;
+      font-size: 14px;
+    }
+    .toc a:hover { background: #dcebf7; color: var(--primary); }
+    .doc-head {
+      position: relative;
+      padding: 26px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 24px rgba(16, 24, 40, 0.06);
+    }
+    .version-select {
+      position: absolute;
+      right: 24px;
+      top: 24px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 7px 10px;
+      background: #fff;
+      color: #344054;
+    }
+    .meta-grid, .card-grid {
+      display: grid;
+      gap: 12px;
+    }
+    .meta-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 22px;
+    }
+    .meta-item, .card {
+      padding: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+    .meta-label, .caption { color: var(--muted); font-size: 13px; }
+    .meta-value { margin-top: 4px; font-weight: 700; }
+    .notice {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-left: 4px solid var(--primary);
+      background: var(--primary-soft);
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    th, td {
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #edf5fb;
+      color: #123a5a;
+      font-weight: 700;
+    }
+    ul { margin: 8px 0 14px 22px; padding: 0; }
+    li { margin-bottom: 6px; }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #e8f2fb;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .tag.p0 { background: #e9f7ef; color: var(--success); }
+    .tag.p1 { background: #fff4e5; color: var(--warning); }
+    .tag.future { background: #f2f4f7; color: #475467; }
+    .flow {
+      padding: 16px;
+      background: #101828;
+      color: #f8fafc;
+      border-radius: var(--radius);
+      overflow: auto;
+      font-family: Consolas, monospace;
+      white-space: pre;
+      line-height: 1.7;
+      margin: 14px 0 20px;
+    }
+    .module {
+      padding: 18px;
+      margin: 16px 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+    .module h3 { margin-top: 0; }
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .status-note {
+      padding: 12px 14px;
+      background: #fff8e6;
+      border: 1px solid #f5d28a;
+      border-radius: var(--radius);
+      color: #754d00;
+    }
+    @media (max-width: 920px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      main { padding: 24px 18px 52px; }
+      .meta-grid, .two-col { grid-template-columns: 1fr; }
+      .version-select { position: static; margin-top: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="toc-title">目录</div>
+      <nav class="toc">
+        <a href="#info">项目与版本</a>
+        <a href="#background">1. 需求背景</a>
+        <a href="#goals">2. 需求目标</a>
+        <a href="#users">3. 用户与场景</a>
+        <a href="#features">4. 功能清单</a>
+        <a href="#solution">5. 详细方案</a>
+        <a href="#flowcharts">6. 业务流程图</a>
+        <a href="#exceptions">7. 异常与边界</a>
+        <a href="#analytics">8. 数据跟踪与分析</a>
+        <a href="#roadmap">9. 后续路线</a>
+        <a href="#attachments">10. 附件</a>
+      </nav>
+    </aside>
+    <main>
+      <section class="doc-head" id="info">
+        <select class="version-select" aria-label="版本切换">
+          <option selected>v0.1 当前版本</option>
+          <option disabled>v0.2 原型验证版</option>
+          <option disabled>v0.3 研发拆解版</option>
+          <option disabled>v1.0 实施确认版</option>
+        </select>
+        <h1>长宁健康画像项目_数据智能提取分析系统_PRD_v0.1</h1>
+        <p>本 PRD 按 pm-workflow 产出，已回填 v0.1 原型切片和 Mermaid 流程图引用，用于继续评审数据提取到标签生成的产品闭环。</p>
+        <div class="meta-grid">
+          <div class="meta-item"><div class="meta-label">文档版本</div><div class="meta-value">v0.1</div></div>
+          <div class="meta-item"><div class="meta-label">撰写日期</div><div class="meta-value">2026-05-20</div></div>
+          <div class="meta-item"><div class="meta-label">核心用户</div><div class="meta-value">数据治理人员</div></div>
+          <div class="meta-item"><div class="meta-label">评审状态</div><div class="meta-value">首版草稿</div></div>
+        </div>
+        <div class="notice">
+          <strong>版本定位：</strong>长宁需求作为 v0.1 优先级依据，基线版本作为后续复用平台能力参考。当前文档不是建设方案，而是服务原型设计和产品开发的产品需求文档。
+        </div>
+      </section>
+
+      <section id="background">
+        <h2>1. 需求背景</h2>
+        <p>长宁健康画像项目需要将区域内诊疗、公卫、体检、健康咨询等多源健康医疗数据转化为可治理、可提取、可标准化、可标签化的数据资产。原始材料中包含两类需求：一类是“多源数据融合解析系统（基线版本）”，偏平台底座；另一类是“数据智能提取（长宁健康画像项目）”，偏当前应标场景。</p>
+        <p>对后续产品设计和研发来说，仅按标书语言描述“系统支持”不足以指导落地。v0.1 需要把长宁场景中的数据智能提取能力产品化，明确用户能看到的页面、系统处理后的结果、标签如何形成、结果如何服务健康画像。</p>
+        <table>
+          <thead>
+            <tr><th>对比维度</th><th>基线版本</th><th>长宁健康画像项目</th><th>v0.1 处理方式</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>定位</td><td>平台底座能力</td><td>应标场景能力</td><td>长宁优先，基线补强</td></tr>
+            <tr><td>数据接入</td><td>备份库、视图、机构/居民批次、周期增量</td><td>未详细展开</td><td>纳入首版支撑能力</td></tr>
+            <tr><td>数据提取</td><td>结构化、文本、实体、关系、事件</td><td>结构化、文本、口语化</td><td>首版聚焦三类提取，关系/事件后置</td></tr>
+            <tr><td>标准化与聚合</td><td>医学标准化、疾病上下位、同义归并</td><td>主要体现数据关联与标签映射</td><td>首版保留医学标准化和居民维度聚合</td></tr>
+            <tr><td>医学知识库</td><td>临床、器官、九大系统、风险、饮食、用药、预防</td><td>未系统展开</td><td>仅作为标签解释和风险识别支撑</td></tr>
+            <tr><td>图像能力</td><td>未重点展开</td><td>提到医学图像和病变检测</td><td>列入后续扩展，不进首版核心原型</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="goals">
+        <h2>2. 需求目标</h2>
+        <table>
+          <thead>
+            <tr><th>目标类型</th><th>描述</th><th>指标</th><th>目标值</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>数据可追踪</td><td>数据治理人员能查看接入任务、处理批次和节点状态</td><td>任务状态可见性</td><td>任务、批次、节点均可查看</td></tr>
+            <tr><td>提取可复核</td><td>结构化、文本、口语化提取结果能与来源数据对应</td><td>结果来源可解释性</td><td>提取结果展示来源、类型和处理状态</td></tr>
+            <tr><td>质量可治理</td><td>缺失、重复、错误、不一致数据能被标记和归类</td><td>质量问题覆盖</td><td>覆盖常见质量问题类型</td></tr>
+            <tr><td>标准可统一</td><td>疾病、症状、检查、药品等表达能映射为统一术语</td><td>标准化映射能力</td><td>支持规则和匹配结果展示</td></tr>
+            <tr><td>标签可使用</td><td>提取和清洗后的数据能生成画像标签</td><td>标签结果可用性</td><td>标签结果可被健康画像模块引用</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="users">
+        <h2>3. 用户与场景</h2>
+        <div class="two-col">
+          <div class="card">
+            <h3>核心用户：数据治理人员</h3>
+            <p>负责查看数据是否进入系统、处理是否成功、提取结果是否可用、标签是否具备画像使用条件。</p>
+          </div>
+          <div class="card">
+            <h3>关联用户</h3>
+            <p>产品运营人员关注标签结果和画像可用性；算法实施人员关注文本、口语化和标准化处理效果；项目管理员关注任务运行和范围边界。</p>
+          </div>
+        </div>
+        <h3>用户旅程地图</h3>
+        <table>
+          <thead>
+            <tr><th>阶段</th><th>用户触点</th><th>用户行为</th><th>痛点 / 情绪</th><th>产品机会</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>数据进入</td><td>数据接入任务列表</td><td>查看来源、类型、批次和状态</td><td>不知道数据是否已进入系统</td><td>用任务状态和批次概览建立可追踪入口</td></tr>
+            <tr><td>批次处理</td><td>批次详情</td><td>查看接入、提取、清洗、标准化、标签生成进度</td><td>处理失败原因不可定位</td><td>按节点展示处理结果和异常原因</td></tr>
+            <tr><td>结构化提取</td><td>结构化结果页</td><td>查看原始字段、标准字段、提取值、标签映射</td><td>字段来源和映射关系不清晰</td><td>让每个字段的来源和结果可复核</td></tr>
+            <tr><td>文本提取</td><td>文本结果页</td><td>查看原文片段、实体、摘要和标签结果</td><td>文本解析过程黑盒</td><td>展示原文与提取结果的对应关系</td></tr>
+            <tr><td>口语化提取</td><td>口语结果页</td><td>查看口语表达、规范术语和标签标注</td><td>居民表达不标准，难进入标签体系</td><td>把自然表达转换为医学术语和标签</td></tr>
+            <tr><td>标签使用</td><td>标签结果页</td><td>查看标签来源、依据、状态和画像使用情况</td><td>标签可信度和可用状态不清楚</td><td>形成可被健康画像引用的结果闭环</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="features">
+        <h2>4. 功能清单</h2>
+        <table>
+          <thead>
+            <tr><th>模块</th><th>功能说明</th><th>优先级</th><th>v0.1 范围</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>数据接入与预处理</td><td>接入多源数据，形成任务和批次</td><td><span class="tag p0">P0</span></td><td>进入</td></tr>
+            <tr><td>结构化数据提取</td><td>识别格式、提取字段、关联居民、生成标签映射</td><td><span class="tag p0">P0</span></td><td>进入</td></tr>
+            <tr><td>文本数据提取</td><td>文本切分、实体抽取、摘要、标签映射</td><td><span class="tag p0">P0</span></td><td>进入</td></tr>
+            <tr><td>口语化数据提取</td><td>转写文本处理、口语规范化、标签标注</td><td><span class="tag p0">P0</span></td><td>进入</td></tr>
+            <tr><td>数据质量评估与清洗</td><td>标记缺失、重复、错误、不一致数据</td><td><span class="tag p0">P0</span></td><td>进入</td></tr>
+            <tr><td>医学标准化映射</td><td>统一疾病、症状、药品、检查检验表达</td><td><span class="tag p1">P1</span></td><td>进入</td></tr>
+            <tr><td>居民维度聚合</td><td>按居民主索引整合多源数据</td><td><span class="tag p1">P1</span></td><td>进入</td></tr>
+            <tr><td>标签映射与生成</td><td>生成事实标签、风险标签、管理标签</td><td><span class="tag p0">P0</span></td><td>进入</td></tr>
+            <tr><td>健康画像知识支撑</td><td>支撑标签解释、风险识别和画像理解</td><td><span class="tag p1">P1</span></td><td>轻量进入</td></tr>
+            <tr><td>数据融合服务输出</td><td>输出可被画像模块使用的数据和标签</td><td><span class="tag p1">P1</span></td><td>轻量进入</td></tr>
+            <tr><td>医学图像识别</td><td>医学图像、特征提取、病变检测</td><td><span class="tag future">后续</span></td><td>不进入</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="solution">
+        <h2>5. 详细方案</h2>
+        <div class="flow">数据接入任务
+  -> 批次处理
+  -> 数据格式识别
+  -> 结构化 / 文本 / 口语化提取
+  -> 数据质量评估与清洗
+  -> 医学标准化映射
+  -> 居民维度聚合
+  -> 标签映射与生成
+  -> 健康画像可用结果</div>
+
+        <div class="module">
+          <h3>5.1 数据接入与预处理</h3>
+          <p><strong>目标：</strong>将诊疗、公卫、体检、健康咨询等数据纳入统一处理任务。</p>
+          <p><strong>规则：</strong>支持按数据来源、数据类型、接入方式、批次号管理接入任务；存量数据可按机构或居民维度分批，增量数据按周期进入处理流程。</p>
+          <p><strong>实现效果：</strong>数据治理人员能在任务列表中看到数据是否进入、当前处理状态、最新批次、成功量和异常量。</p>
+        </div>
+
+        <div class="module">
+          <h3>5.2 批次处理详情</h3>
+          <p><strong>目标：</strong>展示一次批次从接入到标签生成的处理链路。</p>
+          <p><strong>规则：</strong>批次详情按接入、提取、清洗、标准化、聚合、标签生成展示节点状态。异常数据需标记来源、原因、影响范围和处理建议。</p>
+          <p><strong>实现效果：</strong>用户能定位批次卡点，不再只看到笼统失败状态。</p>
+        </div>
+
+        <div class="module">
+          <h3>5.3 结构化数据提取</h3>
+          <p><strong>目标：</strong>从数据库表、XML、JSON 等结构化数据中提取居民健康画像字段。</p>
+          <p><strong>规则：</strong>展示原始字段、标准字段、字段值、数据来源、关联居民、标签映射结果和异常标记。</p>
+          <p><strong>实现效果：</strong>居民基础信息、体检指标、就诊记录等字段可进入标签生成流程。</p>
+        </div>
+
+        <div class="module">
+          <h3>5.4 文本数据提取</h3>
+          <p><strong>目标：</strong>从电子病历、诊断记录、病程记录、出院记录等文本中提取医学关键信息。</p>
+          <p><strong>规则：</strong>展示原始文本片段、文本结构分段、疾病实体、症状实体、检查结果、治疗措施、用药信息、文本摘要和标签映射。</p>
+          <p><strong>实现效果：</strong>非结构化病历文本中的关键信息可转换为结构化健康要素。</p>
+        </div>
+
+        <div class="module">
+          <h3>5.5 口语化数据提取</h3>
+          <p><strong>目标：</strong>将健康咨询、语音问诊转写等口语化表达规范化为医学术语和标签。</p>
+          <p><strong>规则：</strong>展示原始表达、转写文本、规范术语、症状识别结果、咨询需求标签和标签标注结果。语音识别模型本身不作为 v0.1 核心建设范围。</p>
+          <p><strong>实现效果：</strong>“胸口疼”“尿多”“反复头晕”等自然表达可转换为“胸痛”“多尿”“眩晕”等规范医学术语。</p>
+        </div>
+
+        <div class="module">
+          <h3>5.6 数据质量评估与清洗</h3>
+          <p><strong>目标：</strong>在标签生成前识别影响可用性的质量问题。</p>
+          <p><strong>规则：</strong>标记缺失、重复、错误、不一致、格式异常、值域异常等问题。可自动处理的执行清洗，无法自动确认的保留异常状态。</p>
+          <p><strong>实现效果：</strong>标签生成前的数据可信度可见，异常数据有明确处理入口。</p>
+        </div>
+
+        <div class="module">
+          <h3>5.7 医学标准化映射与居民聚合</h3>
+          <p><strong>目标：</strong>减少同义表达、口径差异和跨源割裂。</p>
+          <p><strong>规则：</strong>疾病、症状、药品、检查检验等提取结果映射为统一医学概念；多源数据按居民身份证号、卡号等主索引聚合。</p>
+          <p><strong>实现效果：</strong>同一居民的跨源健康数据形成完整集合，同类医学概念不重复生成多套标签。</p>
+        </div>
+
+        <div class="module">
+          <h3>5.8 标签映射与画像可用结果</h3>
+          <p><strong>目标：</strong>将处理后的数据转为健康画像可使用的标签结果。</p>
+          <p><strong>规则：</strong>标签结果展示居民标识、标签分类、标签名称、标签类型、来源、依据、生成时间、可用状态和画像使用状态。标签类型包括事实标签、风险标签和管理标签。</p>
+          <p><strong>实现效果：</strong>数据治理人员能判断标签是否可用于居民健康画像，下游画像页面可引用标签结果。</p>
+        </div>
+
+                <div class="module">
+          <h3>5.9 原型切片</h3>
+          <p><strong>说明：</strong>以下切片引用 v0.1 原型的 Focus Mode，便于在 PRD 内聚焦查看每个核心页面。</p>
+          <table>
+            <thead><tr><th>页面</th><th>原型切片路径</th><th>验证重点</th></tr></thead>
+            <tbody>
+              <tr><td>数据接入任务</td><td>../03_原型设计/长宁健康画像项目_数据智能提取分析系统_原型_v0.1_20260521.html?focus=tasks#tasks</td><td>任务状态、批次入口、异常量是否清晰</td></tr>
+              <tr><td>批次处理详情</td><td>../03_原型设计/长宁健康画像项目_数据智能提取分析系统_原型_v0.1_20260521.html?focus=batch#batch</td><td>处理节点和异常定位是否完整</td></tr>
+              <tr><td>结构化结果</td><td>../03_原型设计/长宁健康画像项目_数据智能提取分析系统_原型_v0.1_20260521.html?focus=structured#structured</td><td>字段来源、标准字段、标签映射是否可复核</td></tr>
+              <tr><td>文本结果</td><td>../03_原型设计/长宁健康画像项目_数据智能提取分析系统_原型_v0.1_20260521.html?focus=text#text</td><td>原文片段与实体抽取结果是否对应</td></tr>
+              <tr><td>口语结果</td><td>../03_原型设计/长宁健康画像项目_数据智能提取分析系统_原型_v0.1_20260521.html?focus=spoken#spoken</td><td>口语表达到医学术语的规范化是否可确认</td></tr>
+              <tr><td>标签结果</td><td>../03_原型设计/长宁健康画像项目_数据智能提取分析系统_原型_v0.1_20260521.html?focus=tags#tags</td><td>标签来源、依据、状态和画像引用是否清晰</td></tr>
+            </tbody>
+          </table>
+          <iframe src="../03_原型设计/长宁健康画像项目_数据智能提取分析系统_原型_v0.1_20260521.html?focus=tags#tags" style="width:100%;height:640px;border:none;background:transparent;border-radius:8px;" sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
+      </section>
+
+            <section id="flowcharts">
+        <h2>6. 业务流程图</h2>
+        <p>流程图源文件已保存至 <code>../flowcharts/</code>，用于后续评审和最终 PRD 集成。</p>
+        <table>
+          <thead><tr><th>流程图</th><th>文件路径</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>主业务流程</td><td>../flowcharts/长宁健康画像项目_数据智能提取分析系统_主流程_v0.1_20260521.mmd</td><td>覆盖数据接入、三类提取、清洗、标准化、聚合、标签生成和画像可用结果。</td></tr>
+            <tr><td>异常处理流程</td><td>../flowcharts/长宁健康画像项目_数据智能提取分析系统_异常处理流程_v0.1_20260521.mmd</td><td>覆盖接入失败、解析失败、质量异常、标签不可用等分支。</td></tr>
+            <tr><td>标签生成流程</td><td>../flowcharts/长宁健康画像项目_数据智能提取分析系统_标签生成流程_v0.1_20260521.mmd</td><td>覆盖事实标签、风险标签、管理标签的生成与引用。</td></tr>
+          </tbody>
+        </table>
+        <h3>6.1 主业务流程</h3>
+        <div class="flow">flowchart TD
+  A[数据接入任务创建或同步] --> B[生成处理批次]
+  B --> C{识别数据类型}
+  C -->|结构化数据| D[结构化字段识别与提取]
+  C -->|文本数据| E[文本分段与实体抽取]
+  C -->|口语化数据| F[口语表达规范化]
+  D --> G[数据质量评估与清洗]
+  E --> G
+  F --> G
+  G --> H[医学标准化映射]
+  H --> I[居民维度聚合]
+  I --> J[标签映射与生成]
+  J --> K[标签结果复核]
+  K --> L[健康画像可用结果]</div>
+        <h3>6.2 异常处理流程</h3>
+        <div class="flow">flowchart TD
+  A[批次处理开始] --> B{接入是否成功}
+  B -->|否| B1[记录接入失败原因]
+  B1 --> B2[支持重跑或重新导入]
+  B -->|是| C{提取是否完成}
+  C -->|否| C1[标记解析失败]
+  C1 --> C2[保留原始数据与失败节点]
+  C -->|是| D{质量检查是否通过}
+  D -->|缺失或重复| D1[标记质量问题]
+  D -->|值域异常| D2[拦截异常数据]
+  D -->|通过| E[进入标准化映射]
+  D1 --> F[人工确认或批量处理]
+  D2 --> F
+  F --> G{是否可继续生成标签}
+  G -->|否| H[标签状态为不可用]
+  G -->|是| E
+  E --> I[居民聚合与标签生成]
+  I --> J[输出处理结果]</div>
+      </section>
+
+      <section id="exceptions">
+        <h2>7. 异常与边界</h2>
+        <h3>7.1 异常场景</h3>
+        <ul>
+          <li>数据接入失败：批次状态显示失败，并记录来源、任务、失败节点。</li>
+          <li>字段无法识别：结构化结果页保留原始字段，并标记未映射。</li>
+          <li>文本无法解析：文本结果页显示解析失败原因，保留原文片段。</li>
+          <li>口语表达无法规范化：口语结果页显示待确认状态。</li>
+          <li>标签无法生成：标签结果页展示缺少依据、规则不满足或质量不达标。</li>
+        </ul>
+        <h3>7.2 本期边界</h3>
+        <ul>
+          <li>不建设完整医学图像识别和病变检测能力。</li>
+          <li>不建设完整医学知识库管理后台。</li>
+          <li>不定义具体算法模型、训练方案和准确率指标。</li>
+          <li>不定义完整对外接口协议，仅体现结果可被健康画像使用。</li>
+          <li>不展开细粒度权限审计，仅在敏感信息展示中保留脱敏意识。</li>
+        </ul>
+      </section>
+
+      <section id="analytics">
+        <h2>8. 数据跟踪与分析</h2>
+        <table>
+          <thead>
+            <tr><th>跟踪对象</th><th>建议记录内容</th><th>用途</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>接入任务</td><td>任务来源、类型、状态、最新批次、成功量、异常量</td><td>判断数据进入情况</td></tr>
+            <tr><td>处理批次</td><td>批次号、处理节点、开始结束时间、异常原因</td><td>定位处理链路问题</td></tr>
+            <tr><td>提取结果</td><td>结果类型、来源数据、提取值、置信状态、异常标记</td><td>复核提取有效性</td></tr>
+            <tr><td>质量问题</td><td>问题类型、数据来源、影响字段、处理状态</td><td>支持数据治理</td></tr>
+            <tr><td>标签结果</td><td>标签类型、标签来源、生成依据、可用状态</td><td>支撑画像使用和追溯</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="roadmap">
+        <h2>9. 后续路线</h2>
+        <table>
+          <thead>
+            <tr><th>版本</th><th>目标</th><th>主要增量</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>v0.1</td><td>长宁核心能力 PRD</td><td>完成数据接入、三类提取、清洗、标准化、聚合、标签生成的产品需求闭环</td></tr>
+            <tr><td>v0.2</td><td>原型验证版</td><td>输出六页闭环原型，覆盖任务列表、批次详情、结构化结果、文本结果、口语结果、标签结果</td></tr>
+            <tr><td>v0.3</td><td>研发拆解版</td><td>补充字段结构、状态流转、异常处理、页面规则、基础脱敏规则</td></tr>
+            <tr><td>v1.0</td><td>长宁实施确认版</td><td>固化首批数据源、标签体系、接口边界、异常规则和测试验收口径</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="attachments">
+        <h2>10. 附件</h2>
+        <table>
+          <thead>
+            <tr><th>附件</th><th>路径</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>原始需求材料</td>
+              <td>../04_参考资料/长宁健康画像项目_数据智能提取分析系统_原始需求材料_20260521.txt</td>
+              <td>包含基线版本和长宁健康画像项目两部分需求材料</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="status-note">
+          当前 PRD 已回填 v0.1 原型切片和 Mermaid 流程图引用。下一步可进入评审，根据页面反馈补充字段、异常规则和验收口径。
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

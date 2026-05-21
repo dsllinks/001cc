@@ -173,6 +173,7 @@ button { cursor:pointer; }
   height:calc(100vh - 180px);
   min-height:700px;
 }
+#recordsSection { grid-column: 1 / -1; }
 .anchor-nav { display:none; }
 .anchor-title { display:none; }
 .anchor-link { display:none; }
@@ -247,21 +248,6 @@ button { cursor:pointer; }
 .point { cursor:pointer; }
 .slider { height:8px; border-radius:999px; background:#e2e8f0; margin:14px 18px 0; position:relative; }
 .slider::after { content:""; position:absolute; left:22%; right:18%; height:100%; background:#60a5fa; border-radius:999px; }
-.bill-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
-.bill-year-title { font-size:30px; color:#777; font-weight:800; }
-.bill-select { width:120px; height:42px; border:1px solid #cbd5e1; border-radius:8px; padding:0 12px; font-size:20px; background:#fff; }
-.bill-summary { font-size:24px; line-height:1.55; color:#30343b; margin-bottom:18px; }
-.bill-summary b { color:#2f80ff; font-size:26px; }
-.bill-detail { background:#eef8ff; padding:22px 18px; border-radius:12px; display:grid; gap:18px; }
-.bill-total { display:flex; justify-content:space-between; align-items:center; font-size:24px; font-weight:800; }
-.bill-total span:last-child { font-size:25px; }
-.bill-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-.bill-card { background:#fff; border:1px solid #dbeafe; border-radius:14px; padding:18px 16px; display:grid; gap:14px; box-shadow:0 6px 18px rgba(47,107,255,.06); }
-.bill-card-head { display:flex; justify-content:space-between; align-items:center; gap:10px; }
-.bill-card-title { font-size:20px; font-weight:800; color:#0f172a; display:flex; align-items:center; }
-.bill-card-amount { font-size:22px; font-weight:800; color:#0f172a; white-space:nowrap; }
-.bill-card-items { display:grid; gap:10px; }
-.bill-card-item { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 12px; background:#f8fbff; border:1px solid #e5eefc; border-radius:10px; font-size:15px; color:#334155; }
 .drop-icon { width:20px; height:24px; display:inline-block; background:linear-gradient(135deg,#0ea5e9,#0284c7); border-radius:50% 50% 50% 0; transform:rotate(-45deg); margin-right:10px; box-shadow:0 2px 5px rgba(2,132,199,.25); vertical-align:-5px; }
 .diamond { width:10px; height:10px; display:inline-block; background:#dbeafe; transform:rotate(45deg); margin-right:14px; box-shadow:2px 2px 4px rgba(100,116,139,.18); }
 .money { font-weight:800; color:#30343b; white-space:nowrap; }
@@ -379,7 +365,6 @@ button { cursor:pointer; }
   .cards { grid-template-columns:repeat(2,1fr); }
   .detail-layout { grid-template-columns:1fr; grid-template-rows:auto; height:auto; }
   .history-grid { grid-template-columns:1fr; }
-  .bill-cards { grid-template-columns:1fr; }
 }
 @media (max-width:760px) {
   .page-shell { padding:14px; }
@@ -393,9 +378,6 @@ button { cursor:pointer; }
   .filter-toolbar { grid-template-columns:1fr; }
   .vital-stats { grid-template-columns:repeat(2,1fr); }
   .record-meta { grid-template-columns:1fr; }
-  .bill-summary { font-size:18px; }
-  .bill-summary b { font-size:20px; }
-  .bill-total, .bill-card-head { align-items:flex-start; flex-direction:column; }
   .drawer-l3 { width:calc(100vw - 40px); }
   .surgery-grid-l3 { grid-template-columns:1fr; }
   .detail-field-l3 { grid-template-columns:80px 1fr; }
@@ -443,7 +425,7 @@ button { cursor:pointer; }
         </div>
         <div class="people-list">
           <button class="people-item main" onclick="openGeneralView()">
-            <span class="people-label"><b>通用人群</b><span>查看诊疗记录、健康史、体征数据、年度账单</span></span>
+            <span class="people-label"><b>通用人群</b><span>查看诊疗记录、健康史、体征数据</span></span>
             <span class="people-arrow">›</span>
           </button>
           <button class="people-item future" onclick="openPlaceholder('孕产妇健康空间')">
@@ -525,7 +507,6 @@ button { cursor:pointer; }
         <button class="anchor-link active" data-anchor="recordsSection">诊疗记录</button>
         <button class="anchor-link" data-anchor="historySection">健康史</button>
         <button class="anchor-link" data-anchor="vitalsSection">体征数据</button>
-        <button class="anchor-link" data-anchor="billsSection">年度账单</button>
       </aside>
 
       <main class="detail-content">
@@ -593,19 +574,6 @@ button { cursor:pointer; }
           <div class="slider"></div>
         </section>
 
-        <section class="section-card" id="billsSection">
-          <h2>年度账单</h2>
-          <div class="section-tip">默认显示当年账单，保留门诊、住院、体检三类消费，并演示门诊含急诊的统计口径。</div>
-          <div class="bill-top">
-            <div class="bill-year-title" id="billYearTitle">2025年</div>
-            <select class="bill-select" id="billYearSelect">
-              <option value="2025">2025年</option>
-              <option value="2024">2024年</option>
-            </select>
-          </div>
-          <div class="bill-summary" id="billSummary"></div>
-          <div class="bill-detail" id="billDetail"></div>
-        </section>
       </main>
     </div>
   </section>
@@ -689,26 +657,6 @@ const vitalData = {
   bp: {stats:[18,4,6,2], points:"50,145 170,118 290,82 385,104", label:"血压 126/82 mmHg"},
   bs: {stats:[9,1,4,1], points:"50,132 170,128 290,96 385,116", label:"血糖 5.6 mmol/L"},
   bmi:{stats:[6,0,3,0], points:"50,104 170,108 290,112 385,110", label:"BMI 18.6"}
-};
-const billsByYear = {
-  "2025": {
-    summary: "<b>2025</b>年，您一共在门诊就诊 <b>6</b> 次，住院 <b>3</b> 次，体检 <b>3</b> 次，全年共计消费 <b>9000.00</b> 元。",
-    total: "9000.00",
-    categories: [
-      ["门诊消费","3000.00",[["医保基金统筹支付","1000.00"],["个人支付","1000.00"],["其他支付","1000.00"]]],
-      ["住院消费","3000.00",[["医保基金统筹支付","1000.00"],["个人支付","1000.00"],["其他支付","1000.00"]]],
-      ["体检消费","3000.00",[["医保基金统筹支付","1000.00"],["个人支付","1000.00"],["其他支付","1000.00"]]]
-    ]
-  },
-  "2024": {
-    summary: "<b>2024</b>年，您一共在门诊就诊 <b>3</b> 次，住院 <b>1</b> 次，体检 <b>2</b> 次，全年共计消费 <b>5200.00</b> 元。",
-    total: "5200.00",
-    categories: [
-      ["门诊消费","1800.00",[["医保基金统筹支付","600.00"],["个人支付","700.00"],["其他支付","500.00"]]],
-      ["住院消费","2200.00",[["医保基金统筹支付","900.00"],["个人支付","900.00"],["其他支付","400.00"]]],
-      ["体检消费","1200.00",[["医保基金统筹支付","0.00"],["个人支付","700.00"],["其他支付","500.00"]]]
-    ]
-  }
 };
 let activeRecordType = "all";
 let currentView = "homeView";
@@ -828,12 +776,6 @@ function renderVital(type='bp'){
   document.getElementById('trendLine').setAttribute('points', d.points);
   const pts=d.points.split(' ').map(p=>p.split(',').map(Number));
   document.getElementById('trendPoints').innerHTML=pts.map(([x,y])=>`<circle class="point" cx="${x}" cy="${y}" r="6" fill="#2563eb" onclick="openSource('${d.label}')"/>`).join('');
-}
-function renderBills(year='2025'){
-  const data=billsByYear[year];
-  document.getElementById('billYearTitle').textContent=`${year}年`;
-  document.getElementById('billSummary').innerHTML=data.summary;
-  document.getElementById('billDetail').innerHTML=`<div class="bill-total"><span>共计</span><span>${data.total} 元</span></div><div class="bill-cards">${data.categories.map(([name,amount,children])=>`<div class="bill-card"><div class="bill-card-head"><span class="bill-card-title"><i class="drop-icon"></i>${name}</span><span class="bill-card-amount">${amount} 元</span></div><div class="bill-card-items">${children.map(([label,money])=>`<div class="bill-card-item"><span><i class="diamond"></i>${label}</span><span class="money">${money} 元</span></div>`).join('')}</div></div>`).join('')}</div>`;
 }
 function openSource(label){
   openModal('体征数据溯源', [
@@ -1095,13 +1037,12 @@ function bindEvents(){
     setActiveAnchor(btn.dataset.anchor);
     document.getElementById(btn.dataset.anchor).scrollIntoView({behavior:'smooth', block:'start'});
   }));
-  document.getElementById('billYearSelect').addEventListener('change',e=>renderBills(e.target.value));
   document.getElementById('modalMask').addEventListener('click',e=>{ if(e.target.id==='modalMask') closeModal(); });
   document.getElementById('drawerMask').addEventListener('click',e=>{ if(e.target.id==='drawerMask') closeDrawer(); });
   document.getElementById('drawerMaskL3').addEventListener('click',e=>{ if(e.target.id==='drawerMaskL3') closeDrawerL3(); });
   window.addEventListener('scroll',()=>{
     if(currentView!=='generalView') return;
-    const sections=['recordsSection','historySection','vitalsSection','billsSection'];
+    const sections=['recordsSection','historySection','vitalsSection'];
     let current='recordsSection';
     sections.forEach(id=>{
       const rect=document.getElementById(id).getBoundingClientRect();
@@ -1115,7 +1056,6 @@ initGraph();
 renderRecords();
 renderHistory();
 renderVital();
-renderBills('2025');
 bindEvents();
 </script>
 </body>

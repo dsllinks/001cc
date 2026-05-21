@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>个人数字空间 - PC端标签图谱界面重构原型 v0.1</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f6fb; color: #1f2937; font-size: 14px; }
+
+  /* 顶部品牌栏 */
+  .topbar { background: linear-gradient(90deg, #2f6bff 0%, #5a8fff 100%); color: #fff; padding: 12px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar .brand { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .topbar .brand .logo { width: 28px; height: 28px; background: rgba(255,255,255,.25); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .topbar .user { font-size: 13px; opacity: .9; }
+
+  /* 主容器 */
+  .container { max-width: 1440px; margin: 0 auto; padding: 20px 24px; }
+
+  /* 患者信息条 */
+  .patient-bar { background: #fff; border-radius: 8px; padding: 14px 22px; display: flex; align-items: center; gap: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.04); margin-bottom: 16px; flex-wrap: wrap; }
+  .patient-bar .avatar { width: 40px; height: 40px; border-radius: 50%; background: #dbeafe; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .patient-bar .info { display: flex; gap: 18px; font-size: 13px; color: #475569; flex-wrap: wrap; }
+  .patient-bar .info span { display: inline-flex; align-items: center; gap: 4px; }
+  .patient-bar .info b { color: #1f2937; }
+  .patient-bar .data-cutoff { margin-left: auto; color: #64748b; font-size: 12px; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; }
+
+  /* 统计卡片 */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+  .stat-card { background: #fff; border-radius: 8px; padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+  .stat-card .num { font-size: 28px; font-weight: 700; color: #1f2937; line-height: 1; }
+  .stat-card .label { font-size: 13px; color: #64748b; margin-top: 6px; }
+  .stat-card .icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .stat-card.cat .icon { background: #dbeafe; color: #2f6bff; }
+  .stat-card.cnt .icon { background: #d1fae5; color: #10b981; }
+  .stat-card.risk .icon { background: #fee2e2; color: #ef4444; }
+  .stat-card.risk .num { color: #ef4444; }
+
+  /* 图谱卡片 */
+  .graph-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.04); overflow: hidden; }
+  .graph-header { padding: 14px 20px; border-bottom: 1px solid #eef2f7; display: flex; align-items: center; justify-content: space-between; }
+  .graph-header .title { display: flex; align-items: center; gap: 10px; }
+  .graph-header .title .blue-mark { width: 4px; height: 16px; background: #2f6bff; border-radius: 2px; }
+  .graph-header .title h3 { font-size: 15px; font-weight: 600; }
+  .graph-header .badges { display: flex; gap: 10px; align-items: center; }
+  .badge { font-size: 12px; padding: 4px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px; }
+  .badge.compliance { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+  .badge.cutoff { background: #f1f5f9; color: #475569; }
+
+  /* 工具栏 */
+  .toolbar { padding: 12px 20px; background: #fafbfd; border-bottom: 1px solid #eef2f7; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .toolbar .filter-group { display: flex; gap: 8px; align-items: center; }
+  .toolbar label { font-size: 13px; color: #475569; }
+  .toolbar select, .toolbar .multi-select, .toolbar input { height: 32px; border: 1px solid #d1d5db; border-radius: 6px; padding: 0 10px; font-size: 13px; background: #fff; }
+  .toolbar .multi-select { min-width: 200px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .toolbar .multi-select .arrow { color: #94a3b8; font-size: 10px; }
+  .toolbar .search-wrap { margin-left: auto; position: relative; }
+  .toolbar .search-input { width: 240px; padding-left: 30px; }
+  .toolbar .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px; }
+
+  /* 模式切换提示 */
+  .mode-tip { padding: 8px 20px; background: #eff6ff; border-bottom: 1px solid #dbeafe; font-size: 12px; color: #1e40af; display: flex; gap: 12px; align-items: center; }
+  .mode-tip .mode-btn { padding: 3px 10px; border-radius: 12px; cursor: pointer; border: 1px solid #dbeafe; background: #fff; color: #1e40af; font-size: 12px; }
+  .mode-tip .mode-btn.active { background: #2f6bff; color: #fff; border-color: #2f6bff; }
+  .mode-tip .reset { margin-left: auto; color: #64748b; cursor: pointer; }
+</style>
+</head>
+<body>
+<style>
+  /* 图谱画布 */
+  .graph-wrap { position: relative; display: flex; }
+  .graph-canvas { flex: 1; position: relative; height: 720px; background:
+    radial-gradient(circle at center, #f8fbff 0%, #ffffff 60%);
+    overflow: hidden; }
+  .graph-canvas svg { width: 100%; height: 100%; }
+
+  /* 节点样式 */
+  .node { cursor: pointer; transition: all .3s; }
+  .node-circle { stroke-width: 2; transition: all .3s; }
+  .node-text { font-size: 12px; fill: #1f2937; pointer-events: none; user-select: none; }
+  .cat-arc-label { font-size: 13px; font-weight: 600; fill: #1f2937; pointer-events: none; }
+  .cat-arc-bg { fill: rgba(255,255,255,.85); stroke-width: 1; }
+
+  /* 风险等级边框 */
+  .risk-high { stroke: #ef4444; stroke-width: 3; }
+  .risk-mid { stroke: #f97316; stroke-width: 2; }
+  .risk-low { stroke: #9ca3af; stroke-width: 1; }
+  .risk-none { stroke: transparent; stroke-width: 0; }
+
+  /* 中心头像 */
+  .center-avatar circle { fill: #dbeafe; stroke: #a7c7ff; stroke-width: 4; }
+  .center-avatar text { fill: #1e3a8a; font-size: 20px; text-anchor: middle; }
+
+  /* 类别色（10类）*/
+  .cat-base { fill: #c7d2fe; }
+  .cat-disease { fill: #bae6fd; }
+  .cat-system { fill: #fed7aa; }
+  .cat-organ { fill: #fecaca; }
+  .cat-drug { fill: #bbf7d0; }
+  .cat-surgery { fill: #fde68a; }
+  .cat-checkup { fill: #cffafe; }
+  .cat-lab { fill: #fbcfe8; }
+  .cat-model { fill: #ddd6fe; }
+  .cat-space { fill: #a7f3d0; }
+
+  /* 类别弧形章节标签 */
+  .cat-section-label { fill: #f0f4ff; stroke: #c7d2fe; stroke-width: 1; }
+
+  /* 缩放与图例浮窗 */
+  .zoom-controls { position: absolute; top: 16px; right: 16px; display: flex; flex-direction: column; gap: 4px; background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06); z-index: 5; }
+  .zoom-controls button { width: 32px; height: 32px; border: none; background: #fff; cursor: pointer; font-size: 14px; color: #475569; }
+  .zoom-controls button:hover { background: #f1f5f9; }
+  .zoom-controls button + button { border-top: 1px solid #eef2f7; }
+  .legend-float { position: absolute; bottom: 16px; right: 16px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,.06); z-index: 5; min-width: 60px; }
+  .legend-float .legend-toggle { padding: 8px 14px; cursor: pointer; font-size: 13px; color: #475569; display: flex; align-items: center; gap: 6px; }
+  .legend-float .legend-body { display: none; padding: 14px; border-top: 1px solid #eef2f7; min-width: 220px; }
+  .legend-float.expanded .legend-body { display: block; }
+  .legend-float .legend-row { font-size: 12px; color: #475569; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .legend-float .legend-row:last-child { margin-bottom: 0; }
+  .legend-float h5 { font-size: 12px; font-weight: 600; color: #1f2937; margin: 10px 0 6px; }
+  .legend-float h5:first-child { margin-top: 0; }
+  .legend-sample { display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: #c7d2fe; }
+  .legend-sample.r-high { border: 3px solid #ef4444; box-sizing: border-box; }
+  .legend-sample.r-mid { border: 2px solid #f97316; box-sizing: border-box; }
+  .legend-sample.r-low { border: 1px solid #9ca3af; box-sizing: border-box; }
+
+  /* 数据脱敏徽章 */
+  .compliance-badge { position: absolute; top: 16px; left: 16px; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 5px 12px; border-radius: 14px; font-size: 12px; z-index: 5; display: flex; align-items: center; gap: 5px; }
+
+  /* 溯源面板 */
+  .source-panel { width: 0; background: #fff; border-left: 1px solid #eef2f7; transition: width .3s; overflow: hidden; }
+  .source-panel.open { width: 320px; }
+  .source-panel-inner { width: 320px; height: 720px; overflow-y: auto; }
+  .source-panel-header { padding: 16px 20px; border-bottom: 1px solid #eef2f7; display: flex; align-items: center; justify-content: space-between; }
+  .source-panel-header h4 { font-size: 14px; font-weight: 600; }
+  .source-panel-header .close { cursor: pointer; color: #94a3b8; font-size: 18px; line-height: 1; }
+  .source-block { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; }
+  .source-block h5 { font-size: 13px; font-weight: 600; color: #2f6bff; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .source-block h5::before { content: ''; width: 3px; height: 12px; background: #2f6bff; border-radius: 2px; }
+  .source-row { display: flex; margin-bottom: 10px; font-size: 13px; }
+  .source-row .label { width: 90px; color: #64748b; flex-shrink: 0; }
+  .source-row .value { color: #1f2937; flex: 1; word-break: break-all; }
+  .source-row .value.highlight { color: #ef4444; font-weight: 600; }
+  .source-row .value .tag-pill { display: inline-block; padding: 2px 8px; background: #eff6ff; color: #2f6bff; border-radius: 10px; font-size: 12px; margin-right: 4px; }
+
+  /* tooltip */
+  .tooltip { position: absolute; background: rgba(31, 41, 55, .95); color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 12px; pointer-events: none; z-index: 10; display: none; max-width: 220px; }
+  .tooltip .tt-title { font-weight: 600; margin-bottom: 4px; }
+  .tooltip .tt-row { display: flex; justify-content: space-between; gap: 8px; opacity: .85; }
+
+  /* 节点 hover 高亮 */
+  .node.dim { opacity: .25; }
+  .node.highlighted .node-circle { filter: drop-shadow(0 0 6px rgba(47,107,255,.45)); }
+
+  /* 状态说明栏（原型说明） */
+  .proto-note { margin-top: 16px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #92400e; display: flex; gap: 8px; align-items: flex-start; }
+  .proto-note .icon { font-size: 14px; }
+</style>
+</head>
+<body>
+<!-- 顶部品牌栏 -->
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">健</span>
+    <span>健康画像系统 · 个人数字空间</span>
+  </div>
+  <div class="user">运营管理员 · 张医生</div>
+</header>
+
+<div class="container">
+  <!-- 患者信息条 -->
+  <div class="patient-bar">
+    <div class="avatar">👧</div>
+    <div class="info">
+      <span><b>谢*</b></span>
+      <span>女性</span>
+      <span>5岁3个月</span>
+      <span>汉族</span>
+      <span>证件：340***********2338</span>
+      <span>合肥市蜀山区万兴社区卫生服务中心</span>
+    </div>
+    <div class="data-cutoff">数据截止：2026-04-28</div>
+  </div>
+
+  <!-- 标签统计卡 × 3 -->
+  <div class="stats">
+    <div class="stat-card cat">
+      <div>
+        <div class="num">10</div>
+        <div class="label">标签类别 · 覆盖全部标签类别</div>
+      </div>
+      <div class="icon">📊</div>
+    </div>
+    <div class="stat-card cnt">
+      <div>
+        <div class="num">103</div>
+        <div class="label">命中标签数 · 标签知训库中的命中数</div>
+      </div>
+      <div class="icon">🏷️</div>
+    </div>
+    <div class="stat-card risk">
+      <div>
+        <div class="num">4</div>
+        <div class="label">高风险标签 · 需要重点关注</div>
+      </div>
+      <div class="icon">⚠️</div>
+    </div>
+  </div>
+
+  <!-- 图谱卡片 -->
+  <div class="graph-card">
+    <div class="graph-header">
+      <div class="title">
+        <span class="blue-mark"></span>
+        <h3>个人健康标签图谱</h3>
+      </div>
+      <div class="badges">
+        <span class="badge cutoff">数据截止：2026-04-28</span>
+      </div>
+    </div>
+
+    <!-- 顶部工具栏：筛选器 + 搜索 -->
+    <div class="toolbar">
+      <div class="filter-group">
+        <label>标签类别</label>
+        <div class="multi-select">
+          <span>已选 10 项 · 全部</span>
+          <span class="arrow">▼</span>
+        </div>
+      </div>
+      <div class="filter-group">
+        <label>时间窗</label>
+        <select>
+          <option>全部</option>
+          <option>近 30 天</option>
+          <option>近 90 天</option>
+          <option>近 1 年</option>
+        </select>
+      </div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" type="text" placeholder="搜索标签名（二级/三级）">
+      </div>
+    </div>
+
+    <!-- 模式切换提示（原型演示用） -->
+    <div class="mode-tip">
+      <span>原型演示模式：</span>
+      <button class="mode-btn active" data-mode="panorama" onclick="switchMode('panorama')">① 全景</button>
+      <button class="mode-btn" data-mode="focus" onclick="switchMode('focus')">② 聚焦（疾病风险类）</button>
+      <button class="mode-btn" data-mode="third" onclick="switchMode('third')">③ 三级展开（高血压）</button>
+      <span class="reset" onclick="closePanel()">关闭溯源面板</span>
+    </div>
+
+    <!-- 图谱画布 + 溯源面板 -->
+    <div class="graph-wrap">
+      <div class="graph-canvas" id="graphCanvas">
+        <div class="compliance-badge">🔒 已脱敏展示</div>
+        <div class="zoom-controls">
+          <button title="放大">+</button>
+          <button title="缩小">−</button>
+          <button title="自适应" style="font-size:11px;">100%</button>
+        </div>
+        <div class="legend-float" id="legendFloat" onclick="toggleLegend(event)">
+          <div class="legend-toggle">📖 图例</div>
+          <div class="legend-body" onclick="event.stopPropagation()">
+            <h5>节点类型</h5>
+            <div class="legend-row"><span style="font-size:14px;">⊕</span> 可展开标签</div>
+            <div class="legend-row"><span style="font-size:14px;">○</span> 不可展开标签</div>
+            <div class="legend-row"><span style="font-size:14px;">◎</span> 可下钻标签</div>
+            <h5>风险等级</h5>
+            <div class="legend-row"><span class="legend-sample r-high"></span> 高风险（红色粗描边）</div>
+            <div class="legend-row"><span class="legend-sample r-mid"></span> 中风险（橙色描边）</div>
+            <div class="legend-row"><span class="legend-sample r-low"></span> 低风险（灰色细边）</div>
+            <div class="legend-row"><span class="legend-sample"></span> 无风险（无描边）</div>
+          </div>
+        </div>
+        <svg viewBox="0 0 900 700" id="graphSvg" preserveAspectRatio="xMidYMid meet">
+          <g id="viewPanorama"></g>
+          <g id="viewFocus" style="display:none;"></g>
+          <g id="viewThird" style="display:none;"></g>
+        </svg>
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+
+      <!-- 溯源面板 -->
+      <aside class="source-panel" id="sourcePanel">
+        <div class="source-panel-inner">
+          <div class="source-panel-header">
+            <h4>溯源信息</h4>
+            <span class="close" onclick="closePanel()">×</span>
+          </div>
+          <div class="source-block">
+            <h5>基本信息</h5>
+            <div class="source-row"><div class="label">标签名</div><div class="value" id="srcName">高血压2级</div></div>
+            <div class="source-row"><div class="label">所属类别</div><div class="value" id="srcCat"><span class="tag-pill">疾病风险</span></div></div>
+            <div class="source-row"><div class="label">风险等级</div><div class="value highlight" id="srcRisk">高</div></div>
+            <div class="source-row"><div class="label">生成时间</div><div class="value" id="srcGenTime">2026-04-15 09:23</div></div>
+            <div class="source-row"><div class="label">数据截止</div><div class="value" id="srcCutoff">2026-04-28</div></div>
+          </div>
+          <div class="source-block">
+            <h5>命中证据</h5>
+            <div class="source-row"><div class="label">首次出现</div><div class="value" id="srcFirst">2025-12-10</div></div>
+            <div class="source-row"><div class="label">医疗机构</div><div class="value" id="srcOrg">合肥市第一人民医院</div></div>
+            <div class="source-row"><div class="label">科室</div><div class="value" id="srcDept">心血管内科</div></div>
+            <div class="source-row"><div class="label">诊断原文</div><div class="value" id="srcDiag">原发性高血压2级（高危），收缩压 162mmHg / 舒张压 98mmHg</div></div>
+            <div class="source-row"><div class="label">关联事实数</div><div class="value" id="srcCount">3 条</div></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="proto-note">
+    <span class="icon">💡</span>
+    <span>原型演示说明：本页演示标签图谱重构后的三种核心交互模式。点击上方 ①②③ 按钮或类别名/标签节点可切换模式；悬停节点显示 tooltip；溯源面板从右侧推入，不覆盖图谱。本原型为低保真线框，节点位置和数量为示意。</span>
+  </div>
+</div>
+
+<script>
+// 类别配置（10类，按二级标签数量动态分配扇区角度）
+const categories = [
+  { id: 'disease', name: '疾病风险', color: '#bae6fd', count: 6, weight: 6 },
+  { id: 'system',  name: '九大系统风险', color: '#fed7aa', count: 4, weight: 4 },
+  { id: 'organ',   name: '十大人体器官风险', color: '#fecaca', count: 4, weight: 4 },
+  { id: 'lab',     name: '检验风险', color: '#fbcfe8', count: 5, weight: 5 },
+  { id: 'checkup', name: '检查风险', color: '#cffafe', count: 3, weight: 3 },
+  { id: 'drug',    name: '用药', color: '#bbf7d0', count: 5, weight: 5 },
+  { id: 'surgery', name: '手术', color: '#fde68a', count: 2, weight: 2 },
+  { id: 'base',    name: '基础信息', color: '#c7d2fe', count: 4, weight: 4 },
+  { id: 'model',   name: '模型健康', color: '#ddd6fe', count: 3, weight: 3 },
+  { id: 'space',   name: '健康空间', color: '#a7f3d0', count: 2, weight: 2 }
+];
+
+// 二级标签示意数据
+const labels = {
+  disease: [
+    { name: '高血压2级', risk: 'high', drillable: true },
+    { name: '糖尿病前期', risk: 'mid', drillable: true },
+    { name: '高脂血症', risk: 'mid', drillable: false },
+    { name: '冠心病', risk: 'high', drillable: true },
+    { name: '甲状腺异常', risk: 'low', drillable: false },
+    { name: '哮喘', risk: 'low', drillable: false }
+  ],
+  system: [
+    { name: '心血管系统风险', risk: 'high', drillable: true },
+    { name: '内分泌系统', risk: 'mid', drillable: false },
+    { name: '消化系统', risk: 'low', drillable: false },
+    { name: '呼吸系统', risk: 'low', drillable: false }
+  ],
+  organ: [
+    { name: '心脏风险', risk: 'high', drillable: false },
+    { name: '肝功能异常', risk: 'mid', drillable: false },
+    { name: '肾功能', risk: 'low', drillable: false },
+    { name: '甲状腺', risk: 'none', drillable: false }
+  ],
+  lab: [
+    { name: '血脂偏高', risk: 'mid', drillable: false },
+    { name: '血糖偏高', risk: 'mid', drillable: false },
+    { name: '血常规异常', risk: 'low', drillable: false },
+    { name: '尿常规', risk: 'none', drillable: false },
+    { name: '肝功能', risk: 'low', drillable: false }
+  ],
+  checkup: [
+    { name: '心电图异常', risk: 'mid', drillable: false },
+    { name: '腹部B超', risk: 'none', drillable: false },
+    { name: '胸片', risk: 'none', drillable: false }
+  ],
+  drug: [
+    { name: '苯磺酸氨氯地平', risk: 'none', drillable: false },
+    { name: '二甲双胍', risk: 'none', drillable: false },
+    { name: '阿托伐他汀', risk: 'none', drillable: false },
+    { name: '阿司匹林', risk: 'none', drillable: false },
+    { name: '美托洛尔', risk: 'none', drillable: false }
+  ],
+  surgery: [
+    { name: '胆囊切除术', risk: 'none', drillable: false },
+    { name: '阑尾炎手术', risk: 'none', drillable: false }
+  ],
+  base: [
+    { name: '5岁3个月', risk: 'none', drillable: false },
+    { name: '女性', risk: 'none', drillable: false },
+    { name: '汉族', risk: 'none', drillable: false },
+    { name: '已签约家庭医生', risk: 'none', drillable: false }
+  ],
+  model: [
+    { name: '心血管疾病预测', risk: 'mid', drillable: true },
+    { name: '糖尿病预测', risk: 'mid', drillable: true },
+    { name: '健康趋势分析', risk: 'low', drillable: false }
+  ],
+  space: [
+    { name: '通用人群空间', risk: 'none', drillable: false },
+    { name: '慢病人群空间', risk: 'none', drillable: false }
+  ]
+};
+
+// 三级标签数据（针对"高血压2级"）
+const thirdLabels = [
+  { name: '原发性高血压', risk: 'high', drillable: false },
+  { name: '高血压2级（高危）', risk: 'high', drillable: false },
+  { name: '收缩压 162mmHg', risk: 'high', drillable: false },
+  { name: '舒张压 98mmHg', risk: 'mid', drillable: false },
+  { name: '左心室肥厚', risk: 'mid', drillable: false },
+  { name: '高血压家族史', risk: 'low', drillable: false }
+];
+
+const CX = 450, CY = 350;
+const R_CAT = 130;       // 一级类别弧形标签所在半径
+const R_LABEL = 245;     // 二级标签节点所在半径
+const R_NODE = 22;       // 二级节点半径
+const R_NODE_FOCUS = 28; // 聚焦模式下的节点半径
+const R_NODE_THIRD = 18; // 三级节点半径
+
+// 计算每个类别的扇区角度（按权重分配，总和360°）
+function computeSectors() {
+  const totalWeight = categories.reduce((s, c) => s + c.weight, 0);
+  let cur = -Math.PI / 2; // 从顶部开始（12点方向）
+  return categories.map(c => {
+    const angle = (c.weight / totalWeight) * Math.PI * 2;
+    const sector = { ...c, startAngle: cur, endAngle: cur + angle, midAngle: cur + angle / 2 };
+    cur += angle;
+    return sector;
+  });
+}
+
+const sectors = computeSectors();
+
+// 极坐标转笛卡尔
+function polar(r, angle) {
+  return { x: CX + r * Math.cos(angle), y: CY + r * Math.sin(angle) };
+}
+
+// 生成弧形路径（用于类别章节标签背景）
+function arcPath(r1, r2, a1, a2) {
+  const p1 = polar(r1, a1), p2 = polar(r1, a2), p3 = polar(r2, a2), p4 = polar(r2, a1);
+  const largeArc = (a2 - a1) > Math.PI ? 1 : 0;
+  return `M ${p1.x} ${p1.y} A ${r1} ${r1} 0 ${largeArc} 1 ${p2.x} ${p2.y} L ${p3.x} ${p3.y} A ${r2} ${r2} 0 ${largeArc} 0 ${p4.x} ${p4.y} Z`;
+}
+
+// 弧形文字路径（用于弧形章节标签的文字）
+function arcTextPath(r, a1, a2) {
+  const p1 = polar(r, a1), p2 = polar(r, a2);
+  const largeArc = (a2 - a1) > Math.PI ? 1 : 0;
+  return `M ${p1.x} ${p1.y} A ${r} ${r} 0 ${largeArc} 1 ${p2.x} ${p2.y}`;
+}
+
+function riskClass(r) {
+  return 'risk-' + (r === 'high' ? 'high' : r === 'mid' ? 'mid' : r === 'low' ? 'low' : 'none');
+}
+
+function drillIcon(drillable) {
+  return drillable ? '◎' : '';
+}
+
+// 渲染中心头像
+function centerAvatar() {
+  return `<g class="center-avatar">
+    <circle cx="${CX}" cy="${CY}" r="38"/>
+    <text x="${CX}" y="${CY+8}" text-anchor="middle" font-size="32">👧</text>
+  </g>`;
+}
+
+// 渲染单个二级节点
+function renderNode(label, x, y, r, idx, catId) {
+  const drill = label.drillable ? `<text x="${x+r*0.7}" y="${y+r*0.85}" font-size="11" fill="#2f6bff" text-anchor="middle">◎</text>` : '';
+  const onclick = (catId === 'disease' && label.name === '高血压2级')
+    ? `onclick="switchMode('third')"`
+    : `onclick="showSourceFor('${label.name}','${label.risk}','${getCatName(catId)}')"`;
+  return `<g class="node" data-name="${label.name}" data-risk="${label.risk}"
+    onmouseenter="showTip(evt,'${label.name}','${label.risk}')"
+    onmouseleave="hideTip()" ${onclick}>
+    <circle class="node-circle ${riskClass(label.risk)}" cx="${x}" cy="${y}" r="${r}"
+      fill="${getCatColor(catId)}"/>
+    <text class="node-text" x="${x}" y="${y+4}" text-anchor="middle">${label.name.length > 6 ? label.name.slice(0,5)+'…' : label.name}</text>
+    ${drill}
+  </g>`;
+}
+
+function getCatColor(id) {
+  return categories.find(c => c.id === id).color;
+}
+function getCatName(id) {
+  return categories.find(c => c.id === id).name;
+}
+
+// === 全景模式渲染 ===
+function renderPanorama() {
+  const g = document.getElementById('viewPanorama');
+  let html = '';
+
+  // 一级类别弧形章节标签
+  sectors.forEach((s, idx) => {
+    const padAngle = 0.02;
+    const a1 = s.startAngle + padAngle, a2 = s.endAngle - padAngle;
+    // 弧形背景
+    html += `<path d="${arcPath(R_CAT-22, R_CAT+2, a1, a2)}" class="cat-section-label"
+      style="cursor:pointer;" onclick="switchMode('focus','${s.id}')"/>`;
+    // 弧形文字
+    const arcId = 'arc-' + s.id;
+    html += `<defs><path id="${arcId}" d="${arcTextPath(R_CAT-10, a1, a2)}"/></defs>`;
+    html += `<text class="cat-arc-label" font-size="12" pointer-events="none">
+      <textPath href="#${arcId}" startOffset="50%" text-anchor="middle">${s.name}</textPath>
+    </text>`;
+  });
+
+  // 二级标签节点 + 类别到节点的连线
+  sectors.forEach((s) => {
+    const list = labels[s.id] || [];
+    const span = s.endAngle - s.startAngle;
+    list.forEach((label, i) => {
+      // 二级标签均匀分布在扇区内
+      const t = list.length === 1 ? 0.5 : i / (list.length - 1);
+      const angle = s.startAngle + 0.04 + t * (span - 0.08);
+      const p = polar(R_LABEL, angle);
+      // 连线
+      const inner = polar(R_CAT + 8, angle);
+      html += `<line x1="${inner.x}" y1="${inner.y}" x2="${p.x}" y2="${p.y}"
+        stroke="#cbd5e1" stroke-width="1" stroke-dasharray="2,2"/>`;
+      html += renderNode(label, p.x, p.y, R_NODE, i, s.id);
+    });
+  });
+
+  // 中心头像
+  html += centerAvatar();
+  g.innerHTML = html;
+}
+
+// === 聚焦模式渲染（点击疾病风险类）===
+function renderFocus() {
+  const g = document.getElementById('viewFocus');
+  const focused = sectors.find(s => s.id === 'disease');
+  if (!focused) return;
+  let html = '';
+
+  // 其他类别压缩为外圈小节点（仅显示类别名+标签数）
+  sectors.filter(s => s.id !== 'disease').forEach((s, idx) => {
+    const angle = -Math.PI / 2 + 0.6 * Math.PI + (idx / 9) * 0.8 * Math.PI;
+    const p = polar(330, angle);
+    html += `<g style="cursor:pointer;" onclick="switchMode('focus','${s.id}')">
+      <rect x="${p.x-50}" y="${p.y-12}" width="100" height="24" rx="12"
+        fill="${s.color}" opacity=".55"/>
+      <text x="${p.x}" y="${p.y+4}" text-anchor="middle" font-size="11" fill="#475569">
+        ${s.name} ×${s.count}
+      </text>
+    </g>`;
+  });
+
+  // 聚焦类别占据 60% 圆（120°-240° 扇区，朝右展开）
+  const focusStart = -Math.PI * 0.5;
+  const focusEnd = Math.PI * 0.5;
+  // 弧形章节标签（更大）
+  const a1 = focusStart + 0.03, a2 = focusEnd - 0.03;
+  html += `<path d="${arcPath(150, 175, a1, a2)}" fill="#dbeafe" stroke="#2f6bff" stroke-width="1"
+    style="cursor:pointer;" onclick="switchMode('panorama')"/>`;
+  const arcId = 'arc-focus';
+  html += `<defs><path id="${arcId}" d="${arcTextPath(168, a1, a2)}"/></defs>`;
+  html += `<text font-size="14" font-weight="600" fill="#1e3a8a" pointer-events="none">
+    <textPath href="#${arcId}" startOffset="50%" text-anchor="middle">疾病风险（聚焦）</textPath>
+  </text>`;
+
+  // 聚焦类别的二级标签（放大）
+  const list = labels.disease;
+  list.forEach((label, i) => {
+    const t = list.length === 1 ? 0.5 : i / (list.length - 1);
+    const angle = focusStart + 0.05 + t * (focusEnd - focusStart - 0.1);
+    const p = polar(265, angle);
+    const inner = polar(180, angle);
+    html += `<line x1="${inner.x}" y1="${inner.y}" x2="${p.x}" y2="${p.y}"
+      stroke="#2f6bff" stroke-width="1" stroke-dasharray="3,2" opacity=".5"/>`;
+    html += renderNode(label, p.x, p.y, R_NODE_FOCUS, i, 'disease');
+  });
+
+  // 中心头像 + 提示
+  html += centerAvatar();
+  html += `<text x="${CX}" y="${CY+60}" text-anchor="middle" font-size="11" fill="#94a3b8">点击中心头像返回全景</text>`;
+
+  g.innerHTML = html;
+}
+
+// === 三级展开模式（点击高血压2级）===
+function renderThird() {
+  const g = document.getElementById('viewThird');
+  let html = '';
+
+  // 其他类别淡化为小节点
+  sectors.filter(s => s.id !== 'disease').forEach((s, idx) => {
+    const angle = -Math.PI / 2 + 0.6 * Math.PI + (idx / 9) * 0.8 * Math.PI;
+    const p = polar(330, angle);
+    html += `<g style="cursor:pointer; opacity:.4;">
+      <rect x="${p.x-50}" y="${p.y-12}" width="100" height="24" rx="12"
+        fill="${s.color}"/>
+      <text x="${p.x}" y="${p.y+4}" text-anchor="middle" font-size="11" fill="#475569">
+        ${s.name} ×${s.count}
+      </text>
+    </g>`;
+  });
+
+  // 疾病风险类的其他二级标签（淡化）
+  const focusStart = -Math.PI * 0.5, focusEnd = Math.PI * 0.5;
+  const list = labels.disease;
+  const targetIdx = list.findIndex(l => l.name === '高血压2级');
+  list.forEach((label, i) => {
+    if (i === targetIdx) return;
+    const t = list.length === 1 ? 0.5 : i / (list.length - 1);
+    const angle = focusStart + 0.05 + t * (focusEnd - focusStart - 0.1);
+    const p = polar(265, angle);
+    html += `<g class="node" style="opacity:.3; cursor:pointer;"
+      onclick="switchMode('focus')">
+      <circle class="node-circle ${riskClass(label.risk)}" cx="${p.x}" cy="${p.y}" r="${R_NODE}"
+        fill="${getCatColor('disease')}"/>
+      <text class="node-text" x="${p.x}" y="${p.y+4}" text-anchor="middle">${label.name.length > 6 ? label.name.slice(0,5)+'…' : label.name}</text>
+    </g>`;
+  });
+
+  // 高血压2级（居中放大）位于左中心位置
+  const targetX = CX - 80, targetY = CY;
+  html += `<g class="node">
+    <circle class="node-circle risk-high" cx="${targetX}" cy="${targetY}" r="34"
+      fill="${getCatColor('disease')}"/>
+    <text class="node-text" x="${targetX}" y="${targetY+4}" text-anchor="middle" font-size="13" font-weight="600">高血压2级</text>
+    <text x="${targetX+24}" y="${targetY+30}" font-size="12" fill="#2f6bff" text-anchor="middle">◎</text>
+  </g>`;
+
+  // 三级标签辐射展开（180°朝外，朝右半圆）
+  thirdLabels.forEach((tl, i) => {
+    const t = i / (thirdLabels.length - 1);
+    const angle = -Math.PI * 0.45 + t * Math.PI * 0.9; // -81° 到 81°
+    const px = targetX + 160 * Math.cos(angle);
+    const py = targetY + 160 * Math.sin(angle);
+    // 连线
+    html += `<line x1="${targetX+30}" y1="${targetY}" x2="${px}" y2="${py}"
+      stroke="#2f6bff" stroke-width="1" stroke-dasharray="3,2" opacity=".6"/>`;
+    // 三级节点
+    html += `<g class="node" style="cursor:pointer;"
+      onmouseenter="showTip(evt,'${tl.name}','${tl.risk}')"
+      onmouseleave="hideTip()"
+      onclick="showSourceFor('${tl.name}','${tl.risk}','疾病风险（三级）')">
+      <circle class="node-circle ${riskClass(tl.risk)}" cx="${px}" cy="${py}" r="${R_NODE_THIRD}"
+        fill="${getCatColor('disease')}"/>
+      <text class="node-text" x="${px}" y="${py+3}" text-anchor="middle" font-size="10">${tl.name.length > 6 ? tl.name.slice(0,5)+'…' : tl.name}</text>
+    </g>`;
+  });
+
+  // 中心头像 + 返回提示
+  html += centerAvatar();
+  html += `<text x="${CX}" y="${CY+60}" text-anchor="middle" font-size="11" fill="#94a3b8">点击中心头像或 Esc 返回</text>`;
+
+  g.innerHTML = html;
+}
+
+// 模式切换
+function switchMode(mode) {
+  document.getElementById('viewPanorama').style.display = mode === 'panorama' ? '' : 'none';
+  document.getElementById('viewFocus').style.display = mode === 'focus' ? '' : 'none';
+  document.getElementById('viewThird').style.display = mode === 'third' ? '' : 'none';
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+  if (mode === 'third') {
+    showSourceFor('高血压2级', 'high', '疾病风险');
+  } else if (mode === 'panorama') {
+    closePanel();
+  }
+}
+
+// 溯源面板内容更新
+function showSourceFor(name, risk, cat) {
+  document.getElementById('srcName').textContent = name;
+  document.getElementById('srcCat').innerHTML = `<span class="tag-pill">${cat}</span>`;
+  const riskMap = { high: '高', mid: '中', low: '低', none: '无' };
+  const riskEl = document.getElementById('srcRisk');
+  riskEl.textContent = riskMap[risk] || '无';
+  riskEl.className = 'value' + (risk === 'high' ? ' highlight' : '');
+  // 数据示意（实际从后端接口获取）
+  document.getElementById('srcGenTime').textContent = '2026-04-15 09:23';
+  document.getElementById('srcCutoff').textContent = '2026-04-28';
+  document.getElementById('srcFirst').textContent = '2025-12-10';
+  document.getElementById('srcOrg').textContent = '合肥市第一人民医院';
+  document.getElementById('srcDept').textContent = '心血管内科';
+  document.getElementById('srcDiag').textContent = name + ' 相关诊断/检查/检验记录';
+  document.getElementById('srcCount').textContent = (Math.floor(Math.random() * 5) + 1) + ' 条';
+  document.getElementById('sourcePanel').classList.add('open');
+}
+
+function closePanel() {
+  document.getElementById('sourcePanel').classList.remove('open');
+}
+
+// Tooltip
+function showTip(evt, name, risk) {
+  const tip = document.getElementById('tooltip');
+  const riskMap = { high: '高', mid: '中', low: '低', none: '无' };
+  tip.innerHTML = `
+    <div class="tt-title">${name}</div>
+    <div class="tt-row"><span>风险等级</span><span>${riskMap[risk] || '无'}</span></div>
+    <div class="tt-row"><span>生成时间</span><span>2026-04-15</span></div>
+  `;
+  const rect = document.getElementById('graphCanvas').getBoundingClientRect();
+  tip.style.left = (evt.clientX - rect.left + 12) + 'px';
+  tip.style.top = (evt.clientY - rect.top + 12) + 'px';
+  tip.style.display = 'block';
+}
+function hideTip() {
+  document.getElementById('tooltip').style.display = 'none';
+}
+
+function toggleLegend(e) {
+  document.getElementById('legendFloat').classList.toggle('expanded');
+  e.stopPropagation();
+}
+
+// Esc 键关闭
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closePanel();
+    switchMode('panorama');
+  }
+});
+
+// 初始化
+renderPanorama();
+renderFocus();
+renderThird();
+</script>
+
+</body>
+</html>

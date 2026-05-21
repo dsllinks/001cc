@@ -288,6 +288,18 @@ td { padding:10px 8px; color:#475569; border-bottom:1px solid #f1f5f9; }
       <button class="btn">查询</button>
     </div>
     <div class="record-list" id="chronicList">
+      <div class="record" data-type="risk" onclick="openModal('diagModal')">
+        <div class="record-top"><span class="record-title">头晕、血压偏高</span><span class="tag">门诊</span></div>
+        <div class="record-meta"><span>合肥市第一人民医院</span><span>全科医学科</span><span>2019-11-12</span></div>
+      </div>
+      <div class="record" data-type="risk" onclick="openModal('diagModal')">
+        <div class="record-top"><span class="record-title">空腹血糖偏高复诊</span><span class="tag">门诊</span></div>
+        <div class="record-meta"><span>合肥市第一人民医院</span><span>内科</span><span>2020-12-08</span></div>
+      </div>
+      <div class="record" data-type="risk" onclick="openModal('diagModal')">
+        <div class="record-top"><span class="record-title">代谢综合征筛查</span><span class="tag">门诊</span></div>
+        <div class="record-meta"><span>安徽省立医院</span><span>内分泌科</span><span>2021-03-22</span></div>
+      </div>
       <div class="record" data-type="diag" onclick="openModal('diagModal')">
         <div class="record-top"><span class="record-title">原发性高血压</span><span class="tag">门诊</span></div>
         <div class="record-meta"><span>合肥市第一人民医院</span><span>心内科</span><span>2020-03-15</span></div>
@@ -325,18 +337,11 @@ td { padding:10px 8px; color:#475569; border-bottom:1px solid #f1f5f9; }
       <div class="vital-card"><b>8</b><span>历年异常</span></div>
       <div class="vital-card"><b>12</b><span>近一年检查</span></div>
       <div class="vital-card"><b>3</b><span>近一年异常</span></div>
-      <div class="vital-card"><b>28</b><span>确诊后检查</span></div>
-      <div class="vital-card"><b>7</b><span>确诊后异常</span></div>
     </div>
     <div class="chart" onclick="openModal('traceModal')">
       <svg viewBox="0 0 420 180" preserveAspectRatio="none">
         <line x1="30" y1="150" x2="400" y2="150" stroke="#cbd5e1"/>
         <line x1="30" y1="10" x2="30" y2="150" stroke="#cbd5e1"/>
-        <!-- 控制目标参考线 -->
-        <line x1="30" y1="55" x2="400" y2="55" class="target-line"/>
-        <text x="405" y="58" class="target-label">130mmHg</text>
-        <line x1="30" y1="95" x2="400" y2="95" class="target-line"/>
-        <text x="405" y="98" class="target-label">80mmHg</text>
         <!-- 趋势线 -->
         <polyline points="50,40 100,48 150,52 200,45 250,60 300,50 350,42 390,55" fill="none" stroke="#2563eb" stroke-width="3"/>
         <polyline points="50,85 100,90 150,88 200,92 250,95 300,88 350,90 390,93" fill="none" stroke="#60a5fa" stroke-width="2" stroke-dasharray="4 3"/>
@@ -346,7 +351,6 @@ td { padding:10px 8px; color:#475569; border-bottom:1px solid #f1f5f9; }
         <text x="190" y="170" fill="#64748b" font-size="10">2026-01</text>
         <text x="360" y="170" fill="#64748b" font-size="10">2026-05</text>
       </svg>
-      <div style="position:absolute;right:16px;top:12px;font-size:11px;color:#d97706;">⚠ 控制目标待专家确认</div>
     </div>
     <div class="slider"></div>
   </section>
@@ -362,13 +366,13 @@ td { padding:10px 8px; color:#475569; border-bottom:1px solid #f1f5f9; }
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>随访时间</th><th>类型</th><th>方式</th><th>血压</th><th>血糖</th><th>依从性</th><th>操作</th></tr></thead>
+        <thead><tr><th>随访时间</th><th>随访类型</th><th>随访医生</th><th>本次血压</th><th>本次血糖</th><th>随访机构</th><th>操作</th></tr></thead>
         <tbody>
-          <tr><td>2026-04-15</td><td>高血压</td><td>门诊</td><td>138/86</td><td>—</td><td>规律</td><td><span class="link" onclick="openModal('followModal')">详情</span></td></tr>
-          <tr><td>2026-03-20</td><td>糖尿病</td><td>电话</td><td>—</td><td>7.2</td><td>间断</td><td><span class="link" onclick="openModal('followModal')">详情</span></td></tr>
-          <tr><td>2026-01-10</td><td>高血压</td><td>门诊</td><td>142/90</td><td>—</td><td>规律</td><td><span class="link" onclick="openModal('followModal')">详情</span></td></tr>
-          <tr><td>2025-10-08</td><td>糖尿病</td><td>家庭访视</td><td>—</td><td>6.8</td><td>规律</td><td><span class="link" onclick="openModal('followModal')">详情</span></td></tr>
-          <tr><td>2025-07-15</td><td>高血压</td><td>门诊</td><td>135/84</td><td>—</td><td>规律</td><td><span class="link" onclick="openModal('followModal')">详情</span></td></tr>
+          <tr><td>2026-04-15</td><td>高血压随访</td><td>张医生</td><td>138/86</td><td>—</td><td>合肥市蜀山区社区卫生服务中心</td><td><span class="link" onclick="openModal('followModal')">详情</span></td></tr>
+          <tr><td>2026-03-20</td><td>糖尿病随访</td><td>李医生</td><td>—</td><td>7.2</td><td>合肥市蜀山区社区卫生服务中心</td><td><span class="link" onclick="openModal('followModal')">详情</span></td></tr>
+          <tr><td>2026-01-10</td><td>高血压随访</td><td>张医生</td><td>142/90</td><td>—</td><td>合肥市蜀山区社区卫生服务中心</td><td><span class="link" onclick="openModal('followModal')">详情</span></td></tr>
+          <tr><td>2025-10-08</td><td>糖尿病随访</td><td>李医生</td><td>—</td><td>6.8</td><td>合肥市蜀山区社区卫生服务中心</td><td><span class="link" onclick="openModal('followModal')">详情</span></td></tr>
+          <tr><td>2025-07-15</td><td>高血压随访</td><td>张医生</td><td>135/84</td><td>—</td><td>合肥市蜀山区社区卫生服务中心</td><td><span class="link" onclick="openModal('followModal')">详情</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -605,7 +609,6 @@ td { padding:10px 8px; color:#475569; border-bottom:1px solid #f1f5f9; }
     <div class="modal-row"><b>检查机构</b><span>合肥市第一人民医院</span></div>
     <div class="modal-row"><b>收缩压</b><span style="color:#dc2626;font-weight:700;">145 mmHg</span></div>
     <div class="modal-row"><b>舒张压</b><span style="color:#dc2626;font-weight:700;">92 mmHg</span></div>
-    <div class="modal-row"><b>控制目标</b><span style="color:#d97706;">&lt;130/80 mmHg（待确认）</span></div>
   </div>
   <div class="modal-footer"><button class="btn secondary" onclick="closeModal('traceModal')">关闭</button></div>
 </div>

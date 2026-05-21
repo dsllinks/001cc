@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康画像系统 - 功能结构图 v1.1</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f0f4f8;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 24px;
+            color: #1a365d;
+            margin-bottom: 8px;
+        }
+        .header p {
+            font-size: 14px;
+            color: #718096;
+        }
+        .tree-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .root-node {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: #fff;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+            margin-bottom: 32px;
+            position: relative;
+        }
+        .root-node::after {
+            content: '';
+            position: absolute;
+            bottom: -32px;
+            left: 50%;
+            width: 2px;
+            height: 32px;
+            background: #93c5fd;
+        }
+        .modules-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            width: 100%;
+            position: relative;
+        }
+        .modules-row::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: calc(12.5% + 10px);
+            right: calc(12.5% + 10px);
+            height: 2px;
+            background: #93c5fd;
+        }
+        .module-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            position: relative;
+            padding-top: 20px;
+        }
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background: #93c5fd;
+        }
+        .module-title {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            border-bottom: 2px solid #93c5fd;
+        }
+        .module-children {
+            padding: 12px;
+        }
+        .child-item {
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            background: #f8fafc;
+            border-left: 3px solid #93c5fd;
+            border-radius: 0 4px 4px 0;
+            font-size: 13px;
+            color: #334155;
+            transition: background 0.2s;
+        }
+        .child-item:hover {
+            background: #eff6ff;
+        }
+        .child-item:last-child { margin-bottom: 0; }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>健康画像系统 - 功能结构图</h1>
+        <p>版本 v1.1 | 2026-05-15 | 8 个一级模块 | 与《健康画像--功能全景_2026-05-15.eddx》同步</p>
+    </div>
+    <div class="tree-container">
+        <div class="root-node">健康画像系统</div>
+        <div class="modules-row">
+            <div class="module-card">
+                <div class="module-title">多元数据融合解析</div>
+                <div class="module-children">
+                    <div class="child-item">数据标准化与映射</div>
+                    <div class="child-item">智能匹配与融合</div>
+                    <div class="child-item">医学特征与事件解析</div>
+                </div>
+            </div>
+            <div class="module-card">
+                <div class="module-title">智能标签管理系统</div>
+                <div class="module-children">
+                    <div class="child-item">标签管理</div>
+                    <div class="child-item">指标管理</div>
+                </div>
+            </div>
+            <div class="module-card">
+                <div class="module-title">标签生成调度系统</div>
+                <div class="module-children">
+                    <div class="child-item">任务列表</div>
+                    <div class="child-item">任务详情</div>
+                    <div class="child-item">任务详情结果</div>
+                    <div class="child-item">任务生成调度</div>
+                </div>
+            </div>
+            <div class="module-card">
+                <div class="module-title">人群空间管理系统</div>
+                <div class="module-children">
+                    <div class="child-item">人群类型列表</div>
+                    <div class="child-item">个人数字空间</div>
+                </div>
+            </div>
+            <div class="module-card">
+                <div class="module-title">健康画像应用</div>
+                <div class="module-children">
+                    <div class="child-item">健康画像患者列表</div>
+                    <div class="child-item">健康画像</div>
+                    <div class="child-item">健康摘要</div>
+                    <div class="child-item">画像审核</div>
+                    <div class="child-item">健康画像监管分析</div>
+                </div>
+            </div>
+            <div class="module-card">
+                <div class="module-title">配置中心</div>
+                <div class="module-children">
+                    <div class="child-item">字典管理</div>
+                    <div class="child-item">脱敏配置</div>
+                    <div class="child-item">知识库管理</div>
+                    <div class="child-item">科普文章管理</div>
+                    <div class="child-item">诊断屏蔽管理</div>
+                </div>
+            </div>
+            <div class="module-card">
+                <div class="module-title">数据共享</div>
+                <div class="module-children">
+                    <div class="child-item">接口管理</div>
+                    <div class="child-item">对接规范文档</div>
+                    <div class="child-item">共享数据类型及形式管理</div>
+                    <div class="child-item">鉴权方式配置</div>
+                </div>
+            </div>
+            <div class="module-card">
+                <div class="module-title">健康画像移动端应用</div>
+                <div class="module-children">
+                    <div class="child-item">移动端健康画像</div>
+                    <div class="child-item">移动端人群健康空间</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">基于《健康画像系统设计架构梳理 v1.1》第 5 章 / EDDX 功能全景同步版</div>
+</body>
+</html>

@@ -1,0 +1,109 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>长宁健康画像项目_数据智能提取分析系统_原型_v0.1</title>
+  <style>
+    :root{
+      --blue:#1769aa;--blue2:#0f5f9a;--soft:#eaf4fb;--soft2:#f5f9fc;--line:#d9e4ee;
+      --text:#1f2937;--muted:#667085;--green:#16845b;--orange:#b76100;--red:#b42318;
+      --card:#fff;--bg:#eef4f8;--shadow:0 8px 20px rgba(16,24,40,.06);--r:8px;
+    }
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;font-size:14px;line-height:1.55}
+    .app{height:100vh;display:grid;grid-template-columns:212px minmax(0,1fr);grid-template-rows:56px 1fr;overflow:hidden}
+    .top{grid-column:1/3;background:linear-gradient(90deg,#0d5d94,#1976b7);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+    .brand{display:flex;gap:12px;align-items:center;font-weight:700;font-size:18px}.logo{width:30px;height:30px;border-radius:7px;background:#fff;color:var(--blue);display:grid;place-items:center;font-weight:800}.user{display:flex;gap:16px;align-items:center;color:#e8f3fb}.avatar{width:28px;height:28px;border-radius:50%;background:#dceefa;color:#115f96;display:grid;place-items:center;font-weight:700}
+    .side{background:#f8fbfd;border-right:1px solid var(--line);padding:16px 12px;overflow:auto}.group-title{font-size:12px;color:#7a8da1;margin:12px 8px 8px}.nav{display:flex;flex-direction:column;gap:4px}.nav a{color:#344054;text-decoration:none;padding:10px 10px;border-radius:7px;display:flex;gap:9px;align-items:center}.nav a.active,.nav a:hover{background:#e4f1fb;color:var(--blue);font-weight:700}.dot{width:8px;height:8px;border-radius:50%;background:#9fb8cc}.nav a.active .dot{background:var(--blue)}
+    .main{overflow:auto;padding:18px 22px 28px}.module-tabs{display:flex;gap:8px;margin-bottom:14px}.module-tabs a{padding:8px 12px;border:1px solid var(--line);border-radius:7px;background:#fff;color:#475467;text-decoration:none}.module-tabs a.active{background:var(--blue);border-color:var(--blue);color:#fff}
+    .page{display:none}.page.active{display:block}.page.focus-dim{opacity:.22;pointer-events:none}.page.focus-target{outline:3px solid rgba(23,105,170,.28);outline-offset:4px;border-radius:10px}
+    .head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:14px}.title h1{font-size:22px;margin:0 0 4px;color:#123a5a}.title p{margin:0;color:var(--muted)}.actions{display:flex;gap:8px}.btn{border:1px solid var(--line);background:#fff;color:#344054;border-radius:7px;padding:8px 12px;cursor:pointer}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn.ghost{background:#edf6fc;color:var(--blue);border-color:#cce5f7}
+    .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:14px}.metric{font-size:24px;font-weight:800;color:#123a5a;margin-top:6px}.hint{color:var(--muted);font-size:12px}.filter{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:14px;margin-bottom:14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:12px;align-items:end}.field label{display:block;color:#5d6b7c;margin-bottom:5px;font-size:12px}.field input,.field select{width:100%;height:34px;border:1px solid #cfd9e3;border-radius:6px;padding:0 9px;background:#fff;color:#344054}
+    .panel{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:14px}.panel-hd{padding:13px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.panel-hd h2{font-size:16px;margin:0;color:#123a5a}.panel-bd{padding:14px}.table{width:100%;border-collapse:collapse}.table th,.table td{border-bottom:1px solid var(--line);padding:10px 9px;text-align:left;vertical-align:middle}.table th{background:#f0f6fb;color:#164d78;font-weight:700}.table tr:hover td{background:#fbfdff}.op{color:var(--blue);font-weight:700;text-decoration:none;margin-right:10px}.muted{color:var(--muted)}
+    .status{display:inline-flex;align-items:center;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:700}.ok{background:#e8f7ef;color:var(--green)}.run{background:#e7f2ff;color:var(--blue)}.warn{background:#fff3df;color:var(--orange)}.bad{background:#fdecec;color:var(--red)}.gray{background:#f2f4f7;color:#667085}.tag{display:inline-block;border-radius:5px;padding:2px 6px;margin:2px;background:#eef6ff;color:#1769aa;font-size:12px}.tag.green{background:#e9f7ef;color:#16845b}.tag.orange{background:#fff3df;color:#9a5b00}.tag.red{background:#fdecec;color:#b42318}
+    .steps{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.step{border:1px solid var(--line);border-radius:8px;background:#fff;padding:12px;text-align:center;position:relative}.step strong{display:block;color:#123a5a}.step .num{width:26px;height:26px;border-radius:50%;margin:0 auto 7px;display:grid;place-items:center;background:#e9f3fb;color:#1769aa;font-weight:800}.step.done .num{background:#dff4e8;color:#16845b}.step.err .num{background:#fdecec;color:#b42318}.split{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}.text-box{background:#f8fbfd;border:1px solid var(--line);border-radius:8px;padding:12px;min-height:146px}.hl{background:#fff1b8;border-radius:4px;padding:0 3px}.empty{height:128px;border:1px dashed #b8c8d8;border-radius:8px;background:#f8fbfd;display:grid;place-items:center;color:#7a8da1}.pager{display:flex;justify-content:flex-end;gap:8px;align-items:center;padding:12px 14px;color:#667085}.mini-flow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.mini-flow div{background:#eef6fc;border:1px solid #cde2f3;color:#164d78;border-radius:8px;padding:10px;text-align:center;font-weight:700}.focus-banner{display:none;margin-bottom:12px;padding:10px 12px;background:#fff7e6;border:1px solid #f1ca7a;border-radius:8px;color:#8a5700}.focus-on .focus-banner{display:block}
+    @media(max-width:1180px){.cards{grid-template-columns:repeat(2,1fr)}.filter{grid-template-columns:repeat(2,1fr)}.steps,.mini-flow{grid-template-columns:repeat(3,1fr)}.split{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top"><div class="brand"><div class="logo">数</div><div>长宁健康画像数据智能提取系统</div></div><div class="user"><span>数据治理人员</span><span>数据截止 2026-05-21 09:30</span><div class="avatar">治</div></div></header>
+  <aside class="side">
+    <div class="group-title">处理主链路</div>
+    <nav class="nav" id="sideNav">
+      <a href="#tasks" data-page="tasks"><span class="dot"></span>数据接入任务</a>
+      <a href="#batch" data-page="batch"><span class="dot"></span>批次处理详情</a>
+      <a href="#structured" data-page="structured"><span class="dot"></span>结构化提取结果</a>
+      <a href="#text" data-page="text"><span class="dot"></span>文本提取结果</a>
+      <a href="#spoken" data-page="spoken"><span class="dot"></span>口语化提取结果</a>
+      <a href="#tags" data-page="tags"><span class="dot"></span>标签生成结果</a>
+    </nav>
+    <div class="group-title">状态说明</div>
+    <div class="card"><div class="hint">首版原型聚焦数据治理人员复核链路；图像识别、知识库管理和完整接口配置不进入 v0.1。</div></div>
+  </aside>
+  <main class="main">
+    <div class="focus-banner">当前处于 Focus Mode，仅目标页面保持可交互，用于后续 PRD iframe 切片。</div>
+    <div class="module-tabs" id="topTabs">
+      <a href="#tasks" data-page="tasks">任务</a><a href="#batch" data-page="batch">批次</a><a href="#structured" data-page="structured">结构化</a><a href="#text" data-page="text">文本</a><a href="#spoken" data-page="spoken">口语</a><a href="#tags" data-page="tags">标签</a>
+    </div>
+
+    <section class="page" id="page-tasks" data-page="tasks">
+      <div class="head"><div class="title"><h1>数据接入任务列表</h1><p>查看各类数据源的接入任务、最新批次和异常概况。</p></div><div class="actions"><button class="btn">导出任务</button><button class="btn primary">新建接入任务</button></div></div>
+      <div class="cards"><div class="card"><div class="hint">接入任务</div><div class="metric">18</div></div><div class="card"><div class="hint">今日处理批次</div><div class="metric">42</div></div><div class="card"><div class="hint">异常数据</div><div class="metric">316</div></div><div class="card"><div class="hint">可用标签</div><div class="metric">12,486</div></div></div>
+      <div class="filter"><div class="field"><label>数据来源</label><select><option>全部来源</option><option>全民健康信息平台</option><option>公卫系统</option></select></div><div class="field"><label>数据类型</label><select><option>全部类型</option><option>结构化</option><option>文本</option><option>口语化</option></select></div><div class="field"><label>任务状态</label><select><option>全部状态</option><option>处理中</option><option>完成</option><option>异常</option></select></div><div class="field"><label>任务名称</label><input value="" placeholder="请输入任务名称" /></div><button class="btn primary">查询</button></div>
+      <div class="panel"><div class="panel-hd"><h2>接入任务</h2><span class="hint">按最近执行时间倒序</span></div><table class="table"><thead><tr><th>任务名称</th><th>数据来源</th><th>数据类型</th><th>接入方式</th><th>最新批次</th><th>状态</th><th>成功量</th><th>异常量</th><th>最近执行</th><th>操作</th></tr></thead><tbody>
+        <tr><td>门急诊记录同步</td><td>全民健康信息平台</td><td>结构化</td><td>数据库视图</td><td>CN-B20260521-014</td><td><span class="status ok">完成</span></td><td>38,420</td><td>42</td><td>09:12</td><td><a class="op" href="#batch">查看批次</a><a class="op" href="#structured">看结果</a></td></tr>
+        <tr><td>出院小结文本解析</td><td>区域病案库</td><td>文本</td><td>备份库直连</td><td>CN-B20260521-013</td><td><span class="status run">处理中</span></td><td>8,604</td><td>19</td><td>09:04</td><td><a class="op" href="#batch">查看批次</a><a class="op" href="#text">看结果</a></td></tr>
+        <tr><td>健康咨询语音转写</td><td>热线平台</td><td>口语化</td><td>文件批量导入</td><td>CN-B20260521-012</td><td><span class="status warn">部分异常</span></td><td>2,310</td><td>87</td><td>08:46</td><td><a class="op" href="#batch">查看批次</a><a class="op" href="#spoken">看结果</a></td></tr>
+      </tbody></table><div class="pager">共 18 条  1 / 2  <button class="btn">下一页</button></div></div>
+    </section>
+
+    <section class="page" id="page-batch" data-page="batch">
+      <div class="head"><div class="title"><h1>批次处理详情</h1><p>批次 CN-B20260521-014，从接入到标签生成的全链路状态。</p></div><div class="actions"><button class="btn">重跑异常数据</button><button class="btn primary">查看标签结果</button></div></div>
+      <div class="panel"><div class="panel-hd"><h2>处理节点</h2><span class="status warn">存在 42 条异常</span></div><div class="panel-bd"><div class="steps"><div class="step done"><div class="num">1</div><strong>接入</strong><span class="hint">38,462 条</span></div><div class="step done"><div class="num">2</div><strong>提取</strong><span class="hint">38,420 条</span></div><div class="step err"><div class="num">3</div><strong>清洗</strong><span class="hint">42 条异常</span></div><div class="step done"><div class="num">4</div><strong>标准化</strong><span class="hint">12 类术语</span></div><div class="step done"><div class="num">5</div><strong>聚合</strong><span class="hint">31,205 位居民</span></div><div class="step done"><div class="num">6</div><strong>标签</strong><span class="hint">5,908 个标签</span></div></div></div></div>
+      <div class="panel"><div class="panel-hd"><h2>异常数据</h2><span class="hint">仅展示待处理异常</span></div><table class="table"><thead><tr><th>异常类型</th><th>来源记录</th><th>影响字段</th><th>原因</th><th>建议处理</th><th>状态</th></tr></thead><tbody><tr><td>缺失</td><td>OP-20260521-00872</td><td>身份证号</td><td>主索引缺失，无法关联居民</td><td>进入人工确认</td><td><span class="status warn">待确认</span></td></tr><tr><td>值域异常</td><td>LAB-20260521-00316</td><td>收缩压</td><td>指标值超出合理范围</td><td>标记异常，不参与标签生成</td><td><span class="status bad">已拦截</span></td></tr></tbody></table></div>
+    </section>
+
+    <section class="page" id="page-structured" data-page="structured">
+      <div class="head"><div class="title"><h1>结构化数据提取结果</h1><p>从数据库表、XML、JSON 等结构化数据中识别字段并映射标签。</p></div><div class="actions"><button class="btn">查看原始记录</button><button class="btn primary">进入标签映射</button></div></div>
+      <div class="filter"><div class="field"><label>标准字段</label><input placeholder="如 血压 / 诊断" /></div><div class="field"><label>映射状态</label><select><option>全部</option><option>已映射</option><option>待确认</option></select></div><div class="field"><label>异常标记</label><select><option>全部</option><option>无异常</option><option>有异常</option></select></div><div class="field"><label>居民标识</label><input placeholder="证件号后四位" /></div><button class="btn primary">筛选</button></div>
+      <div class="panel"><div class="panel-hd"><h2>字段提取明细</h2><span class="hint">脱敏展示居民标识</span></div><table class="table"><thead><tr><th>原始字段</th><th>标准字段</th><th>提取值</th><th>数据来源</th><th>关联居民</th><th>标签映射</th><th>异常</th></tr></thead><tbody><tr><td>sbp</td><td>收缩压</td><td>156 mmHg</td><td>体检指标表</td><td>310***4218</td><td><span class="tag red">高血压风险</span></td><td><span class="status ok">无</span></td></tr><tr><td>diagnosis_name</td><td>疾病诊断</td><td>2型糖尿病</td><td>门诊诊断表</td><td>310***9214</td><td><span class="tag orange">慢病管理对象</span></td><td><span class="status ok">无</span></td></tr><tr><td>id_no</td><td>身份证号</td><td>-</td><td>公卫随访表</td><td>未关联</td><td><span class="tag">待生成</span></td><td><span class="status warn">缺失</span></td></tr></tbody></table></div>
+    </section>
+
+    <section class="page" id="page-text" data-page="text">
+      <div class="head"><div class="title"><h1>文本数据提取结果</h1><p>展示病历文本中的实体、摘要和标签映射结果。</p></div><div class="actions"><button class="btn">切换文本</button><button class="btn primary">复核通过</button></div></div>
+      <div class="split"><div class="panel"><div class="panel-hd"><h2>原文片段</h2><span class="status run">已解析</span></div><div class="panel-bd"><div class="text-box">患者近两周反复头晕，伴胸口疼，既往有高血压病史。入院后查血压 158/96mmHg，空腹血糖 7.8mmol/L。给予降压治疗并建议低盐饮食。</div></div></div><div class="panel"><div class="panel-hd"><h2>文本摘要</h2></div><div class="panel-bd"><p>该居民存在高血压相关风险表现，并伴随血糖异常，需要进入慢病风险关注和生活方式干预评估。</p><span class="tag red">高血压风险</span><span class="tag orange">血糖异常</span><span class="tag green">饮食干预建议</span></div></div></div>
+      <div class="panel"><div class="panel-hd"><h2>实体抽取</h2></div><table class="table"><thead><tr><th>实体类型</th><th>抽取内容</th><th>原文位置</th><th>标准化结果</th><th>标签映射</th></tr></thead><tbody><tr><td>症状</td><td>头晕</td><td>第1句</td><td>眩晕</td><td><span class="tag">症状描述</span></td></tr><tr><td>疾病</td><td>高血压</td><td>第1句</td><td>高血压病</td><td><span class="tag red">高血压患者</span></td></tr><tr><td>检查指标</td><td>空腹血糖 7.8mmol/L</td><td>第2句</td><td>血糖偏高</td><td><span class="tag orange">高血糖风险</span></td></tr><tr><td>治疗措施</td><td>降压治疗</td><td>第3句</td><td>降压治疗</td><td><span class="tag green">治疗行为</span></td></tr></tbody></table></div>
+    </section>
+
+    <section class="page" id="page-spoken" data-page="spoken">
+      <div class="head"><div class="title"><h1>口语化数据提取结果</h1><p>将居民自然表达转换为规范医学术语和咨询标签。</p></div><div class="actions"><button class="btn">标记待确认</button><button class="btn primary">确认规范化</button></div></div>
+      <div class="panel"><div class="panel-hd"><h2>口语表达规范化</h2><span class="hint">语音识别模型本身不纳入 v0.1</span></div><table class="table"><thead><tr><th>原始表达</th><th>转写文本</th><th>规范医学术语</th><th>症状识别</th><th>咨询需求标签</th><th>状态</th></tr></thead><tbody><tr><td>最近老是头昏</td><td>最近老是头昏</td><td>眩晕</td><td><span class="tag">头晕</span></td><td><span class="tag orange">疾病咨询需求</span></td><td><span class="status ok">已确认</span></td></tr><tr><td>胸口有点疼</td><td>胸口有点疼</td><td>胸痛</td><td><span class="tag red">胸痛</span></td><td><span class="tag red">需重点关注</span></td><td><span class="status warn">待复核</span></td></tr><tr><td>最近尿多</td><td>最近尿多</td><td>多尿</td><td><span class="tag">多尿</span></td><td><span class="tag orange">糖代谢风险咨询</span></td><td><span class="status ok">已确认</span></td></tr></tbody></table></div>
+      <div class="panel"><div class="panel-hd"><h2>空数据状态</h2></div><div class="panel-bd"><div class="empty">暂无未处理口语化记录</div></div></div>
+    </section>
+
+    <section class="page" id="page-tags" data-page="tags">
+      <div class="head"><div class="title"><h1>标签生成结果</h1><p>集中查看标签来源、生成依据、可用状态和画像使用状态。</p></div><div class="actions"><button class="btn">导出标签</button><button class="btn primary">推送画像预览</button></div></div>
+      <div class="cards"><div class="card"><div class="hint">事实标签</div><div class="metric">8,246</div></div><div class="card"><div class="hint">风险标签</div><div class="metric">2,104</div></div><div class="card"><div class="hint">管理标签</div><div class="metric">2,136</div></div><div class="card"><div class="hint">待复核标签</div><div class="metric">168</div></div></div>
+      <div class="panel"><div class="panel-hd"><h2>标签明细</h2><span class="hint">标签可被健康画像模块引用</span></div><table class="table"><thead><tr><th>居民标识</th><th>标签分类</th><th>标签名称</th><th>标签类型</th><th>标签来源</th><th>生成依据</th><th>可用状态</th><th>画像使用</th></tr></thead><tbody><tr><td>310***4218</td><td>慢病风险</td><td>高血压风险</td><td>风险标签</td><td>体检指标+病历文本</td><td>收缩压 156mmHg；病史提及高血压</td><td><span class="status ok">可用</span></td><td><span class="status run">已引用</span></td></tr><tr><td>310***9214</td><td>重点管理</td><td>慢病管理对象</td><td>管理标签</td><td>门诊诊断</td><td>诊断为2型糖尿病</td><td><span class="status ok">可用</span></td><td><span class="status run">待同步</span></td></tr><tr><td>310***7780</td><td>咨询需求</td><td>胸痛咨询</td><td>事实标签</td><td>口语化数据</td><td>原始表达“胸口有点疼”</td><td><span class="status warn">待复核</span></td><td><span class="status gray">未引用</span></td></tr></tbody></table><div class="pager">共 12,486 条  1 / 625 <button class="btn">下一页</button></div></div>
+      <div class="panel"><div class="panel-hd"><h2>画像可用链路</h2></div><div class="panel-bd"><div class="mini-flow"><div>数据来源</div><div>提取结果</div><div>质量清洗</div><div>标准化</div><div>标签生成</div><div>画像引用</div></div></div></div>
+    </section>
+  </main>
+</div>
+<script>
+(function(){
+  const pages=[...document.querySelectorAll('.page')];
+  const links=[...document.querySelectorAll('[data-page]')].filter(el=>el.tagName==='A');
+  const params=new URLSearchParams(location.search);
+  const focus=params.get('focus');
+  function setPage(){
+    const name=(location.hash||'#tasks').replace('#','')||'tasks';
+    pages.forEach(p=>{const hit=p.dataset.page===name;p.classList.toggle('active',hit);p.classList.toggle('focus-target',!!focus&&p.dataset.page===focus);p.classList.toggle('focus-dim',!!focus&&p.dataset.page!==focus);});
+    links.forEach(a=>a.classList.toggle('active',a.dataset.page===name));
+    document.body.classList.toggle('focus-on',!!focus);
+  }
+  window.addEventListener('hashchange',setPage);setPage();
+})();
+</script>
+</body>
+</html>

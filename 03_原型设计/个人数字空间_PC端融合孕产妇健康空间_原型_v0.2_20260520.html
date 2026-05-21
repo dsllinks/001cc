@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人数字空间 PC端融合孕产妇健康空间 原型 v0.2</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Arial,sans-serif;background:#f3f5f8;color:#172033;font-size:14px}
+button,input{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.view{display:none}
+.view.active{display:block}
+.app{min-height:100vh}
+.topbar{height:40px;background:linear-gradient(90deg,#2043d2,#3363ff);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:600}
+.brand-mark{width:22px;height:22px;border-radius:6px;background:rgba(255,255,255,.18);display:grid;place-items:center}
+.top-actions{display:flex;align-items:center;gap:12px}
+.global-search{height:28px;width:300px;display:flex;border-radius:4px;overflow:hidden;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28)}
+.global-search input{flex:1;border:0;background:transparent;color:#fff;padding:0 10px;outline:none}
+.global-search input::placeholder{color:rgba(255,255,255,.72)}
+.search-btn,.icon-btn{border:0;background:transparent;color:inherit;width:32px;height:28px;display:grid;place-items:center}
+.theme-select{height:28px;border:1px solid rgba(255,255,255,.28);background:#315cff;color:#fff;border-radius:4px;padding:0 8px}
+.user-menu{height:28px;display:flex;align-items:center;gap:6px;padding:0 8px;border-radius:4px;background:rgba(255,255,255,.14)}
+.layout{display:grid;grid-template-columns:192px 1fr;min-height:calc(100vh - 40px)}
+.sidebar{background:#fff;border-right:1px solid #e5e7eb;padding:8px;position:relative}
+.nav-item{height:40px;width:176px;border:0;border-radius:4px;background:transparent;color:#334155;display:flex;align-items:center;gap:10px;padding:0 12px;margin-bottom:4px;text-align:left}
+.nav-item:hover{background:#e6ebff;color:#3361ff}
+.nav-item.active{background:#3361ff;color:#fff}
+.collapse-btn{position:absolute;left:8px;bottom:12px;width:176px;height:32px;border:1px solid #d8deea;background:#fff;border-radius:4px;color:#475569;display:flex;align-items:center;justify-content:center;gap:8px}
+.content{padding:16px 20px 28px;overflow:auto}
+.page{max-width:1440px;margin:0 auto}
+.home-head{height:72px;background:#fff;border-radius:8px;border:1px solid #e5e7eb;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 12px rgba(15,23,42,.04)}
+.person-line{display:flex;align-items:center;gap:14px;color:#334155}
+.avatar{width:36px;height:36px;border-radius:50%;background:#e6ebff;color:#3361ff;display:grid;place-items:center;font-weight:700}
+.cards{margin-top:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.stat-card,.people-card,.graph-card,.module-card,.ai-card{background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 4px 12px rgba(15,23,42,.04)}
+.stat-card{height:118px;padding:16px;position:relative}
+.stat-card h3{font-size:14px;color:#475569;font-weight:500;margin-bottom:12px}
+.stat-card b{font-size:30px;color:#0f172a}
+.stat-card span{display:block;margin-top:10px;color:#64748b;font-size:13px}
+.people-card{grid-column:span 1;padding:16px}
+.people-card h3,.graph-card h3,.module-card h2,.ai-card h2{font-size:16px;font-weight:600;color:#0f172a}
+.people-list{margin-top:12px;display:grid;gap:8px}
+.people-item{height:58px;border:1px solid #d8deea;background:#fff;border-radius:8px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;text-align:left;color:#334155}
+.people-item strong{display:block;font-size:14px;margin-bottom:3px;color:#0f172a}
+.people-item span span{font-size:12px;color:#64748b}
+.people-item.primary{border-color:#3361ff;background:#f5f7ff}
+.people-item.future{background:#f8fafc;color:#64748b}
+.graph-card{grid-column:span 3;min-height:360px;padding:16px}
+.graph-placeholder{height:304px;margin-top:12px;border:1px dashed #cbd5e1;border-radius:8px;background:#f8fafc;display:grid;place-items:center;color:#64748b}
+.page-head{background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 4px 12px rgba(15,23,42,.04);position:sticky;top:0;z-index:5}
+.head-row{height:48px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eef2f7}
+.crumb{display:flex;align-items:center;gap:8px;color:#64748b}
+.link-btn{border:0;background:transparent;color:#3361ff;display:flex;align-items:center;gap:4px}
+.title{font-size:18px;font-weight:600;color:#0f172a}
+.meta-row{min-height:44px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;color:#334155;border-bottom:1px solid #eef2f7}
+.meta-row .items{display:flex;gap:18px;flex-wrap:wrap}
+.progress-zone{padding:14px 16px 12px}
+.progress-top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px}
+.stage-pill{height:28px;border-radius:4px;background:#e6ebff;color:#3361ff;padding:0 10px;display:inline-flex;align-items:center;font-weight:600}
+.week-text{font-size:18px;font-weight:600;color:#0f172a}
+.due-text{color:#475569}
+.stage-switch{display:flex;align-items:center;gap:6px;color:#64748b;font-size:12px}
+.stage-switch button{height:28px;border:1px solid #d8deea;background:#fff;color:#475569;border-radius:4px;padding:0 10px}
+.stage-switch button.active{background:#3361ff;border-color:#3361ff;color:#fff}
+.track{height:8px;background:#edf2f7;border-radius:99px;position:relative;margin:0 6px}
+.track-fill{height:100%;background:#3361ff;border-radius:99px}
+.track-marker{position:absolute;top:-5px;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:9px solid #1a4fe6;transform:translateX(-6px)}
+.track-labels{display:flex;justify-content:space-between;margin-top:8px;color:#64748b;font-size:12px}
+.track-labels .active{color:#3361ff;font-weight:600}
+.maternal-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.module-card{min-height:420px;padding:16px;display:flex;flex-direction:column;min-width:0}
+.ai-card{grid-column:1/-1;padding:16px}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.count-badge{height:24px;border-radius:4px;background:#f1f5f9;color:#475569;padding:0 8px;display:inline-flex;align-items:center;font-size:12px}
+.tabs{display:flex;margin-bottom:12px}
+.tab{height:32px;border:1px solid #d8deea;background:#fff;color:#334155;padding:0 12px;margin-left:-1px}
+.tab:first-child{margin-left:0;border-radius:4px 0 0 4px}
+.tab:last-child{border-radius:0 4px 4px 0}
+.tab.active{background:#3361ff;border-color:#3361ff;color:#fff;z-index:1}
+.filter{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.input{height:32px;border:1px solid #d8deea;border-radius:4px;background:#fff;padding:0 10px;color:#172033;outline:none}
+.input.keyword{width:240px}
+.input.date{width:126px}
+.btn{height:32px;border:1px solid #3361ff;background:#3361ff;color:#fff;border-radius:4px;padding:0 12px;display:inline-flex;align-items:center;gap:6px}
+.btn.secondary{background:#fff;color:#334155;border-color:#d8deea}
+.scroll-area{overflow:auto;min-height:0;flex:1;padding-right:2px}
+.record-list,.risk-list,.checkup-list{display:grid;gap:10px}
+.record{border:1px solid #e5e7eb;border-radius:8px;background:#fff;padding:12px;cursor:pointer}
+.record:hover{border-color:#3361ff;background:#f8fbff}
+.record-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.record-title{font-weight:600;color:#0f172a}
+.tag{height:22px;border-radius:4px;background:#e6ebff;color:#3361ff;padding:0 7px;display:inline-flex;align-items:center;font-size:12px}
+.tag.in{background:#fff7ed;color:#c2410c}
+.record-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;color:#64748b;font-size:12px}
+.vital-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.vital-stat{border:1px solid #e5e7eb;border-radius:8px;padding:10px;background:#f8fafc}
+.vital-stat b{display:block;color:#0f172a;font-size:16px;margin-bottom:5px}
+.vital-stat span{font-size:12px;color:#64748b}
+.chart-wrap{border:1px solid #e5e7eb;border-radius:8px;padding:10px;background:#fff}
+.chart-wrap svg{width:100%;height:210px;display:block}
+.grid-line{stroke:#e5e7eb;stroke-dasharray:4 4}
+.axis-text{fill:#94a3b8;font-size:12px}
+.trend{fill:none;stroke:#3361ff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.area{fill:url(#areaGradient)}
+.point{fill:#fff;stroke:#3361ff;stroke-width:2;cursor:pointer}
+.ref-line{stroke:#f59e0b;stroke-width:1.4;stroke-dasharray:5 5}
+.chart-tip{margin-top:10px;color:#475569;font-size:13px;line-height:1.7}
+.risk-card{border:1px solid #e5e7eb;border-left-width:3px;border-radius:8px;padding:12px;background:#fff}
+.risk-card.high{border-left-color:#dc2626}
+.risk-card.mid{border-left-color:#f59e0b}
+.risk-card.low{border-left-color:#eab308}
+.risk-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.risk-name{font-weight:600;color:#0f172a}
+.risk-level{height:22px;border-radius:4px;padding:0 7px;display:inline-flex;align-items:center;font-size:12px}
+.risk-level.high{background:#fee2e2;color:#b91c1c}
+.risk-level.mid{background:#ffedd5;color:#c2410c}
+.risk-level.low{background:#fef9c3;color:#a16207}
+.risk-row{display:grid;grid-template-columns:68px 1fr;gap:8px;line-height:1.6;color:#475569;font-size:13px}
+.risk-row b{color:#64748b;font-weight:500}
+.timeline{position:relative;padding-left:18px}
+.timeline:before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:1px;background:#d8deea}
+.checkup{position:relative;border:1px solid #e5e7eb;border-radius:8px;background:#fff;padding:12px;margin-bottom:10px}
+.checkup:before{content:"";position:absolute;left:-18px;top:16px;width:9px;height:9px;border-radius:50%;background:#fff;border:2px solid #3361ff}
+.checkup-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.checkup-title{font-weight:600;color:#0f172a}
+.checkup-meta{font-size:12px;color:#64748b}
+.checkup-items{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}
+.checkup-item{background:#f8fafc;border-radius:6px;padding:8px}
+.checkup-item span{display:block;color:#64748b;font-size:12px;margin-bottom:4px}
+.checkup-item b{color:#0f172a;font-size:13px}
+.conclusion{color:#475569;font-size:13px;line-height:1.6}
+.ai-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:12px;margin-top:12px}
+.ai-block{border:1px solid #e5e7eb;border-radius:8px;background:#f8fafc;padding:12px;min-height:118px}
+.ai-block h3{font-size:14px;color:#0f172a;margin-bottom:8px}
+.ai-block p,.ai-block li{color:#475569;line-height:1.7;font-size:13px}
+.ai-block ul{padding-left:16px}
+.empty{height:120px;border:1px dashed #cbd5e1;border-radius:8px;background:#f8fafc;color:#64748b;display:grid;place-items:center}
+.modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.46);display:none;align-items:center;justify-content:center;z-index:20;padding:32px}
+.modal-mask.show{display:flex}
+.modal{width:80vw;max-width:1180px;max-height:82vh;background:#fff;border-radius:8px;box-shadow:0 20px 60px rgba(15,23,42,.28);display:flex;flex-direction:column;overflow:hidden}
+.modal.l3{z-index:30}
+.modal-head{height:52px;border-bottom:1px solid #e5e7eb;padding:0 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.modal-title-wrap{display:flex;align-items:center;gap:10px;min-width:0}
+.modal-head h3{font-size:16px;color:#0f172a;font-weight:600}
+.modal-close,.modal-back{border:1px solid #d8deea;background:#fff;color:#475569;border-radius:4px;height:32px;display:grid;place-items:center}
+.modal-close{width:32px}
+.modal-back{padding:0 10px;display:flex;align-items:center;gap:4px;color:#3361ff}
+.modal-body{padding:16px;overflow:auto;display:grid;gap:12px}
+.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.detail-field{border:1px solid #e5e7eb;border-radius:8px;background:#f8fafc;padding:10px}
+.detail-field b{display:block;color:#64748b;font-size:12px;margin-bottom:5px;font-weight:500}
+.detail-field span{color:#0f172a}
+.detail-section{border:1px solid #e5e7eb;border-radius:8px;background:#fff;padding:12px}
+.detail-section h4{font-size:14px;color:#0f172a;margin-bottom:10px}
+.module-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.module-action{border:1px solid #d8deea;background:#fff;border-radius:8px;min-height:72px;padding:10px;text-align:left;color:#334155}
+.module-action:hover{border-color:#3361ff;background:#f8fbff}
+.module-action b{display:block;color:#0f172a;margin-bottom:6px}
+.table{width:100%;border-collapse:collapse;font-size:13px}
+.table th,.table td{border-bottom:1px solid #eef2f7;padding:9px 8px;text-align:left}
+.table th{background:#f8fafc;color:#475569;font-weight:600}
+.table tr:last-child td{border-bottom:0}
+@media(max-width:1180px){
+  .layout{grid-template-columns:56px 1fr}
+  .sidebar{padding:8px 6px}
+  .nav-item,.collapse-btn{width:44px;padding:0;justify-content:center}
+  .nav-item span,.collapse-btn span{display:none}
+  .maternal-grid,.cards{grid-template-columns:1fr}
+  .graph-card,.people-card{grid-column:auto}
+  .ai-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 4v10l-7 4-7-4V7l7-4z" stroke="currentColor" stroke-width="2"/><path d="M9 12h6M12 9v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      <span>健康画像及健康空间系统</span>
+    </div>
+    <div class="top-actions">
+      <div class="global-search"><input placeholder="搜索居民、标签、健康空间"><button class="search-btn" aria-label="搜索"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+      <button class="icon-btn" aria-label="通知"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9z" stroke="currentColor" stroke-width="2"/><path d="M10 21h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      <select class="theme-select" aria-label="主题切换"><option>当前主题</option><option>纯白色主题</option></select>
+      <div class="user-menu">管理员<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+    </div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar">
+      <button class="nav-item active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 5h16M4 12h16M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>个人数字空间</span></button>
+      <button class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 100 18 9 9 0 000-18z" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>健康画像</span></button>
+      <button class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 5h14v14H5z" stroke="currentColor" stroke-width="2"/><path d="M9 9h6M9 13h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>标签管理</span></button>
+      <button class="collapse-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>收起侧栏</span></button>
+    </aside>
+    <main class="content">
+      <section class="view active" id="homeView">
+        <div class="page">
+          <section class="home-head">
+            <div class="person-line">
+              <div class="avatar">李</div>
+              <span>李某某</span><span>女性</span><span>28岁</span><span>证件号 340**********2338</span><span>合肥市蜀山区</span>
+            </div>
+            <span>数据截止：2026-05-11</span>
+          </section>
+          <section class="cards">
+            <div class="stat-card"><h3>健康标签</h3><b>103</b><span>含风险、用药、检查、模型标签</span></div>
+            <div class="stat-card"><h3>高风险标签</h3><b>4</b><span>本次孕产期间重点关注</span></div>
+            <div class="stat-card"><h3>就诊记录</h3><b>12</b><span>孕产相关诊疗与随访记录</span></div>
+            <div class="people-card">
+              <h3>人群健康空间</h3>
+              <div class="people-list">
+                <button class="people-item" onclick="openPlaceholder('通用人群健康空间')"><span><strong>通用人群</strong><span>诊疗记录、健康史、体征数据</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                <button class="people-item primary" onclick="openMaternalView()"><span><strong>孕产妇</strong><span>孕周进度、孕期指标、风险预警</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                <button class="people-item future" onclick="openPlaceholder('慢病健康空间')"><span><strong>慢病</strong><span>已归属，详情页后续开放</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+              </div>
+            </div>
+            <div class="graph-card">
+              <h3>个人健康标签图谱</h3>
+              <div class="graph-placeholder">健康标签图谱预览区</div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="maternalView">
+        <div class="page">
+          <header class="page-head">
+            <div class="head-row">
+              <div class="crumb"><button class="link-btn" onclick="openHomeView()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>返回个人数字空间</button><span>/</span><span>孕产妇健康空间</span></div>
+              <div class="title">孕产妇健康空间</div>
+            </div>
+            <div class="meta-row">
+              <div class="items"><span>姓名：李某某</span><span>性别：女性</span><span>年龄：28岁</span><span>证件号：340**********2338</span></div>
+              <span>数据截止：2026-05-11</span>
+            </div>
+            <div class="progress-zone">
+              <div class="progress-top">
+                <div><span class="stage-pill" id="stageText">孕中期</span> <span class="week-text" id="weekText">第 24+3 周</span></div>
+                <div class="due-text" id="dueText">预产期：2026-09-15（距今 127 天）</div>
+                <div class="stage-switch"><span>状态</span><button class="active" id="prenatalBtn" onclick="switchStage('prenatal')">产前</button><button id="postpartumBtn" onclick="switchStage('postpartum')">产后</button></div>
+              </div>
+              <div class="track"><div class="track-fill" id="trackFill" style="width:60%"></div><div class="track-marker" id="trackMarker" style="left:60%"></div></div>
+              <div class="track-labels" id="trackLabels"><span>孕早期</span><span class="active">孕中期</span><span>孕晚期</span><span>预产期</span></div>
+            </div>
+          </header>
+
+          <main class="maternal-grid">
+            <section class="module-card">
+              <div class="card-head"><h2>孕产健康视图</h2><span class="count-badge" id="recordCount">12条记录</span></div>
+              <div class="tabs" id="recordTabs">
+                <button class="tab active" data-record="mid">孕中期 5</button>
+                <button class="tab" data-record="all">全部 12</button>
+                <button class="tab" data-record="early">孕早期 3</button>
+                <button class="tab" data-record="late">孕晚期 2</button>
+                <button class="tab" data-record="delivery">分娩期 1</button>
+                <button class="tab" data-record="postpartum">产褥期 1</button>
+              </div>
+              <div class="filter"><input class="input keyword" id="recordKeyword" placeholder="诊断名称/机构/科室"><input class="input date" id="recordStart" value="2025-10-01"><input class="input date" id="recordEnd" value="2026-12-31"><button class="btn" onclick="renderRecords()">查询</button><button class="btn secondary" onclick="resetRecordFilter()">重置</button></div>
+              <div class="scroll-area"><div class="record-list" id="recordList"></div></div>
+            </section>
+
+            <section class="module-card">
+              <div class="card-head"><h2>孕期核心指标</h2><span class="count-badge">本次孕产期间</span></div>
+              <div class="tabs" id="vitalTabs"><button class="tab active" data-vital="bp">血压</button><button class="tab" data-vital="bs">血糖</button><button class="tab" data-vital="weight">体重</button></div>
+              <div class="vital-stats"><div class="vital-stat"><b id="totalCnt">15</b><span>检查次数</span></div><div class="vital-stat"><b id="abnCnt">3</b><span>异常次数</span></div><div class="vital-stat"><b id="lastValue">118/76</b><span>最近测量值</span></div><div class="vital-stat"><b id="lastDate">2026-05-08</b><span>最近日期</span></div></div>
+              <div class="chart-wrap">
+                <svg viewBox="0 0 520 220" preserveAspectRatio="none">
+                  <defs><linearGradient id="areaGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#3361ff" stop-opacity=".16"/><stop offset="100%" stop-color="#3361ff" stop-opacity="0"/></linearGradient></defs>
+                  <line class="grid-line" x1="42" y1="38" x2="498" y2="38"/><line class="grid-line" x1="42" y1="82" x2="498" y2="82"/><line class="grid-line" x1="42" y1="126" x2="498" y2="126"/><line class="grid-line" x1="42" y1="170" x2="498" y2="170"/>
+                  <line class="ref-line" id="refUpper" x1="42" y1="64" x2="498" y2="44" style="display:none"/><line class="ref-line" id="refLower" x1="42" y1="144" x2="498" y2="124" style="display:none"/>
+                  <path class="area" id="trendArea" d=""></path><polyline class="trend" id="trendLine" points=""></polyline><g id="trendPoints"></g>
+                  <text class="axis-text" x="42" y="205">孕12周</text><text class="axis-text" x="132" y="205">孕16周</text><text class="axis-text" x="224" y="205">孕20周</text><text class="axis-text" x="316" y="205">孕24周</text><text class="axis-text" x="408" y="205">孕28周</text>
+                </svg>
+                <p class="chart-tip" id="chartTip"></p>
+              </div>
+            </section>
+
+            <section class="module-card">
+              <div class="card-head"><h2>孕期风险预警</h2><span class="count-badge">高 / 中 / 低</span></div>
+              <div class="scroll-area"><div class="risk-list" id="riskList"></div></div>
+            </section>
+
+            <section class="module-card">
+              <div class="card-head"><h2>产检记录</h2><span class="count-badge">时间线</span></div>
+              <div class="scroll-area"><div class="timeline" id="checkupList"></div></div>
+            </section>
+
+            <section class="ai-card">
+              <div class="card-head"><h2>孕期AI摘要与个性化建议</h2><span class="count-badge">AI生成</span></div>
+              <div class="ai-grid" id="aiGrid"></div>
+            </section>
+          </main>
+        </div>
+      </section>
+
+      <section class="view" id="placeholderView">
+        <div class="page">
+          <section class="home-head"><button class="link-btn" onclick="openHomeView()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>返回个人数字空间</button><strong id="placeholderTitle">专项人群健康空间</strong><span>详情页后续开放</span></section>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="modal-mask" id="modalMask">
+  <section class="modal">
+    <header class="modal-head"><div class="modal-title-wrap"><h3 id="modalTitle">详情</h3></div><button class="modal-close" onclick="closeModal()" aria-label="关闭"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></header>
+    <div class="modal-body" id="modalBody"></div>
+  </section>
+</div>
+
+<div class="modal-mask" id="modalMaskL3">
+  <section class="modal l3">
+    <header class="modal-head"><div class="modal-title-wrap"><button class="modal-back" onclick="closeModalL3()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>返回</button><h3 id="modalTitleL3">明细详情</h3></div><button class="modal-close" onclick="closeAllModals()" aria-label="关闭"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></header>
+    <div class="modal-body" id="modalBodyL3"></div>
+  </section>
+</div>
+
+<script>
+const records=[
+  {stage:"early",title:"早孕建档",kind:"门诊",org:"合肥市妇幼保健院",dept:"产科门诊",time:"2025-11-10",week:"7+2",checks:["早孕超声"],labs:["血HCG","孕酮"],prescriptions:["叶酸片"],surgeries:[]},
+  {stage:"early",title:"NT 早孕筛查",kind:"门诊",org:"合肥市妇幼保健院",dept:"产科门诊",time:"2025-12-15",week:"12+5",checks:["NT 超声"],labs:["PAPP-A","游离β-HCG"],prescriptions:[],surgeries:[]},
+  {stage:"early",title:"早孕反应随访",kind:"门诊",org:"合肥市蜀山区社区卫生服务中心",dept:"全科门诊",time:"2025-12-28",week:"14+2",checks:[],labs:["尿常规"],prescriptions:["维生素B6"],surgeries:[]},
+  {stage:"mid",title:"中孕系统超声",kind:"门诊",org:"合肥市妇幼保健院",dept:"超声科",time:"2026-02-12",week:"20+3",checks:["系统超声"],labs:[],prescriptions:[],surgeries:[]},
+  {stage:"mid",title:"产前检查 第6次",kind:"门诊",org:"合肥市妇幼保健院",dept:"产科门诊",time:"2026-03-05",week:"23+1",checks:[],labs:["血常规","尿常规"],prescriptions:["钙剂"],surgeries:[]},
+  {stage:"mid",title:"OGTT 糖耐量检测",kind:"门诊",org:"合肥市妇幼保健院",dept:"产科门诊",time:"2026-03-22",week:"25+4",checks:[],labs:["75g 葡萄糖耐量"],prescriptions:[],surgeries:[]},
+  {stage:"mid",title:"妊娠期糖尿病随访",kind:"门诊",org:"合肥市妇幼保健院",dept:"产科门诊",time:"2026-04-08",week:"28+1",checks:[],labs:["空腹血糖","餐后2h血糖"],prescriptions:["门冬胰岛素"],surgeries:[]},
+  {stage:"mid",title:"产前检查 第9次",kind:"门诊",org:"合肥市妇幼保健院",dept:"产科门诊",time:"2026-05-08",week:"33+0",checks:["胎心监护"],labs:["尿常规"],prescriptions:[],surgeries:[]},
+  {stage:"late",title:"晚孕评估",kind:"门诊",org:"合肥市妇幼保健院",dept:"产科门诊",time:"2026-06-20",week:"38+0",checks:["胎心监护","晚孕超声"],labs:["凝血四项"],prescriptions:[],surgeries:[]},
+  {stage:"late",title:"分娩前住院评估",kind:"门诊",org:"合肥市妇幼保健院",dept:"产科病区",time:"2026-07-02",week:"39+5",checks:["胎心监护"],labs:["血常规","凝血四项"],prescriptions:[],surgeries:[]},
+  {stage:"delivery",title:"足月顺产",kind:"住院",org:"合肥市妇幼保健院",dept:"产科病区",time:"2026-07-05",week:"40+1",checks:["胎心监护"],labs:["血常规","凝血四项"],prescriptions:["缩宫素"],surgeries:["会阴侧切术"]},
+  {stage:"postpartum",title:"产后42天复查",kind:"门诊",org:"合肥市妇幼保健院",dept:"产后门诊",time:"2026-08-16",week:"产后42天",checks:["盆底超声"],labs:["血常规","尿常规"],prescriptions:[],surgeries:[]}
+];
+const vitalData={
+  prenatal:{
+    bp:{stats:[15,3,"118/76","2026-05-08"],points:"60,148 145,140 230,128 315,120 400,112 482,108",label:"血压 118/76 mmHg",ref:false,tip:"孕中期血压控制良好，最近一次血压低于 140/90 mmHg。"},
+    bs:{stats:[6,2,"5.4","2026-04-08"],points:"60,130 145,118 230,98 315,90 400,108 482,118",label:"空腹血糖 5.4 mmol/L",ref:false,tip:"OGTT 提示妊娠期糖尿病风险，最近一次空腹血糖处于管理目标附近。"},
+    weight:{stats:[15,0,"63.5","2026-05-08"],points:"60,168 145,158 230,142 315,128 400,112 482,98",label:"体重 63.5 kg",ref:true,tip:"孕前 BMI 22.1，推荐总增重 11.5-16 kg。当前累计增重 9.5 kg，处于推荐区间内。"}
+  },
+  postpartum:{
+    bp:{stats:[6,0,"112/72","2026-08-16"],points:"60,118 150,116 240,114 330,112 420,110 482,108",label:"血压 112/72 mmHg",ref:false,tip:"产后血压恢复平稳，继续常规复查。"},
+    bs:{stats:[3,0,"5.0","2026-08-16"],points:"60,120 160,116 260,114 380,112 482,110",label:"空腹血糖 5.0 mmol/L",ref:false,tip:"产后糖代谢恢复正常，建议按计划复查 OGTT。"},
+    weight:{stats:[6,0,"57.8","2026-08-16"],points:"60,42 145,72 230,98 315,118 400,132 482,142",label:"体重 57.8 kg",ref:false,tip:"产后体重逐步回落，建议结合母乳喂养与适度运动。"}
+  }
+};
+const risks={
+  prenatal:[
+    {name:"妊娠期糖尿病(GDM)",level:"high",basis:"OGTT 空腹 5.4 / 1h 11.2 / 2h 9.1 mmol/L，达到 GDM 诊断标准。",advice:"饮食控制并监测血糖；必要时胰岛素治疗；每 2 周产科与营养科联合随访。",monitor:"空腹及三餐后 2 小时血糖、HbA1c"},
+    {name:"贫血风险",level:"mid",basis:"血红蛋白 108 g/L，处于轻度贫血临界值。",advice:"补充铁剂，增加红肉与深色蔬菜摄入。",monitor:"每月复查血常规"},
+    {name:"胎儿生长发育",level:"low",basis:"系统超声提示胎儿径线在孕周对应区间内，未见结构异常。",advice:"按计划完成中晚孕超声随访。",monitor:"24/32/36 周超声"}
+  ],
+  postpartum:[
+    {name:"产后糖耐量复查",level:"high",basis:"存在 GDM 病史，产后 6-12 周需复查 OGTT。",advice:"预约产后 OGTT 检查；保持饮食与运动管理。",monitor:"OGTT、空腹血糖"},
+    {name:"产后抑郁筛查",level:"mid",basis:"EPDS 量表 9 分，处于轻度风险区间。",advice:"家属支持并心理科门诊随访。",monitor:"产后 6 周、3 月 EPDS 量表"},
+    {name:"会阴伤口愈合",level:"low",basis:"产后 42 天复查：会阴侧切伤口甲级愈合。",advice:"维持局部清洁，异常疼痛及时就诊。",monitor:"伤口疼痛、异常分泌物"}
+  ]
+};
+const checkups=[
+  {time:"2025-11-10",week:"7+2",org:"合肥市妇幼保健院",title:"早孕建档",items:[["血压","112/70"],["体重","54.0 kg"],["宫高","-"],["胎心","-"]],conclusion:"早孕建档，孕周与末次月经相符，建议继续补充叶酸。"},
+  {time:"2025-12-15",week:"12+5",org:"合肥市妇幼保健院",title:"NT 早孕筛查",items:[["血压","114/72"],["体重","55.2 kg"],["NT","1.4 mm"],["胎心","158 bpm"]],conclusion:"NT 值正常，早孕筛查低风险。"},
+  {time:"2026-02-12",week:"20+3",org:"合肥市妇幼保健院",title:"中孕系统超声",items:[["血压","116/74"],["体重","58.8 kg"],["宫高","19 cm"],["胎心","144 bpm"]],conclusion:"系统超声未见结构异常，胎儿生长与孕周相符。"},
+  {time:"2026-03-22",week:"25+4",org:"合肥市妇幼保健院",title:"OGTT 糖耐量检测",items:[["空腹","5.4"],["1 小时","11.2"],["2 小时","9.1"],["体重","61.4 kg"]],conclusion:"诊断妊娠期糖尿病，先行饮食运动干预。"},
+  {time:"2026-05-08",week:"33+0",org:"合肥市妇幼保健院",title:"产前检查 第9次",items:[["血压","118/76"],["体重","63.5 kg"],["宫高","30 cm"],["胎心","142 bpm"]],conclusion:"母婴情况良好，血糖控制达标，下次胎心监护 +2 周复查。"}
+];
+const aiSummary={
+  prenatal:[
+    ["当前孕产状态","当前处于孕中期，孕周 24+3 周。近 3 次产检记录完整，胎儿生长与孕周基本匹配。"],
+    ["风险提醒",["重点关注 GDM 血糖波动","轻度贫血需复查血常规","按计划完成晚孕超声"]],
+    ["随访建议",["2 周内复查空腹及餐后血糖","下次产检补充尿常规与胎心监护","营养科随访饮食执行情况"]],
+    ["个性化建议",["控制精制糖摄入，保持少量多餐","每日中等强度步行 30 分钟","出现头晕、阴道流血等异常及时就诊"]]
+  ],
+  postpartum:[
+    ["当前产后状态","当前处于产褥期第 42 天，复查记录已完成，血压、血糖和伤口恢复整体平稳。"],
+    ["风险提醒",["GDM 病史需复查 OGTT","关注产后情绪变化","继续观察会阴伤口恢复"]],
+    ["随访建议",["预约产后 6-12 周 OGTT","3 个月复查 EPDS 量表","盆底康复按医嘱执行"]],
+    ["个性化建议",["保持规律睡眠与家属支持","逐步恢复轻中度运动","异常发热、疼痛或出血及时就诊"]]
+  ]
+};
+let currentStage="prenatal";
+let activeRecord="mid";
+let activeVital="bp";
+function showView(id){document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));document.getElementById(id).classList.add("active");window.scrollTo({top:0,behavior:"smooth"});}
+function openHomeView(){showView("homeView")}
+function openMaternalView(){showView("maternalView");renderAll()}
+function openPlaceholder(name){document.getElementById("placeholderTitle").textContent=name;showView("placeholderView")}
+function switchStage(stage){
+  currentStage=stage;
+  document.getElementById("prenatalBtn").classList.toggle("active",stage==="prenatal");
+  document.getElementById("postpartumBtn").classList.toggle("active",stage==="postpartum");
+  if(stage==="prenatal"){
+    Object.assign(document.getElementById("trackFill").style,{width:"60%"});Object.assign(document.getElementById("trackMarker").style,{left:"60%"});
+    document.getElementById("stageText").textContent="孕中期";document.getElementById("weekText").textContent="第 24+3 周";document.getElementById("dueText").textContent="预产期：2026-09-15（距今 127 天）";
+    document.getElementById("trackLabels").innerHTML="<span>孕早期</span><span class='active'>孕中期</span><span>孕晚期</span><span>预产期</span>";
+    activeRecord="mid";
+  }else{
+    Object.assign(document.getElementById("trackFill").style,{width:"100%"});Object.assign(document.getElementById("trackMarker").style,{left:"100%"});
+    document.getElementById("stageText").textContent="产褥期";document.getElementById("weekText").textContent="分娩日期 2026-07-05";document.getElementById("dueText").textContent="产后第42天，明日 0:00 起关闭入口";
+    document.getElementById("trackLabels").innerHTML="<span>分娩</span><span>产后14天</span><span>产后28天</span><span class='active'>产后42天</span>";
+    activeRecord="postpartum";
+  }
+  syncTabs();renderAll();
+}
+function syncTabs(){
+  document.querySelectorAll("#recordTabs .tab").forEach(btn=>btn.classList.toggle("active",btn.dataset.record===activeRecord));
+  document.querySelectorAll("#vitalTabs .tab").forEach(btn=>btn.classList.toggle("active",btn.dataset.vital===activeVital));
+}
+function renderRecords(){
+  const keyword=document.getElementById("recordKeyword").value.trim();
+  const start=document.getElementById("recordStart").value;
+  const end=document.getElementById("recordEnd").value;
+  const rows=records.filter(r=>(activeRecord==="all"||r.stage===activeRecord)&&(!keyword||[r.title,r.org,r.dept,r.kind].some(v=>v.includes(keyword)))&&(!start||r.time>=start)&&(!end||r.time<=end));
+  document.getElementById("recordCount").textContent=rows.length+"条记录";
+  document.getElementById("recordList").innerHTML=rows.length?rows.map(r=>`<article class="record" onclick="openRecord(${records.indexOf(r)})"><div class="record-top"><div class="record-title">${r.title}</div><span class="tag ${r.kind==="住院"?"in":""}">${r.kind} | ${r.week}</span></div><div class="record-meta"><span>机构：${r.org}</span><span>科室：${r.dept}</span><span>时间：${r.time}</span><span>点击查看详情</span></div></article>`).join(""):`<div class="empty">暂无符合条件的孕产记录</div>`;
+}
+function resetRecordFilter(){document.getElementById("recordKeyword").value="";document.getElementById("recordStart").value="2025-10-01";document.getElementById("recordEnd").value="2026-12-31";renderRecords()}
+function renderVital(){
+  const d=vitalData[currentStage][activeVital];
+  ["totalCnt","abnCnt","lastValue","lastDate"].forEach((id,i)=>document.getElementById(id).textContent=d.stats[i]);
+  document.getElementById("trendLine").setAttribute("points",d.points);
+  const pts=d.points.split(" ").map(p=>p.split(",").map(Number));
+  const area=`M${pts[0][0]},170 L${d.points} L${pts[pts.length-1][0]},170 Z`;
+  document.getElementById("trendArea").setAttribute("d",area);
+  document.getElementById("trendPoints").innerHTML=pts.map(([x,y])=>`<circle class="point" cx="${x}" cy="${y}" r="5" onclick="openSource('${d.label}')"/>`).join("");
+  document.getElementById("refUpper").style.display=d.ref?"block":"none";
+  document.getElementById("refLower").style.display=d.ref?"block":"none";
+  document.getElementById("chartTip").textContent=d.tip;
+}
+function renderRisks(){
+  const rank={high:0,mid:1,low:2};
+  const rows=[...risks[currentStage]].sort((a,b)=>rank[a.level]-rank[b.level]);
+  const text={high:"高风险",mid:"中风险",low:"低风险"};
+  document.getElementById("riskList").innerHTML=rows.length?rows.map(r=>`<article class="risk-card ${r.level}"><div class="risk-head"><span class="risk-name">${r.name}</span><span class="risk-level ${r.level}">${text[r.level]}</span></div><div class="risk-row"><b>评估依据</b><span>${r.basis}</span></div><div class="risk-row"><b>干预建议</b><span>${r.advice}</span></div><div class="risk-row"><b>监测指标</b><span>${r.monitor}</span></div></article>`).join(""):`<div class="empty">暂无风险预警</div>`;
+}
+function renderCheckups(){
+  document.getElementById("checkupList").innerHTML=checkups.map(c=>`<article class="checkup"><div class="checkup-head"><span class="checkup-title">${c.title}</span><span class="checkup-meta">${c.time} | 孕${c.week} | ${c.org}</span></div><div class="checkup-items">${c.items.map(([k,v])=>`<div class="checkup-item"><span>${k}</span><b>${v}</b></div>`).join("")}</div><p class="conclusion">${c.conclusion}</p></article>`).join("");
+}
+function renderAi(){
+  document.getElementById("aiGrid").innerHTML=aiSummary[currentStage].map(([title,body])=>`<article class="ai-block"><h3>${title}</h3>${Array.isArray(body)?`<ul>${body.map(i=>`<li>${i}</li>`).join("")}</ul>`:`<p>${body}</p>`}</article>`).join("");
+}
+function renderAll(){syncTabs();renderRecords();renderVital();renderRisks();renderCheckups();renderAi()}
+function openRecord(index){
+  const r=records[index];
+  const rows=[["记录名称",r.title],["就诊类型",r.kind],["就诊机构",r.org],["就诊科室",r.dept],["就诊时间",r.time],["孕周",r.week]];
+  const modules=[["相关检查",r.checks,"检查详情"],["相关检验",r.labs,"检验详情"],["门诊处方",r.prescriptions,"处方详情"],["相关手术",r.surgeries,"手术详情"]].filter(m=>m[1].length);
+  openModal(r.kind==="住院"?"分娩住院详情":"产检/诊疗详情",rows,modules);
+}
+function openSource(label){openModal("孕期指标溯源",[["指标值",label],["采集时间","2026-05-08 09:30"],["来源系统","区域妇幼保健信息系统 / 公卫系统"],["采集机构","合肥市妇幼保健院"],["说明","溯源字段与 PC 端既有体征数据溯源保持一致"]],[])}
+function openModal(title,rows,modules){
+  document.getElementById("modalTitle").textContent=title;
+  const detail=`<section class="detail-section"><h4>基础信息</h4><div class="detail-grid">${rows.map(([k,v])=>`<div class="detail-field"><b>${k}</b><span>${v}</span></div>`).join("")}</div></section>`;
+  const actionHtml=modules.length?`<section class="detail-section"><h4>三级明细</h4><div class="module-actions">${modules.map(([name,items,detailTitle])=>items.map(item=>`<button class="module-action" onclick="openModalL3('${detailTitle}','${item}')"><b>${name}</b><span>${item}</span></button>`).join("")).join("")}</div></section>`:"";
+  document.getElementById("modalBody").innerHTML=detail+actionHtml;
+  document.getElementById("modalMask").classList.add("show");
+}
+function closeModal(){document.getElementById("modalMask").classList.remove("show")}
+function closeModalL3(){document.getElementById("modalMaskL3").classList.remove("show")}
+function closeAllModals(){closeModalL3();closeModal()}
+function openModalL3(title,name){
+  document.getElementById("modalTitleL3").textContent=title;
+  let html="";
+  if(title.includes("检验")){
+    html=`<section class="detail-section"><h4>${name}</h4><table class="table"><thead><tr><th>项目</th><th>结果</th><th>参考范围</th><th>单位</th><th>标记</th></tr></thead><tbody><tr><td>空腹血糖</td><td>5.4</td><td>3.9-5.1</td><td>mmol/L</td><td>偏高</td></tr><tr><td>餐后2h血糖</td><td>7.2</td><td>&lt;8.5</td><td>mmol/L</td><td>正常</td></tr><tr><td>血红蛋白</td><td>108</td><td>110-150</td><td>g/L</td><td>偏低</td></tr></tbody></table></section>`;
+  }else if(title.includes("处方")){
+    html=`<section class="detail-section"><h4>${name}</h4><div class="detail-grid"><div class="detail-field"><b>规格</b><span>0.4mg x 31片</span></div><div class="detail-field"><b>用法</b><span>口服</span></div><div class="detail-field"><b>频次</b><span>每日一次</span></div><div class="detail-field"><b>数量</b><span>1盒</span></div><div class="detail-field"><b>医嘱</b><span>按产科医嘱持续补充</span></div></div></section>`;
+  }else if(title.includes("手术")){
+    html=`<section class="detail-section"><h4>${name}</h4><div class="detail-grid"><div class="detail-field"><b>手术时间</b><span>2026-07-05 14:20</span></div><div class="detail-field"><b>手术级别</b><span>一级</span></div><div class="detail-field"><b>麻醉方式</b><span>局部麻醉</span></div><div class="detail-field"><b>切口愈合</b><span>甲级愈合</span></div></div></section>`;
+  }else{
+    html=`<section class="detail-section"><h4>${name}</h4><div class="detail-grid"><div class="detail-field"><b>检查时间</b><span>2026-05-08 10:30</span></div><div class="detail-field"><b>检查机构</b><span>合肥市妇幼保健院</span></div><div class="detail-field"><b>检查科室</b><span>超声科</span></div><div class="detail-field"><b>结果描述</b><span>胎儿生长发育与孕周相符，未见明显结构异常。</span></div><div class="detail-field"><b>建议</b><span>按计划复查。</span></div></div></section>`;
+  }
+  document.getElementById("modalBodyL3").innerHTML=html;
+  document.getElementById("modalMaskL3").classList.add("show");
+}
+document.querySelectorAll("#recordTabs .tab").forEach(btn=>btn.addEventListener("click",()=>{activeRecord=btn.dataset.record;syncTabs();renderRecords()}));
+document.querySelectorAll("#vitalTabs .tab").forEach(btn=>btn.addEventListener("click",()=>{activeVital=btn.dataset.vital;syncTabs();renderVital()}));
+document.getElementById("modalMask").addEventListener("click",e=>{if(e.target.id==="modalMask")closeModal()});
+document.getElementById("modalMaskL3").addEventListener("click",e=>{if(e.target.id==="modalMaskL3")closeModalL3()});
+renderAll();
+</script>
+</body>
+</html>
